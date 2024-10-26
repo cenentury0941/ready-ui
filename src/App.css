@@ -1,38 +1,146 @@
-.App {
+/* Base styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+header {
+  background: linear-gradient(135deg, #3b82f6, #9333ea);
+  color: white;
+  padding: 30px;
   text-align: center;
+  font-size: 2.5em;
+  font-weight: 400; /* Increased font weight */
+  letter-spacing: 1px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added shadow */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Recommended books container */
+.recommended-books {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Book card */
+.book-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: auto;
+  position: relative; /* Added for positioning the button */
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.book-thumbnail {
+  width: 100%;
+  height: 350px; /* Fixed height for all images */
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 15px;
+}
+
+.book-info {
+  padding: 20px;
+}
+
+.book-title {
+  font-size: 1.5em;
+  margin: 10px 0;
+  color: #222;
+  font-weight: 500;
+}
+
+.book-author {
+  color: #888;
+  font-size: 1em;
+  margin-bottom: 15px;
+}
+
+/* Inspiration notes */
+.inspiration-notes {
+  background-color: #f7f7f7;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 15px;
+  height: 250px; /* Fixed height for 3-4 lines */
+  overflow: hidden;
+}
+
+.note-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+}
+
+.note-text {
+  font-style: italic;
+  font-size: 1em;
+  text-align: center;
+  max-width: 90%;
+}
+
+.note-contributor {
+  font-weight: bold;
+  color: #444;
+  font-size: 1em;
+}
+
+/* Add to Cart button */
+.add-to-cart-button {
+  display: none;
+  background-color: #3b82f6;
   color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.App-link {
-  color: #61dafb;
+.book-card:hover .add-to-cart-button,
+.book-card:active .add-to-cart-button {
+  display: block;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.add-to-cart-button:hover {
+  background-color: #2563eb;
+}
+
+/* Footer */
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
 }
