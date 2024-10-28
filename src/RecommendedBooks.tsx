@@ -55,18 +55,38 @@ const RecommendedBooks: React.FC = () => {
           <div className="relative max-w-md mx-auto">
             <Input
               classNames={{
-                base: "max-w-full h-10",
+                base: "max-w-full h-10 ul-none",
                 mainWrapper: "h-full",
-                input: "text-small",
-                inputWrapper: "h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
+                // input: "text-small",
+                // inputWrapper: "h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
+                input: [
+                  "bg-transparent",
+                  "text-black/90 dark:text-white/90",
+                  "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+                ],
+                inputWrapper: [
+                  "h-full",
+                  "shadow-sm",
+                  "bg-default-200/50",
+                  "dark:bg-default/60",
+                  "backdrop-blur-xl",
+                  "backdrop-saturate-200",
+                  "hover:bg-default-200/70",
+                  "dark:hover:bg-default/70",
+                  "group-data-[focus=true]:bg-default-200/50",
+                  "dark:group-data-[focus=true]:bg-default/60",
+                  "!cursor-text",
+                ],
+      
               }}
+              
               placeholder="Search books by title or author"
               size="sm"
               startContent={<SearchIcon size={18} />}
-              type="search"
               value={searchTerm}
               onValueChange={handleSearchChange}
               onKeyDown={handleKeyDown}
+              isClearable
             />
             {searchTerm && (
               <ul ref={suggestionsRef} className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
