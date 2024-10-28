@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
-import { NextUIProvider, Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, Switch, Avatar, Dropdown, DropdownMenu, DropdownItem, DropdownTrigger, DropdownSection } from "@nextui-org/react";
+import { NextUIProvider, Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, Switch, Avatar, Dropdown, DropdownMenu, DropdownItem, DropdownTrigger } from "@nextui-org/react";
 import { CartProvider, useCart } from './context/CartContext';
 import CartOverlay from './CartOverlay';
 import RecommendedBooks from './RecommendedBooks';
@@ -31,7 +31,7 @@ function AppContent() {
 
   const handleLogin = (username: string, password: string) => {
     // In a real application, you would validate credentials with a backend service
-    if (username === 'admin' && password === 'admin') {
+    if (username === 'admin' && password === 'password') {
       localStorage.setItem('token', 'dummy-jwt-token');
       setIsAuthenticated(true);
       navigate('/dashboard');
@@ -71,7 +71,7 @@ function AppContent() {
                 isIconOnly
                 color="primary"
                 variant="light"
-                onPress={toggleCart}
+                onClick={toggleCart}
                 aria-label="Cart"
               >
                 <CartIcon />
@@ -80,21 +80,23 @@ function AppContent() {
             </NavbarItem>
             <NavbarItem>
               <Dropdown>
-              <DropdownTrigger>
-                <Avatar
+                <DropdownTrigger>
+                  <Avatar
                     isBordered
                     as="button"
-                    radius='sm'
+                    radius="sm"
                     size="sm"
                     src={sharanGurunathan}
                   />
-              </DropdownTrigger>
-                <DropdownMenu aria-label="User menu actions" color="primary">
-                  <DropdownSection title="Sharan Gurunathan"> 
-                  <DropdownItem key="logout" color="danger" onPress={handleLogout}>
+                </DropdownTrigger>
+                <DropdownMenu aria-label="User menu actions">
+                  <DropdownItem key="profile" className="h-14 gap-2">
+                    <p className="font-bold">Signed in as</p>
+                    <p className="font-bold">Sharan Gurunathan</p>
+                  </DropdownItem>
+                  <DropdownItem key="logout" color="danger" onClick={handleLogout}>
                     Log Out
                   </DropdownItem>
-                  </DropdownSection>
                 </DropdownMenu>
               </Dropdown>
             </NavbarItem>

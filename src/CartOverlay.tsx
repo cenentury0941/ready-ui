@@ -62,7 +62,9 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
         onClose={onClose}
         className="dark:bg-gray-800 max-w-4xl w-full"
       >
-        <OrderConfirmation orderId={orderId} onClose={onClose} />
+        <ModalContent>
+          <OrderConfirmation orderId={orderId} onClose={onClose} />
+        </ModalContent>
       </Modal>
     );
   }
@@ -74,41 +76,41 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
       className="dark:bg-gray-800 max-w-4xl w-full"
     >
       <ModalContent>
-      <ModalHeader className="dark:text-gray-100">Your Cart</ModalHeader>
-      <ModalBody>
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            {cartItems.length === 0 ? (
-              <p className="dark:text-gray-300">Your cart is empty.</p>
-            ) : (
-              cartItems.map(itemId => {
-                const book = books.find(book => book.id === itemId);
-                return book ? (
-                  <Card key={itemId} className="mb-4 dark:bg-gray-700">
-                    <div className="p-4 flex items-center">
-                      <img src={book.thumbnail} alt={`${book.title} cover`} className="w-16 h-auto object-contain rounded mr-4" />
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold dark:text-gray-100">{book.title}</h4>
-                        <p className="dark:text-gray-300">{book.author}</p>
+        <ModalHeader className="dark:text-gray-100">Your Cart</ModalHeader>
+        <ModalBody>
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              {cartItems.length === 0 ? (
+                <p className="dark:text-gray-300">Your cart is empty.</p>
+              ) : (
+                cartItems.map(itemId => {
+                  const book = books.find(book => book.id === itemId);
+                  return book ? (
+                    <Card key={itemId} className="mb-4 dark:bg-gray-700">
+                      <div className="p-4 flex items-center">
+                        <img src={book.thumbnail} alt={`${book.title} cover`} className="w-16 h-auto object-contain rounded mr-4" />
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold dark:text-gray-100">{book.title}</h4>
+                          <p className="dark:text-gray-300">{book.author}</p>
+                        </div>
+                        <Button 
+                          color="danger" 
+                          onClick={() => removeFromCart(itemId)}
+                          className="dark:text-red-400"
+                        >
+                          Remove
+                        </Button>
                       </div>
-                      <Button 
-                        color="danger" 
-                        onPress={() => removeFromCart(itemId)}
-                        className="dark:text-red-400"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </Card>
-                ) : null;
-              })
-            )}
+                    </Card>
+                  ) : null;
+                })
+              )}
+            </div>
+            <div className="w-full lg:w-1/3">
+              <OrderSummary cartItems={cartItems} onPlaceOrder={handlePlaceOrder} />
+            </div>
           </div>
-          <div className="w-full lg:w-1/3">
-            <OrderSummary cartItems={cartItems} onPlaceOrder={handlePlaceOrder} />
-          </div>
-        </div>
-      </ModalBody>
+        </ModalBody>
       </ModalContent>
     </Modal>
   );

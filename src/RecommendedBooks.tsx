@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useCart } from './context/CartContext';
 import InspirationNotes from './InspirationNotes';
 import { books } from './data/books';
-import { Card, Button, Input } from "@nextui-org/react";
+import { Card, Input } from "@nextui-org/react";
 import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
 
@@ -55,10 +55,8 @@ const RecommendedBooks: React.FC = () => {
           <div className="relative max-w-md mx-auto">
             <Input
               classNames={{
-                base: "max-w-full h-10 ul-none",
+                base: "max-w-full h-10",
                 mainWrapper: "h-full",
-                // input: "text-small",
-                // inputWrapper: "h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
                 input: [
                   "bg-transparent",
                   "text-black/90 dark:text-white/90",
@@ -73,13 +71,11 @@ const RecommendedBooks: React.FC = () => {
                   "backdrop-saturate-200",
                   "hover:bg-default-200/70",
                   "dark:hover:bg-default/70",
-                  "group-data-[focus=true]:bg-default-200/50",
-                  "dark:group-data-[focus=true]:bg-default/60",
+                  "group-data-[focused=true]:bg-default-200/50",
+                  "dark:group-data-[focused=true]:bg-default/60",
                   "!cursor-text",
                 ],
-      
               }}
-              
               placeholder="Search books by title or author"
               size="sm"
               startContent={<SearchIcon size={18} />}

@@ -26,7 +26,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, onPlaceOrder }) 
           <span>Total:</span>
           <span>${totalPrice.toFixed(2)}</span>
         </div>
-        <Button color="primary" onPress={onPlaceOrder} disabled={cartItems.length === 0}>
+        <Button color="primary" onClick={onPlaceOrder} isDisabled={cartItems.length === 0}>
           Place Order
         </Button>
       </div>
