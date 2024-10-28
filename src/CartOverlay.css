@@ -1,0 +1,15 @@
+.cart-overlay {
+  width: 400px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 10px 0;
+}

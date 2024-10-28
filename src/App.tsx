@@ -23,6 +23,7 @@ function AppContent() {
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
 
+  const [modalMessage, setModalMessage] = React.useState<string | null>(null);
   const toggleCart = () => setCartOpen(!isCartOpen);
   const toggleDarkMode = () => {
     setIsDark(!isDark);

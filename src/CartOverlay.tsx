@@ -10,6 +10,16 @@ interface CartOverlayProps {
   onClose: () => void;
 }
 
+interface Order {
+  confirmationNumber: string;
+  books: {
+    thumbnail: string;
+    title: string;
+    author: string;
+  }[];
+  status: string;
+}
+
 const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
   const { cartItems, removeFromCart, clearCart } = useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);

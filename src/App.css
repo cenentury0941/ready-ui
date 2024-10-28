@@ -7,6 +7,11 @@ body {
   padding: 0;
 }
 
+.header-icons {
+  display: flex;
+  gap: 10px;
+}
+
 .cart-overlay {
   position: fixed;
   top: 0;
@@ -31,18 +36,22 @@ body {
   cursor: pointer;
 }
 
-.cart-icon {
+.cart-icon,
+.logout-button {
   background: none;
   border: none;
   font-size: 1.5em;
   cursor: pointer;
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Header */
 header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: linear-gradient(135deg, #3b82f6, #9333ea);
   color: white;
   padding: 30px;
@@ -182,4 +191,51 @@ footer {
 .ul-none +ul {
     display: none;
     opacity: 0;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 20px;
+}
+
+.App-title {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.App-tagline {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 12px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #5e5e5e;
+  background-color: #ffffff;
+  border: 1px solid #8c8c8c;
+  /* border-radius: 2px; */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  height: 41px;
+}
+
+.login-button:hover {
+  background-color: #f3f3f3; /* Slightly lighter background for hover */
+}
+
+.microsoft-icon {
+  margin-right: 12px;
 }
