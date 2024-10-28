@@ -34,18 +34,23 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
         <button
           onClick={async () => {
             try {
-              const apiUrl = process.env.REACT_APP_API_URL;
+              const apiUrl = process.env.REACT_APP_API_URL || '';
               if (!apiUrl) {
                 console.error('API URL is not configured');
                 alert('Configuration error. Please contact support.');
                 return;
               }
-              const response = await fetch(`${apiUrl}/place-order`, {
+              const response = await fetch(`${apiUrl}/orders`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ items: cartItems }),
+                body: JSON.stringify({
+                  userId: 1, // Replace with actual user ID
+                  fullName: "John Doe", // Replace with actual full name
+                  location: "123 Main St", // Replace with actual location
+                  items: cartItems.map(itemId => ({ productId: itemId })),
+                }),
               });
 
               if (response.ok) {
