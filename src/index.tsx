@@ -8,16 +8,17 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <MsalProvider instance={msalInstance}>
-    <BrowserRouter>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    </BrowserRouter>
+      <BrowserRouter>
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      </BrowserRouter>
   </MsalProvider>
 );
 

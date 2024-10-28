@@ -1,94 +1,109 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import './CartOverlay.css';
 import { useCart } from './context/CartContext';
 import { books } from './data/books';
+import { getUserId, getUserFullName, getUserLocation } from './utils/authUtils';
+import { useMsal, useIsAuthenticated } from "@azure/msal-react";
+import CartItem from './CartItem';
+import OrderList from './OrderList';
+import PlaceOrderButton from './PlaceOrderButton';
 
 interface CartOverlayProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface Order {
+  confirmationNumber: string;
+  books: {
+    thumbnail: string;
+    title: string;
+    author: string;
+  }[];
+  status: string;
+}
+
 const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
   const { cartItems, removeFromCart, clearCart } = useCart();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const { instance } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const apiUrl = process.env.REACT_APP_API_URL;
+        if (!apiUrl) {
+          logError('API URL is not configured', new Error('Missing API URL'));
+          alert('Configuration error. Please contact support.');
+          return;
+        }
+        const userId = getUserId(instance);
+        const response = await fetch(`${apiUrl}/orders?userId=${userId}`);
+        if (!response.ok) {
+          logError('Failed to fetch orders', new Error('Fetch error'));
+          return;
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          logError('Invalid data format', new Error('Data format error'));
+          return;
+        }
+        console.log('Fetched orders:', data);
+        const ordersWithBooks = data.map((order: any) => {
+          const orderBooks = order.items.map((item: any) => {
+            const book = books.find((b: { id: string }) => b.id === item.productId);
+            if (!book) {
+              console.error(`Book with id ${item.productId} not found`);
+              return null;
+            }
+            return book;
+          }).filter((book: any) => book !== null);
+
+          return {
+            ...order,
+            books: orderBooks,
+          };
+        });
+        setOrders(ordersWithBooks);
+      } catch (error) {
+        logError('Error fetching orders:', error);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchOrders();
+    }
+  }, [isAuthenticated]);
+
   return (
     <div className={`cart-overlay ${isOpen ? 'open' : ''}`}>
-      <button className="close-button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>✖️</button>
-      <h2 style={{ fontSize: '1.5em', fontWeight: 'bold', margin: '10px 0' }}>Cart</h2>
+      <button className="close-button" onClick={onClose}>✖️</button>
+      <h2>Cart</h2>
       <ul>
         {cartItems.map(itemId => {
-          const book = books.find(book => book.id === itemId);
-          return book ? (
-            <li key={itemId} className="cart-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-              <img src={book.thumbnail} alt={`${book.title} cover`} className="cart-item-thumbnail" style={{ width: '50px', height: 'auto', marginRight: '10px' }} />
-              <div className="cart-item-info" style={{ flex: '1' }}>
-                <h3 className="cart-item-title" style={{ fontWeight: 'bold', margin: '0' }}>{book.title}</h3>
-                <p className="cart-item-author" style={{ fontSize: '0.9em', color: '#555', margin: '0' }}>{book.author}</p>
-              </div>
-              <button onClick={() => removeFromCart(itemId)} style={{ marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer' }}>
-                🗑️
-              </button>
-            </li>
-          ) : null;
+          const book = books.find((book: { id: string }) => book.id === itemId);
+          if (!book) {
+            console.error(`Book with id ${itemId} not found`);
+            return null;
+          }
+          return (
+            <CartItem key={itemId} book={book} onRemove={() => removeFromCart(itemId)} />
+          );
         })}
       </ul>
       {cartItems.length > 0 && (
-        <button
-          onClick={async () => {
-            try {
-              const apiUrl = process.env.REACT_APP_API_URL || '';
-              if (!apiUrl) {
-                console.error('API URL is not configured');
-                alert('Configuration error. Please contact support.');
-                return;
-              }
-              const response = await fetch(`${apiUrl}/orders`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  userId: 1, // Replace with actual user ID
-                  fullName: "John Doe", // Replace with actual full name
-                  location: "123 Main St", // Replace with actual location
-                  items: cartItems.map(itemId => ({ productId: itemId })),
-                }),
-              });
-
-              if (response.ok) {
-                alert('Order placed successfully!');
-                if (typeof clearCart === 'function') {
-                  clearCart();
-                } else {
-                  console.error('clearCart function is not defined');
-                }
-                clearCart();
-              } else {
-                alert('Failed to place order. Please try again.');
-              }
-            } catch (error) {
-              console.error('Error placing order:', error);
-              // Centralized logging
-              logError('Error placing order:', error);
-              alert('An error occurred. Please try again.');
-            }
-          }}
-          style={{
-            marginTop: '20px',
-            padding: '10px 20px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          Place Order
-        </button>
+        <PlaceOrderButton cartItems={cartItems} clearCart={clearCart} />
+      )}
+      {orders.length > 0 && (
+        <OrderList orders={orders} />
       )}
     </div>
   );
 };
 
 function logError(message: string, error: any) {
+  // Example: send logs to a remote logging server
   // Implement your centralized logging mechanism here
   console.error(message, error);
 }
