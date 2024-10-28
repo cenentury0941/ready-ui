@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Avatar } from "@nextui-org/react";
 
 interface Note {
   text: string;
   contributor: string;
   imageUrl: string;
 }
-
-
 
 interface InspirationNotesProps {
   notes: Note[];
@@ -24,14 +23,25 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes }) => {
   }, [notes.length]);
 
   if (notes.length === 0) {
-    return <div className="inspiration-notes">No inspiration notes available.</div>;
+    return null;
   }
 
+  const currentNote = notes[currentNoteIndex];
+
   return (
-    <div className="inspiration-notes">
-      <img src={notes[currentNoteIndex].imageUrl} alt={notes[currentNoteIndex].contributor} className="note-image" />
-      <p className="note-text">"{notes[currentNoteIndex].text}"</p>
-      <p className="note-contributor">- {notes[currentNoteIndex].contributor}</p>
+    <div className="rounded-lg">
+      <div className="flex items-start">
+        <Avatar
+          src={currentNote.imageUrl}
+          alt={currentNote.contributor}
+          className="mr-3 flex-shrink-0"
+          size="sm"
+        />
+        <div className="flex-grow">
+          <p className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-1">{currentNote.contributor}</p>
+          <p className="italic text-sm text-gray-600 dark:text-gray-400">"{currentNote.text}"</p>
+        </div>
+      </div>
     </div>
   );
 };
