@@ -16,11 +16,29 @@ function AppContent() {
   const { instance, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Set initial dark mode
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    // Initialize MSAL and handle redirects
+    const initializeMsal = async () => {
+      try {
+        await instance.initialize();
+        await instance.handleRedirectPromise();
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('MSAL initialization error:', error);
+      }
+    };
+
+    if (!isInitialized) {
+      initializeMsal();
+    }
+  }, [instance, isInitialized]);
 
   const toggleCart = () => setCartOpen(!isCartOpen);
   const toggleDarkMode = () => {
@@ -29,18 +47,36 @@ function AppContent() {
 
   const handleLogin = async () => {
     try {
-      await instance.loginPopup(loginRequest);
-      navigate('/dashboard');
+      if (!isInitialized) {
+        console.error('MSAL not initialized');
+        return;
+      }
+      await instance.loginRedirect({
+        ...loginRequest,
+        redirectStartPage: window.location.href
+      });
     } catch (error) {
       console.error('Login failed', error);
     }
   };
 
   const handleLogout = () => {
-    instance.logoutPopup({
-      postLogoutRedirectUri: "/",
+    if (!isInitialized) {
+      console.error('MSAL not initialized');
+      return;
+    }
+    instance.logoutRedirect({
+      postLogoutRedirectUri: window.location.origin,
     });
   };
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <p className="text-white text-base">Authenticating...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>

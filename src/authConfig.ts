@@ -3,7 +3,7 @@ import { PublicClientApplication, Configuration, LogLevel } from "@azure/msal-br
 const msalConfig: Configuration = {
   auth: {
     clientId: process.env.REACT_APP_AUTH_CLIENT_ID || '', // Replace with your Azure AD app client ID
-    authority: `https://login.microsoftonline.com/${process.env.REACT_APP_AUTH_TENANT_ID}`,
+    authority: process.env.REACT_APP_AUTH_TENANT_ID,
     redirectUri: process.env.REACT_APP_AUTH_REDIRECT_URL, // Replace with your redirect URI
   },
   cache: {
@@ -39,4 +39,13 @@ export const loginRequest = {
   scopes: ["User.Read"]
 };
 
+// Initialize MSAL instance
 export const msalInstance = new PublicClientApplication(msalConfig);
+
+// Handle initial account setup
+const accounts = msalInstance.getAllAccounts();
+if (accounts.length > 0) {
+  msalInstance.setActiveAccount(accounts[0]);
+}
+
+export default msalInstance;
