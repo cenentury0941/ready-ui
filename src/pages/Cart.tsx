@@ -44,7 +44,7 @@ const Cart: React.FC = () => {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="min-h-screen py-8">
         <div className="max-w-4xl mx-auto px-4">
           <OrderConfirmation orderId={orderId} onClose={() => navigate('/dashboard')} />
         </div>
@@ -53,18 +53,17 @@ const Cart: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="min-h-screen py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Shopping Cart</h1>
+        <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Your Cart</h1>
         
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1">
             {cartItems.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-600 dark:text-gray-400">Your cart is empty</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">Your cart is empty</p>
                 <Button
-                  color="primary"
-                  className="mt-4"
+                  className="bg-[#e2231a] hover:bg-[#c41e15] text-white"
                   onClick={() => navigate('/dashboard')}
                 >
                   Continue Shopping
@@ -75,21 +74,24 @@ const Cart: React.FC = () => {
                 {cartItems.map(itemId => {
                   const book = books.find(book => book.id === itemId);
                   return book ? (
-                    <Card key={itemId} className="dark:bg-gray-700">
-                      <div className="p-4 flex items-center">
+                    <Card 
+                      key={itemId} 
+                      className="border border-gray-200 dark:border-gray-700"
+                      shadow="none"
+                    >
+                      <div className="p-4 flex items-center gap-4">
                         <img 
                           src={book.thumbnail} 
                           alt={`${book.title} cover`} 
-                          className="w-16 h-auto object-contain rounded mr-4" 
+                          className="w-20 h-[100px] object-cover rounded" 
                         />
                         <div className="flex-1">
-                          <h4 className="text-lg font-semibold dark:text-gray-100">{book.title}</h4>
-                          <p className="dark:text-gray-300">{book.author}</p>
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{book.title}</h4>
+                          <p className="text-gray-600 dark:text-gray-400">{book.author}</p>
                         </div>
                         <Button 
-                          color="danger" 
+                          className="bg-[#e2231a] hover:bg-[#c41e15] text-white"
                           onClick={() => removeFromCart(itemId)}
-                          className="dark:text-red-400"
                         >
                           Remove
                         </Button>

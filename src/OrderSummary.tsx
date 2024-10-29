@@ -15,19 +15,30 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, onPlaceOrder }) 
   }, 0);
 
   return (
-    <Card>
-      <div className="p-4">
-        <h4 className="text-lg font-semibold mb-4">Order Summary</h4>
-        <div className="flex justify-between mb-2">
-          <span>Items:</span>
-          <span>{cartItems.length}</span>
+    <Card 
+      className="border border-gray-200 dark:border-gray-700"
+      shadow="none"
+    >
+      <div className="p-6">
+        <h4 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Order Summary</h4>
+        <div className="space-y-4 mb-6">
+          <div className="flex justify-between text-gray-600 dark:text-gray-400">
+            <span>Items ({cartItems.length}):</span>
+            <span>${totalPrice.toFixed(2)}</span>
+          </div>
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <div className="flex justify-between font-bold text-gray-900 dark:text-white">
+              <span>Total:</span>
+              <span>${totalPrice.toFixed(2)}</span>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-between mb-4">
-          <span>Total:</span>
-          <span>${totalPrice.toFixed(2)}</span>
-        </div>
-        <Button color="primary" onClick={onPlaceOrder} isDisabled={cartItems.length === 0}>
-          Place Order
+        <Button 
+          className="w-full bg-[#e2231a] hover:bg-[#c41e15] text-white"
+          onClick={onPlaceOrder} 
+          isDisabled={cartItems.length === 0}
+        >
+          Checkout
         </Button>
       </div>
     </Card>
