@@ -7,41 +7,39 @@ import RecommendedBooks from './RecommendedBooks';
 import Login from './components/Login';
 import { CartIcon } from './icons/CartIcon';
 import sharanGurunathan from './assets/sharan_gurunathan.png';
+import { MsalProvider, useMsal, useIsAuthenticated } from "@azure/msal-react";
+import { msalInstance, loginRequest } from './authConfig';
 
 function AppContent() {
   const [isCartOpen, setCartOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { instance, accounts } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
     // Set initial dark mode
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
 
-  const [modalMessage, setModalMessage] = React.useState<string | null>(null);
   const toggleCart = () => setCartOpen(!isCartOpen);
   const toggleDarkMode = () => {
     setIsDark(!isDark);
   };
 
-  const handleLogin = (username: string, password: string) => {
-    // In a real application, you would validate credentials with a backend service
-    if (username === 'admin' && password === 'password') {
-      localStorage.setItem('token', 'dummy-jwt-token');
-      setIsAuthenticated(true);
+  const handleLogin = async () => {
+    try {
+      await instance.loginPopup(loginRequest);
       navigate('/dashboard');
+    } catch (error) {
+      console.error('Login failed', error);
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    navigate('/login');
+    instance.logoutPopup({
+      postLogoutRedirectUri: "/",
+    });
   };
 
   return (
@@ -92,7 +90,7 @@ function AppContent() {
                 <DropdownMenu aria-label="User menu actions">
                   <DropdownItem key="profile" className="h-14 gap-2">
                     <p className="font-bold">Signed in as</p>
-                    <p className="font-bold">Sharan Gurunathan</p>
+                    <p className="font-bold">{accounts[0]?.name}</p>
                   </DropdownItem>
                   <DropdownItem key="logout" color="danger" onClick={handleLogout}>
                     Log Out
@@ -131,11 +129,13 @@ function CartBadge() {
 
 function App() {
   return (
-    <NextUIProvider>
-      <CartProvider>
-        <AppContent />
-      </CartProvider>
-    </NextUIProvider>
+    <MsalProvider instance={msalInstance}>
+      <NextUIProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </NextUIProvider>
+    </MsalProvider>
   );
 }
 
