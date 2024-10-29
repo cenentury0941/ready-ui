@@ -1,29 +1,16 @@
 import React, { useState } from 'react';
-import { useCart } from './context/CartContext';
-import { books } from './data/books';
-import { Modal, Button, Card, ModalHeader, ModalBody, ModalContent } from "@nextui-org/react";
-import OrderSummary from './OrderSummary';
-import OrderConfirmation from './OrderConfirmation';
+import { useCart } from '../context/CartContext';
+import { books } from '../data/books';
+import { Button, Card } from "@nextui-org/react";
+import OrderSummary from '../OrderSummary';
+import OrderConfirmation from '../OrderConfirmation';
+import { useNavigate } from 'react-router-dom';
 
-interface CartOverlayProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-interface Order {
-  confirmationNumber: string;
-  books: {
-    thumbnail: string;
-    title: string;
-    author: string;
-  }[];
-  status: string;
-}
-
-const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
+const Cart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handlePlaceOrder = async () => {
     try {
@@ -57,38 +44,44 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
 
   if (orderPlaced) {
     return (
-      <Modal 
-        isOpen={isOpen} 
-        onClose={onClose}
-        className="dark:bg-gray-800 max-w-4xl w-full"
-      >
-        <ModalContent>
-          <OrderConfirmation orderId={orderId} onClose={onClose} />
-        </ModalContent>
-      </Modal>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <OrderConfirmation orderId={orderId} onClose={() => navigate('/dashboard')} />
+        </div>
+      </div>
     );
   }
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose}
-      className="dark:bg-gray-800 max-w-4xl w-full"
-    >
-      <ModalContent>
-        <ModalHeader className="dark:text-gray-100">Your Cart</ModalHeader>
-        <ModalBody>
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
-              {cartItems.length === 0 ? (
-                <p className="dark:text-gray-300">Your cart is empty.</p>
-              ) : (
-                cartItems.map(itemId => {
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Shopping Cart</h1>
+        
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            {cartItems.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600 dark:text-gray-400">Your cart is empty</p>
+                <Button
+                  color="primary"
+                  className="mt-4"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  Continue Shopping
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {cartItems.map(itemId => {
                   const book = books.find(book => book.id === itemId);
                   return book ? (
-                    <Card key={itemId} className="mb-4 dark:bg-gray-700">
+                    <Card key={itemId} className="dark:bg-gray-700">
                       <div className="p-4 flex items-center">
-                        <img src={book.thumbnail} alt={`${book.title} cover`} className="w-16 h-auto object-contain rounded mr-4" />
+                        <img 
+                          src={book.thumbnail} 
+                          alt={`${book.title} cover`} 
+                          className="w-16 h-auto object-contain rounded mr-4" 
+                        />
                         <div className="flex-1">
                           <h4 className="text-lg font-semibold dark:text-gray-100">{book.title}</h4>
                           <p className="dark:text-gray-300">{book.author}</p>
@@ -103,17 +96,20 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ isOpen, onClose }) => {
                       </div>
                     </Card>
                   ) : null;
-                })
-              )}
-            </div>
+                })}
+              </div>
+            )}
+          </div>
+          
+          {cartItems.length > 0 && (
             <div className="w-full lg:w-1/3">
               <OrderSummary cartItems={cartItems} onPlaceOrder={handlePlaceOrder} />
             </div>
-          </div>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default CartOverlay;
+export default Cart;

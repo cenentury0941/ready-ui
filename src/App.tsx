@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import { NextUIProvider, Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, Switch, Avatar, Dropdown, DropdownMenu, DropdownItem, DropdownTrigger } from "@nextui-org/react";
 import { CartProvider, useCart } from './context/CartContext';
-import CartOverlay from './CartOverlay';
 import RecommendedBooks from './RecommendedBooks';
 import Login from './components/Login';
 import { CartIcon } from './icons/CartIcon';
 import sharanGurunathan from './assets/sharan_gurunathan.png';
 import { MsalProvider, useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { msalInstance, loginRequest } from './authConfig';
+import Cart from './pages/Cart';
 
 function AppContent() {
-  const [isCartOpen, setCartOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const { instance, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
@@ -40,7 +39,6 @@ function AppContent() {
     }
   }, [instance, isInitialized]);
 
-  const toggleCart = () => setCartOpen(!isCartOpen);
   const toggleDarkMode = () => {
     setIsDark(!isDark);
   };
@@ -68,6 +66,10 @@ function AppContent() {
     instance.logoutRedirect({
       postLogoutRedirectUri: window.location.origin,
     });
+  };
+
+  const navigateToCart = () => {
+    navigate('/cart');
   };
 
   if (!isInitialized) {
@@ -105,7 +107,7 @@ function AppContent() {
                 isIconOnly
                 color="primary"
                 variant="light"
-                onClick={toggleCart}
+                onClick={navigateToCart}
                 aria-label="Cart"
               >
                 <CartIcon />
@@ -145,10 +147,11 @@ function AppContent() {
         <Route path="/dashboard" element={
           isAuthenticated ? <RecommendedBooks /> : <Navigate to="/login" replace />
         } />
+        <Route path="/cart" element={
+          isAuthenticated ? <Cart /> : <Navigate to="/login" replace />
+        } />
         <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>
-
-      <CartOverlay isOpen={isCartOpen} onClose={toggleCart} />
     </div>
   );
 }
