@@ -9,6 +9,7 @@ import sharanGurunathan from './assets/sharan_gurunathan.png';
 import { MsalProvider, useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { msalInstance, loginRequest } from './authConfig';
 import Cart from './pages/Cart';
+import Orders from './pages/Orders';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -72,6 +73,14 @@ function AppContent() {
     navigate('/cart');
   };
 
+  const navigateToOrders = () => {
+    navigate('/orders');
+  };
+
+  const navigateToHome = () => {
+    navigate('/');
+  };
+
   if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
@@ -85,7 +94,12 @@ function AppContent() {
       {isAuthenticated && (
         <Navbar isBordered className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-md">
           <NavbarBrand>
-            <p className="font-bold text-2xl text-primary-600 dark:text-primary-400">ReadY</p>
+            <p 
+              className="font-bold text-2xl text-primary-600 dark:text-primary-400 cursor-pointer" 
+              onClick={navigateToHome}
+            >
+              ReadY
+            </p>
           </NavbarBrand>
           <NavbarContent justify="end">
             <NavbarItem>
@@ -130,6 +144,9 @@ function AppContent() {
                     <p className="font-bold">Signed in as</p>
                     <p className="font-bold">{accounts[0]?.name}</p>
                   </DropdownItem>
+                  <DropdownItem key="orders" onClick={navigateToOrders}>
+                    My Orders
+                  </DropdownItem>
                   <DropdownItem key="logout" color="danger" onClick={handleLogout}>
                     Log Out
                   </DropdownItem>
@@ -149,6 +166,9 @@ function AppContent() {
         } />
         <Route path="/cart" element={
           isAuthenticated ? <Cart /> : <Navigate to="/login" replace />
+        } />
+        <Route path="/orders" element={
+          isAuthenticated ? <Orders /> : <Navigate to="/login" replace />
         } />
         <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>

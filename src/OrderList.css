@@ -1,41 +1,56 @@
 .order-list {
-  margin-top: 20px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .order-list-title {
-  font-size: 1.2em;
-  font-weight: bold;
-  margin: 10px 0;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .order-list-item {
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+  list-style: none;
 }
 
 .order-list-book-item {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
 }
 
 .order-list-book-thumbnail {
-  width: 50px;
-  height: auto;
-  margin-right: 10px;
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  margin-right: 15px;
+  border-radius: 4px;
 }
 
 .order-list-book-title {
-  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  color: #2d3748;
 }
 
 .order-list-book-author {
+  font-size: 14px;
+  color: #718096;
   margin: 0;
-  font-size: 0.9em;
-  color: #555;
 }
 
 .order-status {
-  margin: 0;
+  font-size: 14px;
+  color: #4a5568;
+  margin: 10px 0;
 }

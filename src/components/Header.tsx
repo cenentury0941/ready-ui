@@ -1,6 +1,8 @@
 import React from 'react';
-import { ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftOnRectangleIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 import CartIcon from './CartIcon';
+import { useNavigate } from 'react-router-dom';
+
 interface HeaderProps {
   onLogout: () => void;
   onToggleCart: () => void;
@@ -8,6 +10,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onLogout, onToggleCart, isBooksPage }) => {
+  const navigate = useNavigate();
+
   return (
     <header>
       <h1>ReadY</h1>
@@ -18,6 +22,9 @@ const Header: React.FC<HeaderProps> = ({ onLogout, onToggleCart, isBooksPage }) 
             <CartIcon />
           </button>
         )}
+        <button onClick={() => navigate('/orders')} className="orders-button" title="View Orders">
+          <ClipboardDocumentListIcon className="h-6 w-6 text-white" />
+        </button>
         <button onClick={onLogout} className="logout-button" title="Logout">
           <ArrowLeftOnRectangleIcon className="h-6 w-6 text-white" />
         </button>
