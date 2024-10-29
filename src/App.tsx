@@ -117,16 +117,18 @@ function AppContent() {
               </div>
             </NavbarItem>
             <NavbarItem>
-              <Button
-                isIconOnly
-                color="primary"
-                variant="light"
-                onClick={navigateToCart}
-                aria-label="Cart"
-              >
-                <CartIcon />
+              <div className="relative">
+                <Button
+                  isIconOnly
+                  variant="light"
+                  onClick={navigateToCart}
+                  aria-label="Cart"
+                  className="text-gray-700 dark:text-gray-300"
+                >
+                  <CartIcon />
+                </Button>
                 <CartBadge />
-              </Button>
+              </div>
             </NavbarItem>
             <NavbarItem>
               <Dropdown>
@@ -179,11 +181,13 @@ function AppContent() {
 function CartBadge() {
   const { cartItems } = useCart();
   
-  return cartItems.length > 0 ? (
-    <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+  if (cartItems.length === 0) return null;
+  
+  return (
+    <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-[#e2231a] rounded-full">
       {cartItems.length}
     </span>
-  ) : null;
+  );
 }
 
 function App() {

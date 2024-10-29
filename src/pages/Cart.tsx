@@ -5,6 +5,7 @@ import { Button, Card } from "@nextui-org/react";
 import OrderSummary from '../OrderSummary';
 import OrderConfirmation from '../OrderConfirmation';
 import { useNavigate } from 'react-router-dom';
+import { TrashIcon } from '../icons/TrashIcon';
 
 const Cart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
@@ -89,12 +90,13 @@ const Cart: React.FC = () => {
                           <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{book.title}</h4>
                           <p className="text-gray-600 dark:text-gray-400">{book.author}</p>
                         </div>
-                        <Button 
-                          className="bg-[#e2231a] hover:bg-[#c41e15] text-white"
+                        <button 
                           onClick={() => removeFromCart(itemId)}
+                          className="flex items-center gap-2 text-gray-600 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
                         >
-                          Remove
-                        </Button>
+                          <TrashIcon size={20} />
+                          <span>Remove</span>
+                        </button>
                       </div>
                     </Card>
                   ) : null;

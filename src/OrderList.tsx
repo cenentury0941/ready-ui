@@ -31,7 +31,6 @@ const OrderList: React.FC<OrderListProps> = ({ orders }) => (
               <p className="font-semibold text-gray-900 dark:text-white">{order.confirmationNumber}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status:</p>
               <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
                 order.status === 'Delivered' 
                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'

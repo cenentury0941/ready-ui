@@ -34,7 +34,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, onPlaceOrder }) 
           </div>
         </div>
         <Button 
-          className="w-full bg-[#e2231a] hover:bg-[#c41e15] text-white"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           onClick={onPlaceOrder} 
           isDisabled={cartItems.length === 0}
         >
