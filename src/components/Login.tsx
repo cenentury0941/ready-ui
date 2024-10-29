@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Card, Image } from "@nextui-org/react";
+import MicrosoftIcon from '../assets/Microsoft-Sign-in-Branding.png';
 
 interface LoginProps {
   onLogin: () => void;
@@ -23,7 +24,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           onClick={onLogin} 
           color="primary" 
           fullWidth
-          startContent={<img src="/src/assets/Microsoft Signin Light.svg" alt="Microsoft logo" className="w-5 h-5" />}
+          radius='sm'
+          startContent={<img src={MicrosoftIcon} alt="Microsoft logo" className="w-5 h-5" />}
         >
           Sign in with Microsoft
         </Button>
