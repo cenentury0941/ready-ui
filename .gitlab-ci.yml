@@ -1,0 +1,30 @@
+stages:
+  - build
+  - deploy
+
+build_app:
+  stage: build
+  image: node:latest
+  script:
+    - npm install
+    - CI=false npm run build
+  only:
+    - main
+  artifacts:
+    paths:
+      - build/
+
+deploy_to_s3:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  before_script:
+    - aws --version
+  script:
+    - aws s3 rm s3://$S3_BUCKET --recursive
+    - aws s3 cp build/ s3://$S3_BUCKET/ --recursive
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+
+  dependencies:
+    - build_app
+  only:
+    - main
