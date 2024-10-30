@@ -7,8 +7,8 @@ build_app:
   image: node:latest
   script:
     - npm install
-    - CI=false npm run build
     - mv .env.prod .env
+    - CI=false npm run build
   only:
     - main
   artifacts:
