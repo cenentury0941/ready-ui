@@ -8,6 +8,7 @@ build_app:
   script:
     - npm install
     - CI=false npm run build
+    - mv .env.prod .env
   only:
     - main
   artifacts:
