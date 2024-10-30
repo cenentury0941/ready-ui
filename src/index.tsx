@@ -20,9 +20,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <MsalProvider instance={msalInstance}>
     <BrowserRouter>
-      <React.StrictMode>
+      {/* <React.StrictMode> */}
         <App />
-      </React.StrictMode>
+      {/* </React.StrictMode> */}
     </BrowserRouter>
   </MsalProvider>
 );
