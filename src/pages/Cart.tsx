@@ -6,12 +6,15 @@ import OrderSummary from '../OrderSummary';
 import OrderConfirmation from '../OrderConfirmation';
 import { useNavigate } from 'react-router-dom';
 import { TrashIcon } from '../icons/TrashIcon';
+import { getUserFullName, getUserId, getUserLocation } from '../utils/authUtils';
+import { useMsal } from '@azure/msal-react';
 
 const Cart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const {instance} = useMsal();
 
   const handlePlaceOrder = async () => {
     try {
@@ -21,17 +24,24 @@ const Cart: React.FC = () => {
         alert('Configuration error. Please contact support.');
         return;
       }
-      const response = await fetch(`${apiUrl}/place-order`, {
+
+      const userId = getUserId(instance);
+      const userFullName = getUserFullName(instance);
+      const userLocation = getUserLocation(instance);
+      const items = cartItems.map(productId => ({ productId }));
+
+
+      const response = await fetch(`${apiUrl}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items: cartItems }),
+        body: JSON.stringify({ userId: userId, fullName: userFullName, location: userLocation, items: items }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setOrderId(data.orderId);
+        setOrderId(data.responseObject.confirmationNumber);
         setOrderPlaced(true);
         clearCart();
       } else {

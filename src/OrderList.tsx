@@ -1,15 +1,7 @@
 import React from 'react';
 import { Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 
-interface Order {
-  confirmationNumber: string;
-  books: {
-    thumbnail: string;
-    title: string;
-    author: string;
-  }[];
-  status: string;
-}
+import { Order } from './types';
 
 interface OrderListProps {
   orders: Order[];
@@ -27,7 +19,7 @@ const OrderList: React.FC<OrderListProps> = ({ orders }) => (
         >
           <CardHeader className="flex justify-between px-6 py-4">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Order Number:</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confirmation #:</p>
               <p className="font-semibold text-gray-900 dark:text-white">{order.confirmationNumber}</p>
             </div>
             <div className="text-right">
@@ -43,7 +35,7 @@ const OrderList: React.FC<OrderListProps> = ({ orders }) => (
           <Divider className="bg-gray-200 dark:bg-gray-700"/>
           <CardBody className="px-6 py-4">
             <div className="space-y-4">
-              {order.books.map((book, index) => (
+              {order.items.map((book, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <img
                     src={book.thumbnail}

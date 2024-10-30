@@ -14,7 +14,7 @@ const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ orderId, onClose 
           <span className="text-5xl text-green-500">✔️</span>
         </div>
         <h3 className="text-2xl font-semibold mb-2">Order Placed Successfully!</h3>
-        <p className="mb-4">Your order ID is: {orderId}</p>
+        <p className="mb-4">Confirmation #: {orderId}</p>
         <div className="flex justify-center space-x-4">
           <Button color="primary" onPress={onClose}>
             Close

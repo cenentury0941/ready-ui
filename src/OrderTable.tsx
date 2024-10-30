@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTable, useSortBy, useFilters, Column } from 'react-table';
 
-interface Order {
-  id: string;
-  customerName: string;
-  totalAmount: number;
-  date: string;
-}
+import { Order } from './types';
 
 const OrderTable: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -37,20 +32,16 @@ const OrderTable: React.FC = () => {
   const columns: Column<Order>[] = React.useMemo(
     () => [
       {
-        Header: 'Order ID',
-        accessor: 'id',
+        Header: 'Confirmation Number',
+        accessor: 'confirmationNumber',
       },
       {
-        Header: 'Customer Name',
-        accessor: 'customerName',
+        Header: 'Status',
+        accessor: 'status',
       },
       {
-        Header: 'Total Amount',
-        accessor: 'totalAmount',
-      },
-      {
-        Header: 'Date',
-        accessor: 'date',
+        Header: 'Created At',
+        accessor: 'createdAt',
       },
     ],
     []
