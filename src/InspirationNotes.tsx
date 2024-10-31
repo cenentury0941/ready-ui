@@ -45,27 +45,28 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCa
             isPressable
             onPress={() => handleNoteClick(note.contributor)}
             classNames={{
-              base: "bg-default-50 dark:bg-default-100 shadow-none w-full"
+              base: "bg-default-50 dark:bg-default-50 shadow-none w-full"
             }}
           >
             <div className="p-3 w-full">
-              <div className="flex items-center gap-2 mb-2 w-full">
+              <div className="flex items-center gap-2 w-full">
                 <Avatar
                   src={note.imageUrl}
                   alt={note.contributor}
                   className="flex-shrink-0"
                   size="sm"
                 />
-                <div className="min-w-0 flex-1">
-                  <p className="text-left font-medium text-sm text-default-700 dark:text-default-500 truncate">
+                <div className="min-w-0 flex-1 ml-2">
+                  <p className="text-left font-medium text-sm text-default-700 dark:text-default-800 truncate">
                     {note.contributor}
                   </p>
+                  <p className="text-left text-sm text-default-600 dark:text-default-500 truncate">
+                  {note.text}
+                </p>
                 </div>
               </div>
               <div className="min-w-0 w-full">
-                <p className="text-left text-sm text-default-600 dark:text-default-400 truncate">
-                  {note.text}
-                </p>
+
               </div>
             </div>
           </Card>

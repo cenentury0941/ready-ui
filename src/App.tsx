@@ -5,13 +5,13 @@ import { CartProvider, useCart } from './context/CartContext';
 import RecommendedBooks from './RecommendedBooks';
 import Login from './components/Login';
 import { CartIcon } from './icons/CartIcon';
-import sharanGurunathan from './assets/sharan_gurunathan.png';
 import { MsalProvider, useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { msalInstance, loginRequest } from './authConfig';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import OrderConfirmation from './pages/OrderConfirmation';
 import AdminOrders from './pages/AdminOrders';
+import { fetchUserPhoto } from './utils/authUtils';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -20,20 +20,23 @@ function AppContent() {
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      const accounts = instance.getAllAccounts();
-      if (accounts.length > 0) {
-        console.log("SSO Credentials:", accounts[0]);
-        const account = accounts[0];
-        const idTokenClaims = account.idTokenClaims as any;
-        const roles = idTokenClaims.roles || [];
-        setIsAdmin((roles.includes('Admin.Write')));
-        console.log(roles)
-      }
+    if (isAuthenticated && accounts.length > 0) {
+      const account = accounts[0];
+      const idTokenClaims = account.idTokenClaims as any;
+      const roles = idTokenClaims.roles || [];
+      setIsAdmin(!roles.includes('Admin.Write'));
+
+      // Fetch user's photo using the utility function
+      fetchUserPhoto(instance, loginRequest).then(photoUrl => {
+        if (photoUrl) {
+          setUserPhoto(photoUrl);
+        }
+      });
     }
-  }, [instance, isInitialized, isAuthenticated]);
+  }, [instance, isInitialized, isAuthenticated, accounts]);
 
   useEffect(() => {
     // Set initial dark mode
@@ -198,7 +201,8 @@ function AppContent() {
                     as="button"
                     radius="sm"
                     size="sm"
-                    src={sharanGurunathan}
+                    src={userPhoto || undefined}
+                    name={accounts[0]?.name?.charAt(0)}
                   />
                 </DropdownTrigger>
                 <DropdownMenu aria-label="User menu actions">

@@ -27,3 +27,29 @@ export const getUserLocation = (instance: IPublicClientApplication) => {
   }
   return null;
 };
+
+export const fetchUserPhoto = async (instance: IPublicClientApplication, loginRequest: any): Promise<string | null> => {
+  try {
+    const accounts = instance.getAllAccounts();
+    if (accounts.length === 0) return null;
+
+    const response = await instance.acquireTokenSilent({
+      ...loginRequest,
+      account: accounts[0]
+    });
+
+    const photoResponse = await fetch('https://graph.microsoft.com/v1.0/me/photo/$value', {
+      headers: {
+        'Authorization': `Bearer ${response.accessToken}`
+      }
+    });
+
+    if (!photoResponse.ok) return null;
+
+    const blob = await photoResponse.blob();
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error('Error fetching user photo:', error);
+    return null;
+  }
+};
