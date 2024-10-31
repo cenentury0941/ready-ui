@@ -10,12 +10,18 @@ const RecommendedBooks: React.FC = () => {
   const { cartItems, addToCart, removeFromCart } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [selectedBook, setSelectedBook] = useState<string | null>(null);
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
-  const filteredBooks = books.filter(book => 
-    book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    book.author.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredBooks = books.filter(book => {
+    if (selectedBook) {
+      // If a book was selected from dropdown, show only that book
+      return book.id === selectedBook;
+    }
+    // Otherwise filter by search term
+    return book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           book.author.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
@@ -24,18 +30,22 @@ const RecommendedBooks: React.FC = () => {
       setSelectedSuggestionIndex(prev => Math.max(prev - 1, -1));
     } else if (e.key === 'Enter' && selectedSuggestionIndex !== -1) {
       const selectedBook = filteredBooks[selectedSuggestionIndex];
-      setSearchTerm(`${selectedBook.title} - ${selectedBook.author}`);
-      setSelectedSuggestionIndex(-1);
+      handleSuggestionClick(selectedBook);
     }
   };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setSelectedSuggestionIndex(-1);
+    // Clear selected book when user starts typing new search
+    if (value === '') {
+      setSelectedBook(null);
+    }
   };
 
   const handleSuggestionClick = (book: typeof books[0]) => {
     setSearchTerm(`${book.title} - ${book.author}`);
+    setSelectedBook(book.id);
     setSelectedSuggestionIndex(-1);
   };
 
@@ -90,8 +100,12 @@ const RecommendedBooks: React.FC = () => {
               onValueChange={handleSearchChange}
               onKeyDown={handleKeyDown}
               isClearable
+              onClear={() => {
+                setSearchTerm('');
+                setSelectedBook(null);
+              }}
             />
-            {searchTerm && (
+            {searchTerm && !selectedBook && (
               <ul ref={suggestionsRef} className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 max-h-60 overflow-y-auto">
                 {filteredBooks.map((book, index) => (
                   <li
