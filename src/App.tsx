@@ -27,7 +27,7 @@ function AppContent() {
       const account = accounts[0];
       const idTokenClaims = account.idTokenClaims as any;
       const roles = idTokenClaims.roles || [];
-      setIsAdmin(!roles.includes('Admin.Write'));
+      setIsAdmin(roles.includes('Admin.Write'));
 
       // Fetch user's photo using the utility function
       fetchUserPhoto(instance, loginRequest).then(photoUrl => {
@@ -112,10 +112,10 @@ function AppContent() {
   const menuItems = isAdmin ? [
     {
       key: "profile",
-      className: "h-14 gap-2",
+      className: "h-14 gap-2 ",
       children: (
         <>
-          <p className="font-bold">Signed in as</p>
+          <p className="font-medium text-x text-gray-600 dark:text-gray-400">Signed in as</p>
           <p className="font-bold">{accounts[0]?.name}</p>
         </>
       )

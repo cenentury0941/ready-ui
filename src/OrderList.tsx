@@ -116,7 +116,7 @@ const OrderList: React.FC<OrderListProps> = ({
                   <CardHeader className="flex justify-between px-6 py-4">
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confirmation #:</p>
-                      <p className="text-md text-gray-900 dark:text-white">{order.confirmationNumber}</p>
+                      <p className="text-md text-gray-900 dark:text-white mb-4">{order.confirmationNumber}</p>
                       <div className="flex flex gap-6">
                               <div className="flex flex-col gap-1">
                               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -154,7 +154,7 @@ const OrderList: React.FC<OrderListProps> = ({
                               )}
                             </div>
                     </div>
-                    
+
                     <div className="text-right">
                       {isAdmin && onStatusUpdate ? (
                         <Select
