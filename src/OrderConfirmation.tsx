@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, Button } from "@nextui-org/react";
+import { Card, Button, Divider } from "@nextui-org/react";
+import { useNavigate } from 'react-router-dom';
 
 interface OrderConfirmationProps {
   orderId: string | null;
@@ -7,21 +8,72 @@ interface OrderConfirmationProps {
 }
 
 const OrderConfirmation: React.FC<OrderConfirmationProps> = ({ orderId, onClose }) => {
+  const navigate = useNavigate();
+
+  const handleViewOrders = () => {
+    navigate('/orders');
+    onClose();
+  };
+
   return (
-    <Card>
-      <div className="p-6 text-center">
-        <div className="mb-4">
-          <span className="text-5xl text-green-500">✔️</span>
-        </div>
-        <h3 className="text-2xl font-semibold mb-2">Order Placed Successfully!</h3>
-        <p className="mb-4">Confirmation #: {orderId}</p>
-        <div className="flex justify-center space-x-4">
-          <Button color="primary" onPress={onClose}>
-            Close
-          </Button>
-          <Button color="secondary" onPress={() => {/* Implement view orders functionality */}}>
-            View Orders
-          </Button>
+    <Card className="bg-white dark:bg-gray-900 shadow-none">
+      <div className="p-6">
+        <div className="flex flex-col items-center">
+          <div className="mb-6 w-16 h-16 rounded-full bg-success/10 dark:bg-success/20 flex items-center justify-center">
+            <svg 
+              className="w-8 h-8 text-success" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          
+          <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">
+            Order Placed Successfully!
+          </h3>
+          
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Thank you for your order
+          </p>
+          
+          <Card className="bg-default-50 dark:bg-default-100 shadow-none mb-6">
+            <div className="p-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                Order Confirmation #
+              </p>
+              <p className="text-base font-medium text-gray-800 dark:text-gray-100">
+                {orderId}
+              </p>
+            </div>
+          </Card>
+
+          <Divider className="my-4" />
+          
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              color="primary"
+              variant="flat"
+              onPress={handleViewOrders}
+              className="flex-1 sm:flex-none"
+            >
+              View Orders
+            </Button>
+            <Button
+              color="default"
+              variant="light"
+              onPress={onClose}
+              className="flex-1 sm:flex-none"
+            >
+              Continue Shopping
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
