@@ -112,11 +112,11 @@ const RecommendedBooks: React.FC = () => {
                       style={{ aspectRatio: '2/3' }}
                     />
                   </div>
-                  <div className="md:ml-6 flex-grow flex flex-col justify-between">
+                  <div className="md:ml-6 flex-grow flex flex-col justify-between min-w-0">
                     <div>
-                      <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100">{book.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{book.author}</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-400 mb-4">{book.about}</p>
+                      <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate">{book.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
                     </div>
                     <button 
                       className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id) ? 'text-success' : 'text-primary'}`}
