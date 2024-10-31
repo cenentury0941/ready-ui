@@ -64,7 +64,6 @@ const RecommendedBooks: React.FC = () => {
                 ],
                 inputWrapper: [
                   "h-full",
-                  "shadow-sm",
                   "bg-default-200/50",
                   "dark:bg-default/60",
                   "backdrop-blur-xl",
@@ -85,7 +84,7 @@ const RecommendedBooks: React.FC = () => {
               isClearable
             />
             {searchTerm && (
-              <ul ref={suggestionsRef} className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
+              <ul ref={suggestionsRef} className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 max-h-60 overflow-y-auto">
                 {filteredBooks.map((book, index) => (
                   <li
                     key={book.id}
@@ -102,7 +101,7 @@ const RecommendedBooks: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredBooks.map((book) => (
-            <Card key={book.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 dark:bg-gray-800">
+            <Card key={book.id} className="overflow-hidden dark:bg-gray-800 shadow-none" radius="sm">
               <div className="flex flex-col h-full">
                 <div className="flex flex-col md:flex-row p-6 flex-grow">
                   <div className="md:w-[100px] flex-shrink-0 mb-4 md:mb-0">
@@ -117,10 +116,10 @@ const RecommendedBooks: React.FC = () => {
                     <div>
                       <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100">{book.title}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{book.author}</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-400 mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-400 mb-4">{book.about}</p>
                     </div>
                     <button 
-                      className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id) ? 'text-green-500' : 'text-blue-500'}`}
+                      className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id) ? 'text-success' : 'text-primary'}`}
                       onClick={() => addToCart(book.id)}
                       disabled={cartItems.includes(book.id)}
                     >
@@ -130,7 +129,12 @@ const RecommendedBooks: React.FC = () => {
                   </div>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 p-6">
-                  <InspirationNotes notes={book.notes} />
+                  <InspirationNotes 
+                    notes={book.notes} 
+                    book={book}
+                    isInCart={cartItems.includes(book.id)}
+                    onAddToCart={addToCart}
+                  />
                 </div>
               </div>
             </Card>
