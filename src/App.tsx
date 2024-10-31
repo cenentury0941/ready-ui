@@ -19,6 +19,22 @@ function AppContent() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+ 
+    if (isAuthenticated) {
+      const accounts = instance.getAllAccounts();
+      if (accounts.length > 0) {
+        console.log("SSO Credentials:", accounts[0]);
+        const account = accounts[0];
+        const idTokenClaims = account.idTokenClaims as any;
+        const roles = idTokenClaims.roles || [];
+        console.log(roles)
+      }
+    }
+ 
+  }, [instance, isInitialized, isAuthenticated]);
+ 
+
+  useEffect(() => {
     // Set initial dark mode
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
