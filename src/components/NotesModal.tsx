@@ -73,12 +73,15 @@ const NotesModal: React.FC<NotesModalProps> = ({
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{book.title}</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{book.author}</p>
                 <button 
-                  className={`self-start flex items-center text-sm font-medium ${isInCart ? 'text-green-500' : 'text-blue-500'}`}
+                  className={`self-start flex items-center text-sm font-medium ${
+                    isInCart 
+                      ? 'text-red-500 hover:text-red-600' 
+                      : 'text-blue-500 hover:text-blue-600'
+                  }`}
                   onClick={() => onAddToCart(book.id)}
-                  disabled={isInCart}
                 >
                   <CartIcon size={16} className='mr-2' />
-                  {isInCart ? 'Added' : 'Add to Cart'}
+                  {isInCart ? 'Remove from Cart' : 'Add to Cart'}
                 </button>
               </div>
             </ModalHeader>

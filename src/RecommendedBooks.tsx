@@ -7,7 +7,7 @@ import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
 
 const RecommendedBooks: React.FC = () => {
-  const { cartItems, addToCart } = useCart();
+  const { cartItems, addToCart, removeFromCart } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const suggestionsRef = useRef<HTMLUListElement>(null);
@@ -37,6 +37,14 @@ const RecommendedBooks: React.FC = () => {
   const handleSuggestionClick = (book: typeof books[0]) => {
     setSearchTerm(`${book.title} - ${book.author}`);
     setSelectedSuggestionIndex(-1);
+  };
+
+  const handleCartAction = (bookId: string) => {
+    if (cartItems.includes(bookId)) {
+      removeFromCart(bookId);
+    } else {
+      addToCart(bookId);
+    }
   };
 
   useEffect(() => {
@@ -119,12 +127,15 @@ const RecommendedBooks: React.FC = () => {
                       <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
                     </div>
                     <button 
-                      className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id) ? 'text-success' : 'text-primary'}`}
-                      onClick={() => addToCart(book.id)}
-                      disabled={cartItems.includes(book.id)}
+                      className={`self-start flex items-center text-sm font-medium ${
+                        cartItems.includes(book.id) 
+                          ? 'text-red-500 hover:text-red-600' 
+                          : 'text-primary hover:text-primary-600'
+                      }`}
+                      onClick={() => handleCartAction(book.id)}
                     >
                       <CartIcon size={16} className='mr-2' />
-                      {cartItems.includes(book.id) ? 'Added' : 'Add to Cart'}
+                      {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
                     </button>
                   </div>
                 </div>
@@ -133,7 +144,7 @@ const RecommendedBooks: React.FC = () => {
                     notes={book.notes} 
                     book={book}
                     isInCart={cartItems.includes(book.id)}
-                    onAddToCart={addToCart}
+                    onAddToCart={handleCartAction}
                   />
                 </div>
               </div>
