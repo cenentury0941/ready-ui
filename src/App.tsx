@@ -10,6 +10,7 @@ import { MsalProvider, useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { msalInstance, loginRequest } from './authConfig';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
+import OrderConfirmation from './pages/OrderConfirmation';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -187,6 +188,9 @@ function AppContent() {
         } />
         <Route path="/orders" element={
           isAuthenticated ? <Orders /> : <Navigate to="/login" replace />
+        } />
+        <Route path="/order-confirmation" element={
+          isAuthenticated ? <OrderConfirmation /> : <Navigate to="/login" replace />
         } />
         <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>

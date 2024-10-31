@@ -3,7 +3,6 @@ import { useCart } from '../context/CartContext';
 import { books } from '../data/books';
 import { Button, Card } from "@nextui-org/react";
 import OrderSummary from '../OrderSummary';
-import OrderConfirmation from '../OrderConfirmation';
 import { useNavigate } from 'react-router-dom';
 import { TrashIcon } from '../icons/TrashIcon';
 import { getUserFullName, getUserId, getUserLocation } from '../utils/authUtils';
@@ -11,8 +10,6 @@ import { useMsal } from '@azure/msal-react';
 
 const Cart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
   const navigate = useNavigate();
   const {instance} = useMsal();
 
@@ -30,7 +27,6 @@ const Cart: React.FC = () => {
       const userLocation = getUserLocation(instance);
       const items = cartItems.map(productId => ({ productId }));
 
-
       const response = await fetch(`${apiUrl}/orders`, {
         method: 'POST',
         headers: {
@@ -41,9 +37,11 @@ const Cart: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setOrderId(data.responseObject.confirmationNumber);
-        setOrderPlaced(true);
         clearCart();
+        // Navigate to order confirmation page with orderId
+        navigate('/order-confirmation', { 
+          state: { orderId: data.responseObject.confirmationNumber }
+        });
       } else {
         alert('Failed to place order. Please try again.');
       }
@@ -52,16 +50,6 @@ const Cart: React.FC = () => {
       alert('An error occurred. Please try again.');
     }
   };
-
-  if (orderPlaced) {
-    return (
-      <div className="min-h-screen py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <OrderConfirmation orderId={orderId} onClose={() => navigate('/dashboard')} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen py-8">

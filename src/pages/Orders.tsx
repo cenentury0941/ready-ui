@@ -8,7 +8,16 @@ import { Order } from '../types';
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const { instance } = useMsal();
+
+  // Get unique statuses from orders
+  const availableStatuses = React.useMemo(() => {
+    const statuses = new Set(orders.map(order => order.status));
+    return Array.from(statuses);
+  }, [orders]);
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -42,7 +51,6 @@ const Orders: React.FC = () => {
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
           }));
-          console.log(formattedOrders)
           setOrders(formattedOrders);
         } else {
           console.error('Failed to fetch orders');
@@ -53,11 +61,45 @@ const Orders: React.FC = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [instance]);
+
+  // Filter and sort orders
+  const filteredAndSortedOrders = React.useMemo(() => {
+    let result = [...orders];
+
+    // Apply status filter
+    if (statusFilter) {
+      result = result.filter(order => order.status === statusFilter);
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+
+    return result;
+  }, [orders, statusFilter, sortBy]);
+
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+  };
 
   return (
     <div className="min-h-screen py-8">
-      <OrderList orders={orders} />
+      <OrderList 
+        orders={filteredAndSortedOrders}
+        statusFilter={statusFilter}
+        sortBy={sortBy}
+        onStatusFilterChange={handleStatusFilterChange}
+        onSortChange={handleSortChange}
+        availableStatuses={availableStatuses}
+      />
     </div>
   );
 };
