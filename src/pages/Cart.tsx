@@ -53,8 +53,13 @@ const Cart: React.FC = () => {
 
   return (
     <div className="min-h-screen py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Your Cart</h1>
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Your Cart</h1>
+        </div>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
+          {cartItems.length} {cartItems.length === 1 ? 'Book' : 'Books'}
+        </p>
         
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1">
@@ -62,7 +67,7 @@ const Cart: React.FC = () => {
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-400 mb-4">Your cart is empty</p>
                 <Button
-                  className="bg-[#e2231a] hover:bg-[#c41e15] text-white"
+                  color="primary"
                   onClick={() => navigate('/dashboard')}
                 >
                   Continue Shopping
