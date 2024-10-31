@@ -52,6 +52,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
       onClose={onClose}
       size="3xl"
       scrollBehavior="outside"
+      backdrop="blur"
       classNames={{
         base: "bg-white dark:bg-gray-900",
         header: "border-b border-gray-200 dark:border-gray-800",
