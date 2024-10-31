@@ -11,6 +11,7 @@ import { msalInstance, loginRequest } from './authConfig';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import OrderConfirmation from './pages/OrderConfirmation';
+import AdminOrders from './pages/AdminOrders';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -18,9 +19,9 @@ function AppContent() {
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
- 
     if (isAuthenticated) {
       const accounts = instance.getAllAccounts();
       if (accounts.length > 0) {
@@ -28,12 +29,11 @@ function AppContent() {
         const account = accounts[0];
         const idTokenClaims = account.idTokenClaims as any;
         const roles = idTokenClaims.roles || [];
+        setIsAdmin((roles.includes('Admin.Write')));
         console.log(roles)
       }
     }
- 
   }, [instance, isInitialized, isAuthenticated]);
- 
 
   useEffect(() => {
     // Set initial dark mode
@@ -95,7 +95,7 @@ function AppContent() {
   };
 
   const navigateToHome = () => {
-    navigate('/');
+    navigate(isAdmin ? '/admin/orders' : '/dashboard');
   };
 
   if (!isInitialized) {
@@ -105,6 +105,47 @@ function AppContent() {
       </div>
     );
   }
+
+  const menuItems = isAdmin ? [
+    {
+      key: "profile",
+      className: "h-14 gap-2",
+      children: (
+        <>
+          <p className="font-bold">Signed in as</p>
+          <p className="font-bold">{accounts[0]?.name}</p>
+        </>
+      )
+    },
+    {
+      key: "logout",
+      label: "Log Out",
+      color: "danger" as const,
+      onClick: handleLogout
+    }
+  ] : [
+    {
+      key: "profile",
+      className: "h-14 gap-2",
+      children: (
+        <>
+          <p className="font-bold">Signed in as</p>
+          <p className="font-bold">{accounts[0]?.name}</p>
+        </>
+      )
+    },
+    {
+      key: "orders",
+      label: "My Orders",
+      onClick: navigateToOrders
+    },
+    {
+      key: "logout",
+      label: "Log Out",
+      color: "danger" as const,
+      onClick: handleLogout
+    }
+  ];
 
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
@@ -133,20 +174,22 @@ function AppContent() {
                 />
               </div>
             </NavbarItem>
-            <NavbarItem>
-              <div className="relative">
-                <Button
-                  isIconOnly
-                  variant="light"
-                  onClick={navigateToCart}
-                  aria-label="Cart"
-                  className="text-gray-700 dark:text-gray-300"
-                >
-                  <CartIcon />
-                </Button>
-                <CartBadge />
-              </div>
-            </NavbarItem>
+            {!isAdmin && (
+              <NavbarItem>
+                <div className="relative">
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    onClick={navigateToCart}
+                    aria-label="Cart"
+                    className="text-gray-700 dark:text-gray-300"
+                  >
+                    <CartIcon />
+                  </Button>
+                  <CartBadge />
+                </div>
+              </NavbarItem>
+            )}
             <NavbarItem>
               <Dropdown>
                 <DropdownTrigger>
@@ -159,16 +202,16 @@ function AppContent() {
                   />
                 </DropdownTrigger>
                 <DropdownMenu aria-label="User menu actions">
-                  <DropdownItem key="profile" className="h-14 gap-2">
-                    <p className="font-bold">Signed in as</p>
-                    <p className="font-bold">{accounts[0]?.name}</p>
-                  </DropdownItem>
-                  <DropdownItem key="orders" onClick={navigateToOrders}>
-                    My Orders
-                  </DropdownItem>
-                  <DropdownItem key="logout" color="danger" onClick={handleLogout}>
-                    Log Out
-                  </DropdownItem>
+                  {menuItems.map(item => (
+                    <DropdownItem
+                      key={item.key}
+                      className={item.className}
+                      color={item.color}
+                      onClick={item.onClick}
+                    >
+                      {item.children || item.label}
+                    </DropdownItem>
+                  ))}
                 </DropdownMenu>
               </Dropdown>
             </NavbarItem>
@@ -178,21 +221,53 @@ function AppContent() {
 
       <Routes>
         <Route path="/login" element={
-          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
+          isAuthenticated ? 
+            <Navigate to={isAdmin ? "/admin/orders" : "/dashboard"} replace /> 
+            : <Login onLogin={handleLogin} />
         } />
-        <Route path="/dashboard" element={
-          isAuthenticated ? <RecommendedBooks /> : <Navigate to="/login" replace />
+        
+        {/* User Routes */}
+        {!isAdmin && (
+          <>
+            <Route path="/dashboard" element={
+              isAuthenticated ? <RecommendedBooks /> : <Navigate to="/login" replace />
+            } />
+            <Route path="/cart" element={
+              isAuthenticated ? <Cart /> : <Navigate to="/login" replace />
+            } />
+            <Route path="/orders" element={
+              isAuthenticated ? <Orders /> : <Navigate to="/login" replace />
+            } />
+            <Route path="/order-confirmation" element={
+              isAuthenticated ? <OrderConfirmation /> : <Navigate to="/login" replace />
+            } />
+          </>
+        )}
+
+        {/* Admin Routes */}
+        {isAdmin && (
+          <Route path="/admin/orders" element={
+            isAuthenticated ? <AdminOrders /> : <Navigate to="/login" replace />
+          } />
+        )}
+
+        {/* Default Route */}
+        <Route path="/" element={
+          <Navigate to={
+            !isAuthenticated ? "/login" 
+            : isAdmin ? "/admin/orders" 
+            : "/dashboard"
+          } replace />
         } />
-        <Route path="/cart" element={
-          isAuthenticated ? <Cart /> : <Navigate to="/login" replace />
+
+        {/* Catch-all route */}
+        <Route path="*" element={
+          <Navigate to={
+            !isAuthenticated ? "/login" 
+            : isAdmin ? "/admin/orders" 
+            : "/dashboard"
+          } replace />
         } />
-        <Route path="/orders" element={
-          isAuthenticated ? <Orders /> : <Navigate to="/login" replace />
-        } />
-        <Route path="/order-confirmation" element={
-          isAuthenticated ? <OrderConfirmation /> : <Navigate to="/login" replace />
-        } />
-        <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>
     </div>
   );

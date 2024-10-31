@@ -9,6 +9,8 @@ interface OrderListProps {
   availableStatuses: string[];
   onStatusFilterChange: (value: string) => void;
   onSortChange: (value: string) => void;
+  isAdmin?: boolean;
+  onStatusUpdate?: (orderId: string, newStatus: string) => void;
 }
 
 const OrderList: React.FC<OrderListProps> = ({ 
@@ -17,7 +19,9 @@ const OrderList: React.FC<OrderListProps> = ({
   sortBy, 
   availableStatuses,
   onStatusFilterChange, 
-  onSortChange 
+  onSortChange,
+  isAdmin = false,
+  onStatusUpdate
 }) => {
   // Group orders by date (YYYY-MM-DD)
   const groupedOrders = orders.reduce((groups: { [key: string]: Order[] }, order) => {
@@ -47,10 +51,27 @@ const OrderList: React.FC<OrderListProps> = ({
     { key: "oldest", value: "oldest", label: "Oldest First" }
   ];
 
+  const allStatusOptions = [
+    "Received", "Processing", "Shipped", "Delivered", "Cancelled"
+  ].map(status => ({
+    key: status,
+    value: status,
+    label: status
+  }));
+
+  const handleStatusChange = (orderId: string, e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    if (onStatusUpdate) {
+      onStatusUpdate(orderId, newStatus);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Order History</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {isAdmin ? 'All Orders' : 'Order History'}
+        </h2>
         <div className="flex gap-4">
           <Select
             label="Filter by Status"
@@ -96,15 +117,67 @@ const OrderList: React.FC<OrderListProps> = ({
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confirmation #:</p>
                       <p className="text-md text-gray-900 dark:text-white">{order.confirmationNumber}</p>
+                      <div className="flex flex gap-6">
+                              <div className="flex flex-col gap-1">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                Ordered On:
+                              </p>
+                              <p className="text-xs text-gray-900 dark:text-white">
+                                {new Date(order.createdAt).toLocaleString('en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                              </div>
+                              {isAdmin && (
+                                <>
+                                  <div className="flex flex-col gap-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      Customer:
+                                    </p>
+                                    <p className="text-xs text-gray-900 dark:text-white">
+                                    {order.fullName}
+                                  </p>
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      Location:
+                                    </p>
+                                    <p className="text-xs text-gray-900 dark:text-white">
+                                      {order.location}
+                                    </p>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                     </div>
+                    
                     <div className="text-right">
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                        order.status === 'Delivered' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                      }`}>
-                        {order.status}
-                      </span>
+                      {isAdmin && onStatusUpdate ? (
+                        <Select
+                          label="Status"
+                          className="min-w-[140px]"
+                          selectedKeys={[order.status]}
+                          onChange={(e) => handleStatusChange(order.id, e)}
+                        >
+                          {allStatusOptions.map(option => (
+                            <SelectItem key={option.key} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      ) : (
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                          order.status === 'Delivered' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        }`}>
+                          {order.status}
+                        </span>
+                      )}
                     </div>
                   </CardHeader>
                   <Divider className="bg-gray-200 dark:bg-gray-700"/>
@@ -117,20 +190,9 @@ const OrderList: React.FC<OrderListProps> = ({
                             alt={`${book.title} cover`}
                             className="w-20 h-[100px] object-cover rounded"
                           />
-                          <div>
+                          <div className="flex-grow">
                             <p className="font-semibold text-gray-900 dark:text-white">{book.title}</p>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{book.author}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Ordered On:
-                            </p>
-                            <p className="text-xs text-gray-900 dark:text-white">
-                              {new Date(order.createdAt).toLocaleString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}</p>
                           </div>
                         </div>
                       ))}

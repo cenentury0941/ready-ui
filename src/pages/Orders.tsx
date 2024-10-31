@@ -50,6 +50,9 @@ const Orders: React.FC = () => {
             status: order.status,
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
+            userId: order.userId || '',
+            fullName: order.fullName || '',
+            location: order.location || '',
           }));
           setOrders(formattedOrders);
         } else {
@@ -67,12 +70,10 @@ const Orders: React.FC = () => {
   const filteredAndSortedOrders = React.useMemo(() => {
     let result = [...orders];
 
-    // Apply status filter
     if (statusFilter) {
       result = result.filter(order => order.status === statusFilter);
     }
 
-    // Apply sorting
     result.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
@@ -82,22 +83,14 @@ const Orders: React.FC = () => {
     return result;
   }, [orders, statusFilter, sortBy]);
 
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value);
-  };
-
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-  };
-
   return (
     <div className="min-h-screen py-8">
       <OrderList 
         orders={filteredAndSortedOrders}
         statusFilter={statusFilter}
         sortBy={sortBy}
-        onStatusFilterChange={handleStatusFilterChange}
-        onSortChange={handleSortChange}
+        onStatusFilterChange={setStatusFilter}
+        onSortChange={setSortBy}
         availableStatuses={availableStatuses}
       />
     </div>
