@@ -18,14 +18,30 @@ export const getUserFullName = (instance: IPublicClientApplication) => {
   return null;
 };
 
-export const getUserLocation = (instance: IPublicClientApplication) => {
-  const accounts = instance.getAllAccounts();
-  if (accounts.length > 0) {
-    const account = accounts[0];
-    const idTokenClaims = account.idTokenClaims as any;
-    return idTokenClaims && idTokenClaims.location ? idTokenClaims.location : "Chennai";
+export const getUserLocation = async (instance: IPublicClientApplication) => {
+  try {
+    const accounts = instance.getAllAccounts();
+    if (accounts.length === 0) return null;
+
+    const response = await instance.acquireTokenSilent({
+      scopes: ["User.Read"],
+      account: accounts[0]
+    });
+
+    const locationResponse = await fetch('https://graph.microsoft.com/v1.0/me/officeLocation/$value', {
+      headers: {
+        'Authorization': `Bearer ${response.accessToken}`
+      }
+    });
+    if (!locationResponse.body) return null;
+    const reader = locationResponse.body.getReader();
+    const result = await reader.read();
+    const decoder = new TextDecoder('utf-8');
+    return decoder.decode(result.value);
+  } catch (error) {
+    console.error('Error fetching user location:', error);
+    return null;
   }
-  return null;
 };
 
 export const getUserIdToken = async (instance: IPublicClientApplication) => {

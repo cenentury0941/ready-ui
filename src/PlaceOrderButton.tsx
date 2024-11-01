@@ -20,7 +20,7 @@ const PlaceOrderButton: React.FC<PlaceOrderButtonProps> = ({ cartItems, clearCar
       }
       const userId = getUserId(instance);
       const fullName = getUserFullName(instance);
-      const location = getUserLocation(instance);
+      const location = await getUserLocation(instance);
       const idToken = await getUserIdToken(instance);
 
       if (!userId || !fullName || !location || !idToken) {

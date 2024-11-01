@@ -24,7 +24,7 @@ const Cart: React.FC = () => {
 
       const userId = getUserId(instance);
       const userFullName = getUserFullName(instance);
-      const userLocation = getUserLocation(instance);
+      const userLocation = await getUserLocation(instance);
       const items = cartItems.map(productId => ({ productId }));
       const idToken = await getUserIdToken(instance);
 
