@@ -23,13 +23,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, onPlaceOrder }) 
         <h4 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Order Summary</h4>
         <div className="space-y-4 mb-6">
           <div className="flex justify-between text-gray-600 dark:text-gray-400">
-            <span>Items ({cartItems.length}):</span>
-            <span>${totalPrice.toFixed(2)}</span>
+            <span>Books Qty: {cartItems.length}</span>
+            {/* <span>${totalPrice.toFixed(2)}</span> */}
           </div>
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <div className="flex justify-between font-bold text-gray-900 dark:text-white">
-              <span>Total:</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              {/* <span>Total:</span>
+              <span>${totalPrice.toFixed(2)}</span> */}
             </div>
           </div>
         </div>
