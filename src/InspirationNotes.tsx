@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Avatar } from "@nextui-org/react";
+import React, { useState } from 'react';
+import { Avatar, Card } from "@nextui-org/react";
+import NotesModal from './components/NotesModal';
 
 interface Note {
   text: string;
@@ -7,42 +8,81 @@ interface Note {
   imageUrl: string;
 }
 
-interface InspirationNotesProps {
-  notes: Note[];
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  thumbnail: string;
+  about: string;
 }
 
-const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes }) => {
-  const [currentNoteIndex, setCurrentNoteIndex] = useState(0);
+interface InspirationNotesProps {
+  notes: Note[];
+  book: Book;
+  isInCart: boolean;
+  onAddToCart: (bookId: string) => void;
+}
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentNoteIndex((prevIndex) => (prevIndex + 1) % notes.length);
-    }, Math.floor(Math.random() * (20000 - 5000 + 1)) + 5000);
+const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCart, onAddToCart }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContributor, setSelectedContributor] = useState<string>('');
 
-    return () => clearInterval(interval);
-  }, [notes.length]);
+  const handleNoteClick = (contributor: string) => {
+    setSelectedContributor(contributor);
+    setIsModalOpen(true);
+  };
 
   if (notes.length === 0) {
     return null;
   }
 
-  const currentNote = notes[currentNoteIndex];
-
   return (
-    <div className="rounded-lg">
-      <div className="flex items-start">
-        <Avatar
-          src={currentNote.imageUrl}
-          alt={currentNote.contributor}
-          className="mr-3 flex-shrink-0"
-          size="sm"
-        />
-        <div className="flex-grow">
-          <p className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-1">{currentNote.contributor}</p>
-          <p className="italic text-sm text-gray-600 dark:text-gray-400">"{currentNote.text}"</p>
-        </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {notes.slice(0, 4).map((note, index) => (
+          <Card
+            key={`${note.contributor}-${index}`}
+            isPressable
+            onPress={() => handleNoteClick(note.contributor)}
+            classNames={{
+              base: "bg-default-50 dark:bg-default-50 shadow-none w-full"
+            }}
+          >
+            <div className="p-3 w-full">
+              <div className="flex items-center gap-2 w-full">
+                <Avatar
+                  src={note.imageUrl}
+                  alt={note.contributor}
+                  className="flex-shrink-0"
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1 ml-2">
+                  <p className="text-left font-medium text-sm text-default-700 dark:text-default-800 truncate">
+                    {note.contributor}
+                  </p>
+                  <p className="text-left text-sm text-default-600 dark:text-default-500 truncate">
+                  {note.text}
+                </p>
+                </div>
+              </div>
+              <div className="min-w-0 w-full">
+
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
-    </div>
+
+      <NotesModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        notes={notes}
+        book={book}
+        isInCart={isInCart}
+        onAddToCart={onAddToCart}
+        initialContributor={selectedContributor}
+      />
+    </>
   );
 };
 

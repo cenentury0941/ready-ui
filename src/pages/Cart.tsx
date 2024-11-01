@@ -3,7 +3,6 @@ import { useCart } from '../context/CartContext';
 import { books } from '../data/books';
 import { Button, Card } from "@nextui-org/react";
 import OrderSummary from '../OrderSummary';
-import OrderConfirmation from '../OrderConfirmation';
 import { useNavigate } from 'react-router-dom';
 import { TrashIcon } from '../icons/TrashIcon';
 import { getUserFullName, getUserId, getUserLocation } from '../utils/authUtils';
@@ -11,8 +10,6 @@ import { useMsal } from '@azure/msal-react';
 
 const Cart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
   const navigate = useNavigate();
   const {instance} = useMsal();
 
@@ -30,7 +27,6 @@ const Cart: React.FC = () => {
       const userLocation = getUserLocation(instance);
       const items = cartItems.map(productId => ({ productId }));
 
-
       const response = await fetch(`${apiUrl}/orders`, {
         method: 'POST',
         headers: {
@@ -41,9 +37,11 @@ const Cart: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setOrderId(data.responseObject.confirmationNumber);
-        setOrderPlaced(true);
         clearCart();
+        // Navigate to order confirmation page with orderId
+        navigate('/order-confirmation', { 
+          state: { orderId: data.responseObject.confirmationNumber }
+        });
       } else {
         alert('Failed to place order. Please try again.');
       }
@@ -53,20 +51,15 @@ const Cart: React.FC = () => {
     }
   };
 
-  if (orderPlaced) {
-    return (
-      <div className="min-h-screen py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <OrderConfirmation orderId={orderId} onClose={() => navigate('/dashboard')} />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Your Cart</h1>
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Your Cart</h1>
+        </div>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
+          {cartItems.length} {cartItems.length === 1 ? 'Book' : 'Books'}
+        </p>
         
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1">
@@ -74,7 +67,7 @@ const Cart: React.FC = () => {
               <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-400 mb-4">Your cart is empty</p>
                 <Button
-                  className="bg-[#e2231a] hover:bg-[#c41e15] text-white"
+                  color="primary"
                   onClick={() => navigate('/dashboard')}
                 >
                   Continue Shopping

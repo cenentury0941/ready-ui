@@ -10,4 +10,7 @@ export interface Order {
   status: string;
   createdAt: string;
   updatedAt: string;
+  userId: string;
+  fullName: string;
+  location: string;
 }

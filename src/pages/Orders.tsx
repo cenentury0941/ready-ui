@@ -8,7 +8,16 @@ import { Order } from '../types';
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const { instance } = useMsal();
+
+  // Get unique statuses from orders
+  const availableStatuses = React.useMemo(() => {
+    const statuses = new Set(orders.map(order => order.status));
+    return Array.from(statuses);
+  }, [orders]);
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -41,8 +50,10 @@ const Orders: React.FC = () => {
             status: order.status,
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
+            userId: order.userId || '',
+            fullName: order.fullName || '',
+            location: order.location || '',
           }));
-          console.log(formattedOrders)
           setOrders(formattedOrders);
         } else {
           console.error('Failed to fetch orders');
@@ -53,11 +64,35 @@ const Orders: React.FC = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [instance]);
+
+  // Filter and sort orders
+  const filteredAndSortedOrders = React.useMemo(() => {
+    let result = [...orders];
+
+    if (statusFilter) {
+      result = result.filter(order => order.status === statusFilter);
+    }
+
+    result.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+
+    return result;
+  }, [orders, statusFilter, sortBy]);
 
   return (
     <div className="min-h-screen py-8">
-      <OrderList orders={orders} />
+      <OrderList 
+        orders={filteredAndSortedOrders}
+        statusFilter={statusFilter}
+        sortBy={sortBy}
+        onStatusFilterChange={setStatusFilter}
+        onSortChange={setSortBy}
+        availableStatuses={availableStatuses}
+      />
     </div>
   );
 };

@@ -7,15 +7,21 @@ import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
 
 const RecommendedBooks: React.FC = () => {
-  const { cartItems, addToCart } = useCart();
+  const { cartItems, addToCart, removeFromCart } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [selectedBook, setSelectedBook] = useState<string | null>(null);
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
-  const filteredBooks = books.filter(book => 
-    book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    book.author.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredBooks = books.filter(book => {
+    if (selectedBook) {
+      // If a book was selected from dropdown, show only that book
+      return book.id === selectedBook;
+    }
+    // Otherwise filter by search term
+    return book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           book.author.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
@@ -24,19 +30,31 @@ const RecommendedBooks: React.FC = () => {
       setSelectedSuggestionIndex(prev => Math.max(prev - 1, -1));
     } else if (e.key === 'Enter' && selectedSuggestionIndex !== -1) {
       const selectedBook = filteredBooks[selectedSuggestionIndex];
-      setSearchTerm(`${selectedBook.title} - ${selectedBook.author}`);
-      setSelectedSuggestionIndex(-1);
+      handleSuggestionClick(selectedBook);
     }
   };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setSelectedSuggestionIndex(-1);
+    // Clear selected book when user starts typing new search
+    if (value === '') {
+      setSelectedBook(null);
+    }
   };
 
   const handleSuggestionClick = (book: typeof books[0]) => {
     setSearchTerm(`${book.title} - ${book.author}`);
+    setSelectedBook(book.id);
     setSelectedSuggestionIndex(-1);
+  };
+
+  const handleCartAction = (bookId: string) => {
+    if (cartItems.includes(bookId)) {
+      removeFromCart(bookId);
+    } else {
+      addToCart(bookId);
+    }
   };
 
   useEffect(() => {
@@ -64,7 +82,6 @@ const RecommendedBooks: React.FC = () => {
                 ],
                 inputWrapper: [
                   "h-full",
-                  "shadow-sm",
                   "bg-default-200/50",
                   "dark:bg-default/60",
                   "backdrop-blur-xl",
@@ -83,9 +100,13 @@ const RecommendedBooks: React.FC = () => {
               onValueChange={handleSearchChange}
               onKeyDown={handleKeyDown}
               isClearable
+              onClear={() => {
+                setSearchTerm('');
+                setSelectedBook(null);
+              }}
             />
-            {searchTerm && (
-              <ul ref={suggestionsRef} className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
+            {searchTerm && !selectedBook && (
+              <ul ref={suggestionsRef} className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 max-h-60 overflow-y-auto">
                 {filteredBooks.map((book, index) => (
                   <li
                     key={book.id}
@@ -102,7 +123,7 @@ const RecommendedBooks: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredBooks.map((book) => (
-            <Card key={book.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 dark:bg-gray-800">
+            <Card key={book.id} className="overflow-hidden dark:bg-gray-800 shadow-none" radius="sm">
               <div className="flex flex-col h-full">
                 <div className="flex flex-col md:flex-row p-6 flex-grow">
                   <div className="md:w-[100px] flex-shrink-0 mb-4 md:mb-0">
@@ -113,24 +134,32 @@ const RecommendedBooks: React.FC = () => {
                       style={{ aspectRatio: '2/3' }}
                     />
                   </div>
-                  <div className="md:ml-6 flex-grow flex flex-col justify-between">
+                  <div className="md:ml-6 flex-grow flex flex-col justify-between min-w-0">
                     <div>
-                      <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100">{book.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{book.author}</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-400 mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                      <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate">{book.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
                     </div>
                     <button 
-                      className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id) ? 'text-green-500' : 'text-blue-500'}`}
-                      onClick={() => addToCart(book.id)}
-                      disabled={cartItems.includes(book.id)}
+                      className={`self-start flex items-center text-sm font-medium ${
+                        cartItems.includes(book.id) 
+                          ? 'text-red-500 hover:text-red-600' 
+                          : 'text-primary hover:text-primary-600'
+                      }`}
+                      onClick={() => handleCartAction(book.id)}
                     >
                       <CartIcon size={16} className='mr-2' />
-                      {cartItems.includes(book.id) ? 'Added' : 'Add to Cart'}
+                      {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
                     </button>
                   </div>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 p-6">
-                  <InspirationNotes notes={book.notes} />
+                  <InspirationNotes 
+                    notes={book.notes} 
+                    book={book}
+                    isInCart={cartItems.includes(book.id)}
+                    onAddToCart={handleCartAction}
+                  />
                 </div>
               </div>
             </Card>
