@@ -5,7 +5,7 @@ import { Button, Card } from "@nextui-org/react";
 import OrderSummary from '../OrderSummary';
 import { useNavigate } from 'react-router-dom';
 import { TrashIcon } from '../icons/TrashIcon';
-import { getUserFullName, getUserId, getUserLocation } from '../utils/authUtils';
+import { getUserFullName, getUserId, getUserIdToken, getUserLocation } from '../utils/authUtils';
 import { useMsal } from '@azure/msal-react';
 
 const Cart: React.FC = () => {
@@ -26,11 +26,13 @@ const Cart: React.FC = () => {
       const userFullName = getUserFullName(instance);
       const userLocation = getUserLocation(instance);
       const items = cartItems.map(productId => ({ productId }));
+      const idToken = await getUserIdToken(instance);
 
       const response = await fetch(`${apiUrl}/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({ userId: userId, fullName: userFullName, location: userLocation, items: items }),
       });

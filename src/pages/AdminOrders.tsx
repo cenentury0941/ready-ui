@@ -3,6 +3,7 @@ import { useMsal } from '@azure/msal-react';
 import { books } from '../data/books';
 import OrderList from '../OrderList';
 import { Order } from '../types';
+import { getUserIdToken } from '../utils/authUtils';
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -27,8 +28,12 @@ const AdminOrders: React.FC = () => {
         console.error('API URL is not configured');
         return;
       }
-
-      const response = await fetch(`${apiUrl}/orders`);
+      const idToken = await getUserIdToken(instance);
+      const response = await fetch(`${apiUrl}/orders`, {
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+        },
+      });
       
       if (response.ok) {
         const data = await response.json();
@@ -77,10 +82,12 @@ const AdminOrders: React.FC = () => {
         return;
       }
 
+      const idToken = await getUserIdToken(instance);
       const response = await fetch(`${apiUrl}/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({ status: newStatus }),
       });

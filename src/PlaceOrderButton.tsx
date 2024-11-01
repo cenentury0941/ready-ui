@@ -1,5 +1,5 @@
 import React from 'react';
-import { getUserId, getUserFullName, getUserLocation } from './utils/authUtils';
+import { getUserId, getUserFullName, getUserLocation, getUserIdToken } from './utils/authUtils';
 import { useMsal } from "@azure/msal-react";
 
 interface PlaceOrderButtonProps {
@@ -21,9 +21,10 @@ const PlaceOrderButton: React.FC<PlaceOrderButtonProps> = ({ cartItems, clearCar
       const userId = getUserId(instance);
       const fullName = getUserFullName(instance);
       const location = getUserLocation(instance);
+      const idToken = await getUserIdToken(instance);
 
-      if (!userId || !fullName || !location) {
-        console.error('User information is incomplete', { userId, fullName, location });
+      if (!userId || !fullName || !location || !idToken) {
+        console.error('User information is incomplete', { userId, fullName, location, idToken });
         alert('User information is incomplete. Please check your profile settings.');
         return;
       }
@@ -32,6 +33,7 @@ const PlaceOrderButton: React.FC<PlaceOrderButtonProps> = ({ cartItems, clearCar
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({
           userId,

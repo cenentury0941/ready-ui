@@ -2,19 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { useTable, useSortBy, useFilters, Column } from 'react-table';
 
 import { Order } from './types';
+import { getUserIdToken } from './utils/authUtils';
+import { useMsal } from '@azure/msal-react';
 
 const OrderTable: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const { instance } = useMsal();
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        const idToken = await getUserIdToken(instance);
         const apiUrl = process.env.REACT_APP_API_URL;
         if (!apiUrl) {
           console.error('API URL is not configured');
           return;
         }
-        const response = await fetch(`${apiUrl}/orders`);
+        const response = await fetch(`${apiUrl}/orders`, {
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+          },
+        });
         if (response.ok) {
           const data = await response.json();
           setOrders(data);

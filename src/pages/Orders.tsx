@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getUserId } from '../utils/authUtils';
+import { getUserId, getUserIdToken } from '../utils/authUtils';
 import { books } from '../data/books';
 import OrderList from '../OrderList';
 import { useMsal } from '@azure/msal-react';
@@ -21,6 +21,7 @@ const Orders: React.FC = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        const idToken = await getUserIdToken(instance);
         const apiUrl = process.env.REACT_APP_API_URL;
         if (!apiUrl) {
           console.error('API URL is not configured');
@@ -31,7 +32,11 @@ const Orders: React.FC = () => {
           console.error('User ID is not available');
           return;
         }
-        const response = await fetch(`${apiUrl}/orders/user/${userId}`);
+        const response = await fetch(`${apiUrl}/orders/user/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+          },
+        });
         if (response.ok) {
           const data = await response.json();
           const orderData: Order[] = data.responseObject;
