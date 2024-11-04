@@ -45,7 +45,8 @@ const Cart: React.FC = () => {
           state: { orderId: data.responseObject.confirmationNumber }
         });
       } else {
-        alert('Failed to place order. Please try again.');
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to place order. Please try again.');
       }
     } catch (error) {
       console.error('Error placing order:', error);
