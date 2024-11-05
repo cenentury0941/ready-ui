@@ -51,15 +51,18 @@ const RecommendedBooks: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<string | null>(null);
   const suggestionsRef = useRef<HTMLUListElement>(null);
 
-  const filteredBooks = books.filter(book => {
+  const filteredBooks = books
+  .filter(book => {
     if (selectedBook) {
-      // If a book was selected from dropdown, show only that book
+      
       return book.id === selectedBook;
     }
     // Otherwise filter by search term
     return book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           book.author.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+      book.author.toLowerCase().includes(searchTerm.toLowerCase());
+  })
+  .sort((a, b) => b.qty - a.qty); 
+
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
@@ -177,24 +180,29 @@ const RecommendedBooks: React.FC = () => {
                       <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate">{book.title}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
                       <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Quantity: {book.qty}</p>
+                      {book.qty > 0 ? (
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Quantity: {book.qty}</p>
+                      ) : (
+                        <p className="text-sm text-red-500 mb-4">SOLD OUT</p>
+                      )}
                     </div>
-                    <button 
-                      className={`self-start flex items-center text-sm font-medium ${
-                        cartItems.includes(book.id) 
-                          ? 'text-red-500 hover:text-red-600' 
-                          : 'text-primary hover:text-primary-600'
-                      }`}
-                      onClick={() => handleCartAction(book.id)}
-                    >
-                      <CartIcon size={16} className='mr-2' />
-                      {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
-                    </button>
+                    {book.qty > 0 && ( // Only show the button if quantity is greater than 0
+                      <button
+                        className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id)
+                            ? 'text-red-500 hover:text-red-600'
+                            : 'text-primary hover:text-primary-600'
+                          }`}
+                        onClick={() => handleCartAction(book.id)}
+                      >
+                        <CartIcon size={16} className='mr-2' />
+                        {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 p-6">
-                  <InspirationNotes 
-                    notes={book.notes} 
+                  <InspirationNotes
+                    notes={book.notes}
                     book={book}
                     isInCart={cartItems.includes(book.id)}
                     onAddToCart={handleCartAction}
