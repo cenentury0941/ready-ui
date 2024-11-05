@@ -1,13 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useCart } from './context/CartContext';
 import InspirationNotes from './InspirationNotes';
-import { books } from './data/books';
 import { Card, Input } from "@nextui-org/react";
 import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
+import { useMsal } from '@azure/msal-react';
+import { getUserIdToken } from './utils/authUtils';
 
 const RecommendedBooks: React.FC = () => {
+  const { instance } = useMsal();
   const { cartItems, addToCart, removeFromCart } = useCart();
+  const [books, setBooks] = useState<Array<{
+    id: string;
+    title: string;
+    author: string;
+    thumbnail: string;
+    about: string;
+    notes: Array<{ text: string; contributor: string; imageUrl: string; }>;
+    qty: number;
+  }>>([]);
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const idToken = await getUserIdToken(instance);
+        const apiUrl = process.env.REACT_APP_API_URL;
+        if (!apiUrl) {
+          console.error('API URL is not configured');
+          return;
+        }
+        const response = await fetch(`${apiUrl}/books`, {
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch books');
+        }
+        const data = await response.json();
+        setBooks(data);
+      } catch (error) {
+        console.error('Error fetching books:', error);
+      }
+    };
+
+    fetchBooks();
+  }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [selectedBook, setSelectedBook] = useState<string | null>(null);
@@ -139,6 +177,7 @@ const RecommendedBooks: React.FC = () => {
                       <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate">{book.title}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
                       <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Quantity: {book.qty}</p>
                     </div>
                     <button 
                       className={`self-start flex items-center text-sm font-medium ${
