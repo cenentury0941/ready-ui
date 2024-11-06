@@ -74,3 +74,7 @@ input, button, textarea, select {
     scroll-behavior: auto !important;
   }
 }
+
+.chip-dark {
+  color: "black"
+}

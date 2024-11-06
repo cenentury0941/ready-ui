@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { books } from '../data/books';
-import { Button, Card } from "@nextui-org/react";
+import { Button, Card, Chip, Snippet, Spinner } from "@nextui-org/react";
 import OrderSummary from '../OrderSummary';
 import { useNavigate } from 'react-router-dom';
 import { TrashIcon } from '../icons/TrashIcon';
@@ -12,13 +12,17 @@ const Cart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
   const navigate = useNavigate();
   const {instance} = useMsal();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handlePlaceOrder = async () => {
     try {
       const apiUrl = process.env.REACT_APP_API_URL;
+      setErrorMessage(null)
+      setIsLoading(true)
       if (!apiUrl) {
         console.error('API URL is not configured');
-        alert('Configuration error. Please contact support.');
+        setErrorMessage("Configuration error. Please contact support.");
         return;
       }
 
@@ -46,16 +50,19 @@ const Cart: React.FC = () => {
         });
       } else {
         const errorData = await response.json();
-        alert(errorData.message || 'Failed to place order. Please try again.');
+        setErrorMessage(errorData.message || 'Failed to place order. Please try again.');
       }
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('An error occurred. Please try again.');
+      setErrorMessage('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false)
     }
   };
 
   return (
     <div className="min-h-screen py-8">
+      { isLoading && <FullPageLoader /> }
       <div className="max-w-4xl mx-auto p-4">
         <div className="flex justify-between items-center mb-2">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Your Cart</h1>
@@ -63,6 +70,15 @@ const Cart: React.FC = () => {
         <p className="text-gray-600 dark:text-gray-400 mb-6">
           {cartItems.length} {cartItems.length === 1 ? 'Book' : 'Books'}
         </p>
+        { 
+          errorMessage &&
+          <div style={{ display: "flex", padding: "1rem", margin: "1rem 0", backgroundColor: "hsl(var(--nextui-danger)/.2)", color: "hsl(var(--nextui-danger-500)/var(--nextui-danger-500-opacity,var(--tw-text-opacity)))", borderRadius: "10px" }}>
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+              <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+            </svg>
+            <p style={{ marginLeft: "5px" }}>{errorMessage}</p>
+          </div>
+        }
         
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1">
@@ -117,6 +133,20 @@ const Cart: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+};
+
+const FullPageLoader = () => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="flex flex-col items-center gap-4">
+        <Spinner 
+          size="lg" 
+          color="primary"
+          labelColor="primary"
+        />
       </div>
     </div>
   );
