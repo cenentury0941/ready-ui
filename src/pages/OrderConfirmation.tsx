@@ -78,7 +78,7 @@ const OrderConfirmation: React.FC = () => {
                   onPress={handleContinueShopping}
                   className="flex-1 sm:flex-none"
                 >
-                  Continue Shopping
+                  Continue Browsing
                 </Button>
               </div>
             </div>

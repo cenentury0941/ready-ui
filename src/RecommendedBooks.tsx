@@ -181,9 +181,9 @@ const RecommendedBooks: React.FC = () => {
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
                       <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
                       {book.qty > 0 ? (
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Quantity: {book.qty}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Only {book.qty} books left</p>
                       ) : (
-                        <p className="text-sm text-red-500 mb-4">SOLD OUT</p>
+                        <p className="text-sm text-red-500 mb-4">Out of Stock</p>
                       )}
                     </div>
                     {book.qty > 0 && ( // Only show the button if quantity is greater than 0

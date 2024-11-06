@@ -73,7 +73,7 @@ const Cart: React.FC = () => {
                   color="primary"
                   onClick={() => navigate('/dashboard')}
                 >
-                  Continue Shopping
+                  Continue Browsing
                 </Button>
               </div>
             ) : (
