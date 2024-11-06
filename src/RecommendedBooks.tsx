@@ -235,7 +235,7 @@ const RecommendedBooks: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <div className="border-t border-gray-200 dark:border-gray-700 p-6">
+                  <div className="border-t border-gray-200 dark:border-gray-700 p-6" style={{ height: (book.notes?.length === 0) ? "113px" : "inherit" }}>
                     <InspirationNotes
                       notes={book.notes}
                       book={book}
