@@ -9,6 +9,7 @@ import rajeev from '../assets/rajeev.jpeg';
 import sharanGurunathan from '../assets/sharan_gurunathan.png';
 import sujithra from '../assets/sujithra.jpeg';
 import caitlin from '../assets/caitlin.jpg';
+import cultureMap from '../assets/the_culture_map.jpg';
 
 export const books = [
   {
@@ -76,6 +77,20 @@ But what sets this book apart is that its focus isn’t on the “work”, it’
     notes: [
       { text: "Hospitality is about making people feel good.", contributor: "Caitlin Schuman", imageUrl: caitlin },
       { text: "The unreasonable man adapts the world to himself.", contributor: "Kevin Watkins", imageUrl: kevinWatkins }
+    ]
+  },
+  {
+    id: "5i1f3d5i-2g7f-8e6d-1f5i-5i1f3d5i3f7f",
+    title: "The Culture Map",
+    author: "Erin Meyer",
+    thumbnail: "the_culture_map.jpg",
+    about: "Whether you work in a home office or abroad, business success in our ever more globalized and virtual world requires the skills to navigate through cultural differences and decode cultures foreign to your own. Renowned expert Erin Meyer is your guide through this subtle, sometimes treacherous terrain where people from starkly different backgrounds are expected to work harmoniously together.",
+    notes: [
+      {
+        text: "Understanding how your counterparts build trust, persuades, and evaluates the ideas of others will help you to approach their perspective - Erin Meyer\n\nThe Culture Map: Breaking Through the Invisible Boundaries of Global Business by Erin Meyer is a must read for global teams to acknowledge and learn from cultural differences. To be able to blend them to create a more resilient team culture. Gives the reader insights into the unexplored dynamics of global business.\n\nErin takes us through eight simple yet key dimensions that shape the ways people communicate, make decisions, and approach hierarchy. With practical examples and clear frameworks, this book would help leaders bridge cultural differences, build stronger teams, and enhance collaboration\n",
+        contributor: "Sujithra Gunasekaran",
+        imageUrl: "sujithra.jpeg"
+      }
     ]
   }
 ];
