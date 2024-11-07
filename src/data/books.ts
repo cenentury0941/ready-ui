@@ -80,7 +80,7 @@ But what sets this book apart is that its focus isn’t on the “work”, it’
     ]
   },
   {
-    id: "5i1f3d5i-2g7f-8e6d-1f5i-5i1f3d5i3f7f",
+    id: "5i1f3d5i-2g7f-8e6d-1f5i-5i1f3d5i3f7g",
     title: "The Culture Map",
     author: "Erin Meyer",
     thumbnail: "the_culture_map.jpg",
