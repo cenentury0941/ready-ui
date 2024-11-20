@@ -12,6 +12,7 @@ import Orders from './pages/Orders';
 import OrderConfirmation from './pages/OrderConfirmation';
 import AdminOrders from './pages/AdminOrders';
 import { fetchUserPhoto } from './utils/authUtils';
+import BookDetails from './BookDetails'; // Added import for BookDetails
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -245,6 +246,9 @@ function AppContent() {
             <Route path="/order-confirmation" element={
               isAuthenticated ? <OrderConfirmation /> : <Navigate to="/login" replace />
             } />
+            <Route path="/book/:id" element={
+              isAuthenticated ? <BookDetails /> : <Navigate to="/login" replace />
+            } /> {/* Added new route for BookDetails */}
           </>
         )}
 
