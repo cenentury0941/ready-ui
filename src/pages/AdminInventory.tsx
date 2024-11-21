@@ -7,11 +7,14 @@ import {
   TableRow,
   TableCell,
   Button,
-  Input
+  Input,
+  Spinner
 } from '@nextui-org/react';
 import { useMsal } from '@azure/msal-react';
 import { getUserIdToken } from '../utils/authUtils';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Book {
   id: string;
@@ -22,6 +25,7 @@ interface Book {
 
 const AdminInventory: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const { instance } = useMsal();
 
   useEffect(() => {
@@ -31,6 +35,7 @@ const AdminInventory: React.FC = () => {
         const apiUrl = process.env.REACT_APP_API_URL;
         if (!apiUrl) {
           console.error('API URL is not configured');
+          setLoading(false);
           return;
         }
         const response = await axios.get(`${apiUrl}/books`, {
@@ -41,6 +46,8 @@ const AdminInventory: React.FC = () => {
         setBooks(response.data);
       } catch (error) {
         console.error('Error fetching books:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -78,10 +85,10 @@ const AdminInventory: React.FC = () => {
           },
         }
       );
-      alert('Quantity updated successfully');
+      toast.success('Quantity updated successfully');
     } catch (error) {
       console.error('Error updating quantity:', error);
-      alert('Failed to update quantity');
+      toast.error('Failed to update quantity');
     }
   };
 
@@ -91,42 +98,46 @@ const AdminInventory: React.FC = () => {
         <h1 className="text-4xl font-bold mb-6 text-gray-800 dark:text-gray-100 text-center">
           Inventory
         </h1>
-        <Table
-          aria-label="Inventory Table"
-          selectionMode="none"
-        >
-          <TableHeader>
-            <TableColumn>Title</TableColumn>
-            <TableColumn>Author</TableColumn>
-            <TableColumn>Quantity</TableColumn>
-            <TableColumn>Action</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {books.map((book) => (
-              <TableRow key={book.id}>
-                <TableCell>{book.title}</TableCell>
-                <TableCell>{book.author}</TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    value={book.qty.toString()}
-                    onChange={(e) =>
-                      handleQuantityChange(book.id, parseInt(e.target.value))
-                    }
-                    min={0}
-                    width="100px"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button onClick={() => handleSave(book.id)}>
-                    Save
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {loading ? (
+          <div className="flex justify-center">
+            <Spinner size="lg" />
+          </div>
+        ) : (
+          <Table aria-label="Inventory Table" selectionMode="none">
+            <TableHeader>
+              <TableColumn>Title</TableColumn>
+              <TableColumn>Author</TableColumn>
+              <TableColumn>Quantity</TableColumn>
+              <TableColumn>Action</TableColumn>
+            </TableHeader>
+            <TableBody>
+              {books.map((book) => (
+                <TableRow key={book.id}>
+                  <TableCell>{book.title}</TableCell>
+                  <TableCell>{book.author}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={book.qty.toString()}
+                      onChange={(e) =>
+                        handleQuantityChange(book.id, parseInt(e.target.value))
+                      }
+                      min={0}
+                      width="100px"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleSave(book.id)}>
+                      Save
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
+      <ToastContainer />
     </div>
   );
 };
