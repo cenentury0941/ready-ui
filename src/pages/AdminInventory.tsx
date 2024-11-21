@@ -5,10 +5,13 @@ import {
   TableColumn,
   TableBody,
   TableRow,
-  TableCell
+  TableCell,
+  Button,
+  Input
 } from '@nextui-org/react';
 import { useMsal } from '@azure/msal-react';
 import { getUserIdToken } from '../utils/authUtils';
+import axios from 'axios';
 
 interface Book {
   id: string;
@@ -30,16 +33,12 @@ const AdminInventory: React.FC = () => {
           console.error('API URL is not configured');
           return;
         }
-        const response = await fetch(`${apiUrl}/books`, {
+        const response = await axios.get(`${apiUrl}/books`, {
           headers: {
             'Authorization': `Bearer ${idToken}`,
           },
         });
-        if (!response.ok) {
-          throw new Error('Failed to fetch books');
-        }
-        const data = await response.json();
-        setBooks(data);
+        setBooks(response.data);
       } catch (error) {
         console.error('Error fetching books:', error);
       }
@@ -47,6 +46,44 @@ const AdminInventory: React.FC = () => {
 
     fetchBooks();
   }, [instance]);
+
+  const handleQuantityChange = (id: string, newQuantity: number) => {
+    setBooks(prevBooks =>
+      prevBooks.map(book =>
+        book.id === id ? { ...book, qty: newQuantity } : book
+      )
+    );
+  };
+
+  const handleSave = async (id: string) => {
+    try {
+      const idToken = await getUserIdToken(instance);
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (!apiUrl) {
+        console.error('API URL is not configured');
+        return;
+      }
+      const bookToUpdate = books.find(book => book.id === id);
+      if (!bookToUpdate) {
+        console.error('Book not found');
+        return;
+      }
+      await axios.put(
+        `${apiUrl}/books/${id}`,
+        { qty: bookToUpdate.qty },
+        {
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      alert('Quantity updated successfully');
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      alert('Failed to update quantity');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
@@ -62,13 +99,29 @@ const AdminInventory: React.FC = () => {
             <TableColumn>Title</TableColumn>
             <TableColumn>Author</TableColumn>
             <TableColumn>Quantity</TableColumn>
+            <TableColumn>Action</TableColumn>
           </TableHeader>
           <TableBody>
             {books.map((book) => (
               <TableRow key={book.id}>
                 <TableCell>{book.title}</TableCell>
                 <TableCell>{book.author}</TableCell>
-                <TableCell>{book.qty}</TableCell>
+                <TableCell>
+                  <Input
+                    type="number"
+                    value={book.qty.toString()}
+                    onChange={(e) =>
+                      handleQuantityChange(book.id, parseInt(e.target.value))
+                    }
+                    min={0}
+                    width="100px"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button onClick={() => handleSave(book.id)}>
+                    Save
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
