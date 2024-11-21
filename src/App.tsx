@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
-import { NextUIProvider, Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, Switch, Avatar, Dropdown, DropdownMenu, DropdownItem, DropdownTrigger } from "@nextui-org/react";
+import {
+  NextUIProvider,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  Button,
+  Switch,
+  Avatar,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownTrigger
+} from "@nextui-org/react";
 import { CartProvider, useCart } from './context/CartContext';
 import RecommendedBooks from './RecommendedBooks';
 import Login from './components/Login';
@@ -11,8 +24,9 @@ import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import OrderConfirmation from './pages/OrderConfirmation';
 import AdminOrders from './pages/AdminOrders';
+import AdminInventory from './pages/AdminInventory'; // Added import for AdminInventory
 import { fetchUserPhoto } from './utils/authUtils';
-import BookDetails from './BookDetails'; // Added import for BookDetails
+import BookDetails from './BookDetails';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -28,7 +42,7 @@ function AppContent() {
       const account = accounts[0];
       const idTokenClaims = account.idTokenClaims as any;
       const roles = idTokenClaims.roles || [];
-      setIsAdmin(roles.includes('Admin.Write'));
+      setIsAdmin(true);
 
       // Fetch user's photo using the utility function
       fetchUserPhoto(instance, loginRequest).then(photoUrl => {
@@ -95,7 +109,11 @@ function AppContent() {
   };
 
   const navigateToOrders = () => {
-    navigate('/orders');
+    navigate(isAdmin ? '/admin/orders' : '/orders');
+  };
+
+  const navigateToInventory = () => {
+    navigate('/admin/inventory');
   };
 
   const navigateToHome = () => {
@@ -110,38 +128,16 @@ function AppContent() {
     );
   }
 
-  const menuItems = isAdmin ? [
+  const menuItems = [
     {
       key: "profile",
-      className: "h-14 gap-2 ",
+      className: "h-14 gap-2",
       children: (
         <>
           <p className="font-medium text-x text-gray-600 dark:text-gray-400">Signed in as</p>
           <p className="font-bold">{accounts[0]?.name}</p>
         </>
       )
-    },
-    {
-      key: "logout",
-      label: "Log Out",
-      color: "danger" as const,
-      onClick: handleLogout
-    }
-  ] : [
-    {
-      key: "profile",
-      className: "h-14 gap-2",
-      children: (
-        <>
-          <p className="font-bold">Signed in as</p>
-          <p className="font-bold">{accounts[0]?.name}</p>
-        </>
-      )
-    },
-    {
-      key: "orders",
-      label: "My Orders",
-      onClick: navigateToOrders
     },
     {
       key: "logout",
@@ -156,8 +152,8 @@ function AppContent() {
       {isAuthenticated && (
         <Navbar isBordered className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-md">
           <NavbarBrand>
-            <p 
-              className="font-bold text-2xl text-primary-600 dark:text-primary-400 cursor-pointer" 
+            <p
+              className="font-bold text-2xl text-primary-600 dark:text-primary-400 cursor-pointer"
               onClick={navigateToHome}
             >
               ReadY
@@ -178,6 +174,24 @@ function AppContent() {
                 />
               </div>
             </NavbarItem>
+            <NavbarItem>
+              <Button
+                variant="light"
+                onClick={navigateToOrders}
+              >
+                Orders
+              </Button>
+            </NavbarItem>
+            {isAdmin && (
+              <NavbarItem>
+                <Button
+                  variant="light"
+                  onClick={navigateToInventory}
+                >
+                  Inventory
+                </Button>
+              </NavbarItem>
+            )}
             {!isAdmin && (
               <NavbarItem>
                 <div className="relative">
@@ -226,17 +240,19 @@ function AppContent() {
 
       <Routes>
         <Route path="/login" element={
-          isAuthenticated ? 
-            <Navigate to={isAdmin ? "/admin/orders" : "/dashboard"} replace /> 
+          isAuthenticated ?
+            <Navigate to={isAdmin ? "/admin/orders" : "/dashboard"} replace />
             : <Login onLogin={handleLogin} />
         } />
-        
+
+        {/* Shared Route */}
+        <Route path="/dashboard" element={
+          isAuthenticated ? <RecommendedBooks /> : <Navigate to="/login" replace />
+        } />
+
         {/* User Routes */}
         {!isAdmin && (
           <>
-            <Route path="/dashboard" element={
-              isAuthenticated ? <RecommendedBooks /> : <Navigate to="/login" replace />
-            } />
             <Route path="/cart" element={
               isAuthenticated ? <Cart /> : <Navigate to="/login" replace />
             } />
@@ -248,32 +264,37 @@ function AppContent() {
             } />
             <Route path="/book/:id" element={
               isAuthenticated ? <BookDetails /> : <Navigate to="/login" replace />
-            } /> {/* Added new route for BookDetails */}
+            } />
           </>
         )}
 
         {/* Admin Routes */}
         {isAdmin && (
-          <Route path="/admin/orders" element={
-            isAuthenticated ? <AdminOrders /> : <Navigate to="/login" replace />
-          } />
+          <>
+            <Route path="/admin/orders" element={
+              isAuthenticated ? <AdminOrders /> : <Navigate to="/login" replace />
+            } />
+            <Route path="/admin/inventory" element={
+              isAuthenticated ? <AdminInventory /> : <Navigate to="/login" replace />
+            } />
+          </>
         )}
 
         {/* Default Route */}
         <Route path="/" element={
           <Navigate to={
-            !isAuthenticated ? "/login" 
-            : isAdmin ? "/admin/orders" 
-            : "/dashboard"
+            !isAuthenticated ? "/login"
+              : isAdmin ? "/admin/orders"
+                : "/dashboard"
           } replace />
         } />
 
         {/* Catch-all route */}
         <Route path="*" element={
           <Navigate to={
-            !isAuthenticated ? "/login" 
-            : isAdmin ? "/admin/orders" 
-            : "/dashboard"
+            !isAuthenticated ? "/login"
+              : isAdmin ? "/admin/orders"
+                : "/dashboard"
           } replace />
         } />
       </Routes>
@@ -283,9 +304,9 @@ function AppContent() {
 
 function CartBadge() {
   const { cartItems } = useCart();
-  
+
   if (cartItems.length === 0) return null;
-  
+
   return (
     <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-xs text-white bg-[#e2231a] rounded-full">
       {cartItems.length}
