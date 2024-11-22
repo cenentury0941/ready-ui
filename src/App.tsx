@@ -42,7 +42,7 @@ function AppContent() {
       const account = accounts[0];
       const idTokenClaims = account.idTokenClaims as any;
       const roles = idTokenClaims.roles || [];
-      setIsAdmin(false);
+      setIsAdmin(roles.includes('Admin.Write'));
 
       // Fetch user's photo using the utility function
       fetchUserPhoto(instance, loginRequest).then(photoUrl => {
