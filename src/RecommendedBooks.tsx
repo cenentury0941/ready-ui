@@ -371,19 +371,19 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               color="success"
                             >
                               Stock: {book.qty}
-                              <button
-                                className="ml-2 text-gray-500 hover:text-gray-700"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditMode(prev => ({ ...prev, [book.id]: !prev[book.id] }));
-                                }}
+                              { isAdmin && <button
+                                  className="ml-2 text-gray-500 hover:text-gray-700"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditMode(prev => ({ ...prev, [book.id]: !prev[book.id] }));
+                                  }}
                               >
                                 ✏️
-                              </button>
+                              </button>}
                             </Chip>
                           )}
                         </div>
-                        {book.qty > 0 && (
+                        {!isAdmin && book.qty > 0 && (
                           <button
                             className={`self-start flex items-center text-sm font-medium ${
                               cartItems.includes(book.id)
