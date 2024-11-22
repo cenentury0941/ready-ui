@@ -21,9 +21,16 @@ interface InspirationNotesProps {
   book: Book;
   isInCart: boolean;
   onAddToCart: (bookId: string) => void;
+  onNotesUpdate: (updatedNotes: Note[]) => void;
 }
 
-const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCart, onAddToCart }) => {
+const InspirationNotes: React.FC<InspirationNotesProps> = ({
+  notes,
+  book,
+  isInCart,
+  onAddToCart,
+  onNotesUpdate
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContributor, setSelectedContributor] = useState<string>('');
 
@@ -40,7 +47,7 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCa
     <>
       <div
         className="overflow-x-auto"
-        onClick={(e) => e.stopPropagation()} // Add this line to prevent event propagation
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-nowrap space-x-4">
           {notes.map((note, index) => (
@@ -52,7 +59,7 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCa
                   base: "bg-default-50 dark:bg-default-50 shadow-none w-full"
                 }}
               >
-                <div  className="p-3 w-full">
+                <div className="p-3 w-full">
                   <div className="flex items-center gap-2 w-full">
                     <Avatar
                       src={note.imageUrl}
@@ -84,6 +91,7 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCa
         isInCart={isInCart}
         onAddToCart={onAddToCart}
         initialContributor={selectedContributor}
+        onNotesUpdate={onNotesUpdate}
       />
     </>
   );

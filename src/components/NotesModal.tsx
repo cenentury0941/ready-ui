@@ -4,11 +4,9 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
   Button,
   Avatar,
   Card,
-  Input
 } from "@nextui-org/react";
 import { CartIcon } from '../icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
@@ -36,6 +34,7 @@ interface NotesModalProps {
   isInCart: boolean;
   onAddToCart: (bookId: string) => void;
   initialContributor: string;
+  onNotesUpdate: (updatedNotes: Note[]) => void;
 }
 
 const NotesModal: React.FC<NotesModalProps> = ({
@@ -45,7 +44,8 @@ const NotesModal: React.FC<NotesModalProps> = ({
   book,
   isInCart,
   onAddToCart,
-  initialContributor
+  initialContributor,
+  onNotesUpdate
 }) => {
   const [selectedNoteIndex, setSelectedNoteIndex] = useState<number | null>(null);
   const [noteText, setNoteText] = useState('');
@@ -89,9 +89,14 @@ const NotesModal: React.FC<NotesModalProps> = ({
       if (!response.ok) {
         throw new Error('Failed to add note');
       }
-      setNotesList(prevNotes => [...prevNotes, newNote]);
-      setNoteText('');
-      setIsAddingNote(false);
+      setNotesList(prevNotes => {
+        const updatedNotes = [...prevNotes, newNote];
+        setNoteText('');
+        setIsAddingNote(false);
+        onNotesUpdate(updatedNotes);
+        return updatedNotes;
+      });
+      onClose(); // Close the modal after successful submission
     } catch (error) {
       console.error('Error submitting note:', error);
     }

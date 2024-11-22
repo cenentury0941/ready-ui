@@ -7,99 +7,34 @@ import InspirationNotes from './InspirationNotes';
 import { useCart } from './context/CartContext';
 import { CartIcon } from './icons/CartIcon';
 
+interface Note {
+  text: string;
+  contributor: string;
+  imageUrl: string;
+}
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  thumbnail: string;
+  about: string;
+  notes: Note[];
+  qty: number;
+}
+
 const BookDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { instance, accounts } = useMsal();
   const { cartItems, addToCart, removeFromCart } = useCart();
-  const [book, setBook] = useState<{
-    id: string;
-    title: string;
-    author: string;
-    thumbnail: string;
-    about: string;
-    notes: Array<{ text: string; contributor: string; imageUrl: string; }>;
-    qty: number;
-  } | null>(null);
+  const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [noteText, setNoteText] = useState<string>('');
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchBook = async () => {
-      try {
-        setIsLoading(true);
-        const idToken = await getUserIdToken(instance);
-        const apiUrl = process.env.REACT_APP_API_URL;
-        if (!apiUrl) {
-          console.error('API URL is not configured');
-          return;
-        }
-        const response = await fetch(`${apiUrl}/books/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch book');
-        }
-        const data = await response.json();
-        setBook(data);
-      } catch (error) {
-        console.error('Error fetching book:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchBook();
   }, [id, instance]);
-
-  useEffect(() => {
-    const fetchPhoto = async () => {
-      const photo = await fetchUserPhoto(instance, accounts[0]);
-      setUserPhoto(photo || null);
-    };
-    fetchPhoto();
-  }, [instance, accounts]);
-
-  const handleCartAction = (bookId: string) => {
-    if (cartItems.includes(bookId)) {
-      removeFromCart(bookId);
-    } else {
-      addToCart(bookId);
-    }
-  };
-
-  const handleNoteSubmit = async () => {
-    try {
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
-      const response = await fetch(`${apiUrl}/books/${id}/notes`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: noteText,
-          contributor: accounts[0]?.name || 'Anonymous',
-          imageUrl: userPhoto || '',
-        }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to add note');
-      }
-      // Refresh book data to include new note
-      await fetchBook();
-      setNoteText('');
-    } catch (error) {
-      console.error('Error submitting note:', error);
-    }
-  };
 
   const fetchBook = async () => {
     try {
@@ -127,6 +62,62 @@ const BookDetails: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      const photo = await fetchUserPhoto(instance, accounts[0]);
+      setUserPhoto(photo || null);
+    };
+    fetchPhoto();
+  }, [instance, accounts]);
+
+  const handleCartAction = (bookId: string) => {
+    if (cartItems.includes(bookId)) {
+      removeFromCart(bookId);
+    } else {
+      addToCart(bookId);
+    }
+  };
+
+  const handleNoteSubmit = async () => {
+    try {
+      const idToken = await getUserIdToken(instance);
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (!apiUrl) {
+        console.error('API URL is not configured');
+        return;
+      }
+      const newNote: Note = {
+        text: noteText,
+        contributor: accounts[0]?.name || 'Anonymous',
+        imageUrl: userPhoto || '',
+      };
+      const response = await fetch(`${apiUrl}/books/${id}/notes`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newNote),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add note');
+      }
+      // Update the book's notes without refetching
+      setBook((prevBook) =>
+        prevBook ? { ...prevBook, notes: [...prevBook.notes, newNote] } : prevBook
+      );
+      setNoteText('');
+    } catch (error) {
+      console.error('Error submitting note:', error);
+    }
+  };
+
+  const handleNotesUpdate = (updatedNotes: Note[]) => {
+    setBook((prevBook) =>
+      prevBook ? { ...prevBook, notes: updatedNotes } : prevBook
+    );
+  };
+
   if (isLoading) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
@@ -145,7 +136,7 @@ const BookDetails: React.FC = () => {
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/3">
             <img
-              src={`${process.env.PUBLIC_URL}/${book.thumbnail}`}
+              src={book.thumbnail}
               alt={`${book.title} cover`}
               className="w-full h-auto object-contain rounded"
               style={{ aspectRatio: '2/3' }}
@@ -200,6 +191,7 @@ const BookDetails: React.FC = () => {
               book={book}
               isInCart={cartItems.includes(book.id)}
               onAddToCart={handleCartAction}
+              onNotesUpdate={handleNotesUpdate}
             />
 
             {/* Note submission form */}

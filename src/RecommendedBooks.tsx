@@ -20,6 +20,22 @@ import { useMsal } from '@azure/msal-react';
 import { getUserIdToken, getUserFullName } from './utils/authUtils';
 import NotesModal from './components/NotesModal';
 
+interface Note {
+  text: string;
+  contributor: string;
+  imageUrl: string;
+}
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  thumbnail: string;
+  about: string;
+  notes: Note[];
+  qty: number;
+}
+
 interface RecommendedBooksProps {
   isAdmin: boolean;
 }
@@ -27,20 +43,12 @@ interface RecommendedBooksProps {
 const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const { instance } = useMsal();
   const { cartItems, addToCart, removeFromCart } = useCart();
-  const [books, setBooks] = useState<Array<{
-    id: string;
-    title: string;
-    author: string;
-    thumbnail: string;
-    about: string;
-    notes: Array<{ text: string; contributor: string; imageUrl: string; }>;
-    qty: number;
-  }>>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [currentSelectedBook, setCurrentSelectedBook] = useState<string>('');
   const [isNotesModalOpen, setIsNotesModalOpen] = useState<boolean>(false);
-  const [selectedBookForModal, setSelectedBookForModal] = useState<typeof books[0] | null>(null);
+  const [selectedBookForModal, setSelectedBookForModal] = useState<Book | null>(null);
   const userFullName = getUserFullName(instance);
   const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
   const [editMode, setEditMode] = useState<Record<string, boolean>>({});
@@ -122,7 +130,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     }
   };
 
-  const handleSuggestionClick = (book: typeof books[0]) => {
+  const handleSuggestionClick = (book: Book) => {
     setSearchTerm(`${book.title} - ${book.author}`);
     setSelectedBook(book.id);
     setSelectedSuggestionIndex(-1);
@@ -141,7 +149,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     }
   };
 
-  const handleAddNoteClick = (book: typeof books[0]) => {
+  const handleAddNoteClick = (book: Book) => {
     setSelectedBookForModal(book);
     setIsNotesModalOpen(true);
   };
@@ -184,6 +192,16 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
       selectedElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     }
   }, [selectedSuggestionIndex]);
+
+  const handleNotesUpdate = (updatedNotes: Note[]) => {
+    if (selectedBookForModal) {
+      setBooks(prevBooks =>
+        prevBooks.map(book =>
+          book.id === selectedBookForModal.id ? { ...book, notes: updatedNotes } : book
+        )
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8">
@@ -391,6 +409,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                         book={book}
                         isInCart={cartItems.includes(book.id)}
                         onAddToCart={handleCartAction}
+                        onNotesUpdate={handleNotesUpdate}
                       />
                       {!userHasNote && (
                         <button
@@ -445,6 +464,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           isInCart={cartItems.includes(selectedBookForModal.id)}
           onAddToCart={handleCartAction}
           initialContributor=""
+          onNotesUpdate={handleNotesUpdate}
         />
       )}
     </div>
