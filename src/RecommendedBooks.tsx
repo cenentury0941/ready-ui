@@ -285,55 +285,51 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
                           <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
-                          {book.qty > 0 ? (
-                            <Chip
-                              className="text-gray-700 dark:text-gray-200"
-                              style={{
-                                padding: '5px',
-                                paddingRight: '2px',
-                                height: '2rem',
-                                marginBottom: '1rem',
-                                backgroundColor: 'transparent',
-                              }}
-                              startContent={
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  className="size-6"
+                          <Chip
+                            className="text-gray-700 dark:text-gray-200"
+                            style={{
+                              padding: '5px',
+                              paddingRight: '2px',
+                              height: '2rem',
+                              marginBottom: '1rem',
+                              backgroundColor: 'transparent',
+                            }}
+                            startContent={
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="size-6"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                                />
+                              </svg>
+                            }
+                            variant="faded"
+                            color="success"
+                          >
+                            {isAdmin ? (
+                              <>
+                                Stock: {book.qty}
+                                <button
+                                  className="ml-2 text-gray-500 hover:text-gray-700"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditMode(prev => ({ ...prev, [book.id]: !prev[book.id] }));
+                                  }}
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-                                  />
-                                </svg>
-                              }
-                              variant="faded"
-                              color="success"
-                            >
-                              {isAdmin ? (
-                                <>
-                                  Stock: {book.qty}
-                                  <button
-                                    className="ml-2 text-gray-500 hover:text-gray-700"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEditMode(prev => ({ ...prev, [book.id]: !prev[book.id] }));
-                                    }}
-                                  >
-                                    ✏️
-                                  </button>
-                                </>
-                              ) : (
-                                `Only ${book.qty} books left`
-                              )}
-                            </Chip>
-                          ) : (
-                            <p className="text-sm text-red-500 mb-4">Out of Stock</p>
-                          )}
+                                  ✏️
+                                </button>
+                              </>
+                            ) : (
+                              book.qty > 0 ? `Only ${book.qty} books left` : 'Out of Stock'
+                            )}
+                          </Chip>
                         </div>
                         {book.qty > 0 && (
                           <button
