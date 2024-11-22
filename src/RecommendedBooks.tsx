@@ -17,9 +17,9 @@ import {
 import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
-import { getUserIdToken } from './utils/authUtils';
+import { getUserIdToken, getUserFullName } from './utils/authUtils';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
-import NotesModal from './components/NotesModal'; // Imported NotesModal
+import NotesModal from './components/NotesModal';
 
 const RecommendedBooks: React.FC = () => {
   const { instance } = useMsal();
@@ -36,8 +36,9 @@ const RecommendedBooks: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [currentSelectedBook, setCurrentSelectedBook] = useState<string>('');
-  const [isNotesModalOpen, setIsNotesModalOpen] = useState<boolean>(false); // State for NotesModal visibility
-  const [selectedBookForModal, setSelectedBookForModal] = useState<typeof books[0] | null>(null); // State for selected book
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState<boolean>(false);
+  const [selectedBookForModal, setSelectedBookForModal] = useState<typeof books[0] | null>(null);
+  const userFullName = getUserFullName(instance);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -204,107 +205,115 @@ const RecommendedBooks: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {filteredBooks.map((book) => (
-              <Card
-                key={book.id}
-                className="overflow-hidden dark:bg-gray-800 shadow-none"
-                radius="sm"
-                onPress={() => {
-                  setSelectedBookForModal(book);
-                  setIsNotesModalOpen(true);
-                }}
-              >
-                <div className="flex flex-col h-full text-left">
-                  <div className="flex flex-col md:flex-row p-6 flex-grow">
-                    <div className="md:w-[100px] flex-shrink-0 mb-4 md:mb-0">
-                      <img
-                        src={book.thumbnail}
-                        alt={`${book.title} cover`}
-                        className="w-full h-auto object-contain rounded"
-                        style={{ aspectRatio: '2/3' }}
-                      />
-                    </div>
-                    <div className="md:ml-6 flex-grow flex flex-col justify-between min-w-0">
-                      <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate">
-                          {book.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
-                        <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
-                        {book.qty > 0 ? (
-                          <Chip
-                            className="text-gray-700 dark:text-gray-200"
-                            style={{
-                              padding: '5px',
-                              paddingRight: '2px',
-                              height: '2rem',
-                              marginBottom: '1rem',
-                              backgroundColor: 'transparent',
+            {filteredBooks.map((book) => {
+              const userHasNote = book.notes.some(
+                (note) => note.contributor === userFullName
+              );
+
+              return (
+                <Card
+                  key={book.id}
+                  className="overflow-hidden dark:bg-gray-800 shadow-none"
+                  radius="sm"
+                  onPress={() => {
+                    setSelectedBookForModal(book);
+                    setIsNotesModalOpen(true);
+                  }}
+                >
+                  <div className="flex flex-col h-full text-left">
+                    <div className="flex flex-col md:flex-row p-6 flex-grow">
+                      <div className="md:w-[100px] flex-shrink-0 mb-4 md:mb-0">
+                        <img
+                          src={book.thumbnail}
+                          alt={`${book.title} cover`}
+                          className="w-full h-auto object-contain rounded"
+                          style={{ aspectRatio: '2/3' }}
+                        />
+                      </div>
+                      <div className="md:ml-6 flex-grow flex flex-col justify-between min-w-0">
+                        <div>
+                          <h3 className="text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate">
+                            {book.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
+                          {book.qty > 0 ? (
+                            <Chip
+                              className="text-gray-700 dark:text-gray-200"
+                              style={{
+                                padding: '5px',
+                                paddingRight: '2px',
+                                height: '2rem',
+                                marginBottom: '1rem',
+                                backgroundColor: 'transparent',
+                              }}
+                              startContent={
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="size-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                                  />
+                                </svg>
+                              }
+                              variant="faded"
+                              color="success"
+                            >
+                              Only {book.qty} books left
+                            </Chip>
+                          ) : (
+                            <p className="text-sm text-red-500 mb-4">Out of Stock</p>
+                          )}
+                        </div>
+                        {book.qty > 0 && (
+                          <button
+                            className={`self-start flex items-center text-sm font-medium ${
+                              cartItems.includes(book.id)
+                                ? 'text-red-500 hover:text-red-600'
+                                : 'text-primary hover:text-primary-600'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCartAction(book.id);
                             }}
-                            startContent={
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-                                />
-                              </svg>
-                            }
-                            variant="faded"
-                            color="success"
                           >
-                            Only {book.qty} books left
-                          </Chip>
-                        ) : (
-                          <p className="text-sm text-red-500 mb-4">Out of Stock</p>
+                            <CartIcon size={16} className="mr-2" />
+                            {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
+                          </button>
                         )}
                       </div>
-                      {book.qty > 0 && (
+                    </div>
+                    <div
+                      className="border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto"
+                      style={{ height: book.notes?.length === 0 ? '113px' : 'inherit' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <InspirationNotes
+                        notes={book.notes}
+                        book={book}
+                        isInCart={cartItems.includes(book.id)}
+                        onAddToCart={handleCartAction}
+                      />
+                      {!userHasNote && (
                         <button
-                          className={`self-start flex items-center text-sm font-medium ${
-                            cartItems.includes(book.id)
-                              ? 'text-red-500 hover:text-red-600'
-                              : 'text-primary hover:text-primary-600'
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCartAction(book.id);
-                          }}
+                          className="text-primary hover:text-primary-600 mt-4"
+                          onClick={() => handleAddNoteClick(book)}
                         >
-                          <CartIcon size={16} className="mr-2" />
-                          {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
+                          + Add Note
                         </button>
                       )}
                     </div>
                   </div>
-                  <div
-                    className="border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto"
-                    style={{ height: book.notes?.length === 0 ? '113px' : 'inherit' }}
-                    onClick={(e) => e.stopPropagation()} // Add this line
-                  >
-                    <InspirationNotes
-                      notes={book.notes}
-                      book={book}
-                      isInCart={cartItems.includes(book.id)}
-                      onAddToCart={handleCartAction}
-                    />
-                    <button
-                      className="text-primary hover:text-primary-600 mt-4"
-                      onClick={() => handleAddNoteClick(book)}
-                    >
-                      + Add Note
-                    </button>
-                  </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
@@ -336,7 +345,6 @@ const RecommendedBooks: React.FC = () => {
         </ModalContent>
       </Modal>
 
-      {/* NotesModal for displaying book notes */}
       {isNotesModalOpen && selectedBookForModal && (
         <NotesModal
           isOpen={isNotesModalOpen}
@@ -345,7 +353,7 @@ const RecommendedBooks: React.FC = () => {
           book={selectedBookForModal}
           isInCart={cartItems.includes(selectedBookForModal.id)}
           onAddToCart={handleCartAction}
-          initialContributor="" // Ensure no contributor is selected
+          initialContributor=""
         />
       )}
     </div>

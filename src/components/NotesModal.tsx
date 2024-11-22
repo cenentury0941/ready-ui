@@ -12,7 +12,7 @@ import {
 } from "@nextui-org/react";
 import { CartIcon } from '../icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
-import { getUserIdToken } from '../utils/authUtils';
+import { getUserIdToken, getUserFullName } from '../utils/authUtils';
 
 interface Note {
   text: string;
@@ -52,6 +52,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const [notesList, setNotesList] = useState<Note[]>(notes);
   const { instance, accounts } = useMsal();
   const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
+  const userFullName = getUserFullName(instance);
 
   useEffect(() => {
     if (isOpen) {
@@ -59,6 +60,10 @@ const NotesModal: React.FC<NotesModalProps> = ({
       setSelectedNoteIndex(null);
     }
   }, [isOpen]);
+
+  const userHasNote = notesList.some(
+    (note) => note.contributor === userFullName
+  );
 
   const handleNoteSubmit = async () => {
     try {
@@ -161,45 +166,50 @@ const NotesModal: React.FC<NotesModalProps> = ({
                       </span>
                     </Button>
                   ))}
-                  <Button
-                    className={`flex justify-start items-center h-16 px-4 rounded-none ${isAddingNote
-                        ? 'bg-default-100 dark:bg-default-50'
-                        : 'bg-transparent hover:bg-default-50 dark:hover:bg-default-100'
-                      }`}
-                    onClick={() => {
-                      setIsAddingNote(true);
-                      setSelectedNoteIndex(null);
-                    }}
-                    variant="light"
-                  >
-                    <span className="text-sm font-medium text-default-700 dark:text-default-500">
-                      Add Note
-                    </span>
-                  </Button>
+                  {!userHasNote && (
+                    <Button
+                      className={`flex justify-start items-center h-16 px-4 rounded-none ${isAddingNote
+                          ? 'bg-default-100 dark:bg-default-50'
+                          : 'bg-transparent hover:bg-default-50 dark:hover:bg-default-100'
+                        }`}
+                      onClick={() => {
+                        setIsAddingNote(true);
+                        setSelectedNoteIndex(null);
+                      }}
+                      variant="light"
+                    >
+                      <span className="text-sm font-medium text-default-700 dark:text-default-500">
+                        Add Note
+                      </span>
+                    </Button>
+                  )}
                 </Card>
 
                 <div className="flex-1 overflow-y-auto">
                   {isAddingNote ? (
-                    <div className="p-6">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Add Your Note</h3>
-                      <textarea
-                        placeholder="Write your note here..."
-                        value={noteText}
-                        onChange={(e) => setNoteText(e.target.value)}
-                        className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-                      ></textarea>
-                      <Button
-                        onClick={handleNoteSubmit}
-                        disabled={!noteText}
-                        className={`px-4 py-2 rounded text-white font-semibold bg-blue-500 ${!noteText && 'opacity-50'
-                          }`}
-                      >
-                        Submit Note
-                      </Button>
-
-
-
-                    </div>
+                    !userHasNote ? (
+                      <div className="p-6">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Add Your Note</h3>
+                        <textarea
+                          placeholder="Write your note here..."
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                        ></textarea>
+                        <Button
+                          onClick={handleNoteSubmit}
+                          disabled={!noteText}
+                          className={`px-4 py-2 rounded text-white font-semibold bg-blue-500 ${!noteText && 'opacity-50'
+                            }`}
+                        >
+                          Submit Note
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="p-6">
+                        <p className="text-gray-700 dark:text-gray-300">You have already added a note for this book.</p>
+                      </div>
+                    )
                   ) : selectedNoteIndex !== null ? (
                     <div className="p-6">
                       <div className="flex items-center mb-4">
@@ -219,21 +229,12 @@ const NotesModal: React.FC<NotesModalProps> = ({
                     </div>
                   ) : (
                     <div className="p-6">
-                      <p className="text-gray-700 dark:text-gray-300">Select a note or add a new one.</p>
+                      <p className="text-gray-700 dark:text-gray-300">Select a note to view its details.</p>
                     </div>
                   )}
                 </div>
               </div>
             </ModalBody>
-            {/* <ModalFooter>
-              <Button
-                color="default"
-                variant="light"
-                onPress={onClose}
-              >
-                Close
-              </Button>
-            </ModalFooter> */}
           </>
         )}
       </ModalContent>
