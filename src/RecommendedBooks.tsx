@@ -43,6 +43,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const [selectedBookForModal, setSelectedBookForModal] = useState<typeof books[0] | null>(null);
   const userFullName = getUserFullName(instance);
   const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
+  const [editMode, setEditMode] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -76,10 +77,13 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
 
   useEffect(() => {
     const initialQtyUpdates: Record<string, number> = {};
+    const initialEditMode: Record<string, boolean> = {};
     books.forEach((book) => {
       initialQtyUpdates[book.id] = book.qty;
+      initialEditMode[book.id] = false;
     });
     setQtyUpdates(initialQtyUpdates);
+    setEditMode(initialEditMode);
   }, [books]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -168,6 +172,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           book.id === bookId ? { ...book, qty: newQty } : book
         )
       );
+      setEditMode(prev => ({ ...prev, [bookId]: false }));
     } catch (error) {
       console.error('Error updating book quantity:', error);
     }
@@ -309,7 +314,22 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               variant="faded"
                               color="success"
                             >
-                              {isAdmin ? `Stock: ${book.qty}` : `Only ${book.qty} books left`}
+                              {isAdmin ? (
+                                <>
+                                  Stock: {book.qty}
+                                  <button
+                                    className="ml-2 text-gray-500 hover:text-gray-700"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditMode(prev => ({ ...prev, [book.id]: !prev[book.id] }));
+                                    }}
+                                  >
+                                    ✏️
+                                  </button>
+                                </>
+                              ) : (
+                                `Only ${book.qty} books left`
+                              )}
                             </Chip>
                           ) : (
                             <p className="text-sm text-red-500 mb-4">Out of Stock</p>
@@ -331,7 +351,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                             {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
                           </button>
                         )}
-                        {isAdmin && (
+                        {isAdmin && editMode[book.id] && (
                           <div className="mt-4">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               Adjust Stock
