@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Avatar, Card } from "@nextui-org/react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Button,
+  Avatar,
+  Card,
+} from "@nextui-org/react";
 import { CartIcon } from '../icons/CartIcon';
+import { useMsal } from '@azure/msal-react';
+import { getUserIdToken, getUserFullName } from '../utils/authUtils';
 
 interface Note {
   text: string;
@@ -24,31 +34,77 @@ interface NotesModalProps {
   isInCart: boolean;
   onAddToCart: (bookId: string) => void;
   initialContributor: string;
+  onNotesUpdate: (updatedNotes: Note[]) => void;
 }
 
-const NotesModal: React.FC<NotesModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  notes, 
-  book, 
-  isInCart, 
+const NotesModal: React.FC<NotesModalProps> = ({
+  isOpen,
+  onClose,
+  notes,
+  book,
+  isInCart,
   onAddToCart,
-  initialContributor 
+  initialContributor,
+  onNotesUpdate
 }) => {
-  const [selectedContributor, setSelectedContributor] = useState(initialContributor);
+  const [selectedNoteIndex, setSelectedNoteIndex] = useState<number | null>(null);
+  const [noteText, setNoteText] = useState('');
+  const [notesList, setNotesList] = useState<Note[]>(notes);
+  const { instance, accounts } = useMsal();
+  const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
+  const userFullName = getUserFullName(instance);
 
-  // Update selected contributor when modal opens or initialContributor changes
   useEffect(() => {
-    if (isOpen && initialContributor) {
-      setSelectedContributor(initialContributor);
+    if (isOpen) {
+      setIsAddingNote(true);
+      setSelectedNoteIndex(null);
     }
-  }, [isOpen, initialContributor]);
+  }, [isOpen]);
 
-  const selectedNote = notes.find(note => note.contributor === selectedContributor);
+  const userHasNote = notesList.some(
+    (note) => note.contributor === userFullName
+  );
+
+  const handleNoteSubmit = async () => {
+    try {
+      const idToken = await getUserIdToken(instance);
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (!apiUrl) {
+        console.error('API URL is not configured');
+        return;
+      }
+      const newNote: Note = {
+        text: noteText,
+        contributor: accounts[0]?.name || 'Anonymous',
+        imageUrl: '', // Adjust as needed to fetch the user's image URL
+      };
+      const response = await fetch(`${apiUrl}/books/${book.id}/notes`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newNote),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add note');
+      }
+      setNotesList(prevNotes => {
+        const updatedNotes = [...prevNotes, newNote];
+        setNoteText('');
+        setIsAddingNote(false);
+        onNotesUpdate(updatedNotes);
+        return updatedNotes;
+      });
+      onClose(); // Close the modal after successful submission
+    } catch (error) {
+      console.error('Error submitting note:', error);
+    }
+  };
 
   return (
-    <Modal 
-      isOpen={isOpen} 
+    <Modal
+      isOpen={isOpen}
       onClose={onClose}
       size="3xl"
       scrollBehavior="outside"
@@ -73,12 +129,11 @@ const NotesModal: React.FC<NotesModalProps> = ({
               <div className="flex-grow">
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{book.title}</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{book.author}</p>
-                <button 
-                  className={`self-start flex items-center text-sm font-medium ${
-                    isInCart 
-                      ? 'text-red-500 hover:text-red-600' 
+                <button
+                  className={`self-start flex items-center text-sm font-medium ${isInCart
+                      ? 'text-red-500 hover:text-red-600'
                       : 'text-blue-500 hover:text-blue-600'
-                  }`}
+                    }`}
                   onClick={() => onAddToCart(book.id)}
                 >
                   <CartIcon size={16} className='mr-2' />
@@ -88,17 +143,18 @@ const NotesModal: React.FC<NotesModalProps> = ({
             </ModalHeader>
             <ModalBody>
               <div className="flex h-[400px]">
-                {/* Left sidebar - Contributors */}
                 <Card className="w-1/3 rounded-none border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 shadow-none">
-                  {notes.map(note => (
+                  {notesList.map((note, index) => (
                     <Button
-                      key={note.contributor}
-                      className={`flex justify-start items-center h-16 px-4 rounded-none ${
-                        selectedContributor === note.contributor
+                      key={`${note.contributor}-${index}`}
+                      className={`flex justify-start items-center h-16 px-4 rounded-none ${selectedNoteIndex === index && !isAddingNote
                           ? 'bg-default-100 dark:bg-default-50'
                           : 'bg-transparent hover:bg-default-50 dark:hover:bg-default-100'
-                      }`}
-                      onClick={() => setSelectedContributor(note.contributor)}
+                        }`}
+                      onClick={() => {
+                        setSelectedNoteIndex(index);
+                        setIsAddingNote(false);
+                      }}
                       variant="light"
                     >
                       <Avatar
@@ -107,49 +163,83 @@ const NotesModal: React.FC<NotesModalProps> = ({
                         className="mr-3"
                         size="sm"
                       />
-                      <span className={`text-sm font-medium ${
-                        selectedContributor === note.contributor
+                      <span className={`text-sm font-medium ${selectedNoteIndex === index && !isAddingNote
                           ? 'text-primary'
                           : 'text-default-700 dark:text-default-500'
-                      }`}>
+                        }`}>
                         {note.contributor}
                       </span>
                     </Button>
                   ))}
+                  {!userHasNote && (
+                    <Button
+                      className={`flex justify-start items-center h-16 px-4 rounded-none ${isAddingNote
+                          ? 'bg-default-100 dark:bg-default-50'
+                          : 'bg-transparent hover:bg-default-50 dark:hover:bg-default-100'
+                        }`}
+                      onClick={() => {
+                        setIsAddingNote(true);
+                        setSelectedNoteIndex(null);
+                      }}
+                      variant="light"
+                    >
+                      <span className="text-sm font-medium text-default-700 dark:text-default-500">
+                        Add Note
+                      </span>
+                    </Button>
+                  )}
                 </Card>
 
-                {/* Right content - Notes */}
                 <div className="flex-1 overflow-y-auto">
-                  {selectedNote && (
+                  {isAddingNote ? (
+                    !userHasNote ? (
+                      <div className="p-6">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Add Your Note</h3>
+                        <textarea
+                          placeholder="Write your note here..."
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                        ></textarea>
+                        <Button
+                          onClick={handleNoteSubmit}
+                          disabled={!noteText}
+                          className={`px-4 py-2 rounded text-white font-semibold bg-blue-500 ${!noteText && 'opacity-50'
+                            }`}
+                        >
+                          Submit Note
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="p-6">
+                        <p className="text-gray-700 dark:text-gray-300">You have already added a note for this book.</p>
+                      </div>
+                    )
+                  ) : selectedNoteIndex !== null ? (
                     <div className="p-6">
                       <div className="flex items-center mb-4">
                         <Avatar
-                          src={selectedNote.imageUrl}
-                          alt={selectedNote.contributor}
+                          src={notesList[selectedNoteIndex].imageUrl}
+                          alt={notesList[selectedNoteIndex].contributor}
                           className="mr-3"
                           size="lg"
                         />
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                          {selectedNote.contributor}
+                          {notesList[selectedNoteIndex].contributor}
                         </h3>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                        {selectedNote.text}
+                      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-8">
+                        {notesList[selectedNoteIndex].text}
                       </p>
+                    </div>
+                  ) : (
+                    <div className="p-6">
+                      <p className="text-gray-700 dark:text-gray-300">Select a note to view its details.</p>
                     </div>
                   )}
                 </div>
               </div>
             </ModalBody>
-            <ModalFooter>
-              <Button 
-                color="default" 
-                variant="light" 
-                onPress={onClose}
-              >
-                Close
-              </Button>
-            </ModalFooter>
           </>
         )}
       </ModalContent>

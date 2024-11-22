@@ -21,9 +21,16 @@ interface InspirationNotesProps {
   book: Book;
   isInCart: boolean;
   onAddToCart: (bookId: string) => void;
+  onNotesUpdate: (updatedNotes: Note[]) => void;
 }
 
-const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCart, onAddToCart }) => {
+const InspirationNotes: React.FC<InspirationNotesProps> = ({
+  notes,
+  book,
+  isInCart,
+  onAddToCart,
+  onNotesUpdate
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContributor, setSelectedContributor] = useState<string>('');
 
@@ -38,39 +45,42 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCa
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {notes.slice(0, 4).map((note, index) => (
-          <Card
-            key={`${note.contributor}-${index}`}
-            isPressable
-            onPress={() => handleNoteClick(note.contributor)}
-            classNames={{
-              base: "bg-default-50 dark:bg-default-50 shadow-none w-full"
-            }}
-          >
-            <div className="p-3 w-full">
-              <div className="flex items-center gap-2 w-full">
-                <Avatar
-                  src={note.imageUrl}
-                  alt={note.contributor}
-                  className="flex-shrink-0"
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1 ml-2">
-                  <p className="text-left font-medium text-sm text-default-700 dark:text-default-800 truncate">
-                    {note.contributor}
-                  </p>
-                  <p className="text-left text-sm text-default-600 dark:text-default-500 truncate">
-                  {note.text}
-                </p>
+      <div
+        className="overflow-x-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-nowrap space-x-4">
+          {notes.map((note, index) => (
+            <div key={`${note.contributor}-${index}`} className="flex-shrink-0 w-64">
+              <Card
+                isPressable
+                onPress={() => handleNoteClick(note.contributor)}
+                classNames={{
+                  base: "bg-default-50 dark:bg-default-50 shadow-none w-full"
+                }}
+              >
+                <div className="p-3 w-full">
+                  <div className="flex items-center gap-2 w-full">
+                    <Avatar
+                      src={note.imageUrl}
+                      alt={note.contributor}
+                      className="flex-shrink-0"
+                      size="sm"
+                    />
+                    <div className="min-w-0 flex-1 ml-2">
+                      <p className="text-left font-medium text-sm text-default-700 dark:text-default-800 truncate">
+                        {note.contributor}
+                      </p>
+                      <p className="text-left text-sm text-default-600 dark:text-default-500 truncate">
+                        {note.text}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="min-w-0 w-full">
-
-              </div>
+              </Card>
             </div>
-          </Card>
-        ))}
+          ))}
+        </div>
       </div>
 
       <NotesModal
@@ -81,6 +91,7 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({ notes, book, isInCa
         isInCart={isInCart}
         onAddToCart={onAddToCart}
         initialContributor={selectedContributor}
+        onNotesUpdate={onNotesUpdate}
       />
     </>
   );
