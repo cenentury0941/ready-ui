@@ -303,73 +303,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 truncate">{book.author}</p>
                           <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">{book.about}</p>
-                          <Chip
-                            className="text-gray-700 dark:text-gray-200"
-                            style={{
-                              padding: '5px',
-                              paddingRight: '2px',
-                              height: '2rem',
-                              marginBottom: '1rem',
-                              backgroundColor: 'transparent',
-                            }}
-                            startContent={
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-                                />
-                              </svg>
-                            }
-                            variant="faded"
-                            color="success"
-                          >
-                            {isAdmin ? (
-                              <>
-                                Stock: {book.qty}
-                                <button
-                                  className="ml-2 text-gray-500 hover:text-gray-700"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setEditMode(prev => ({ ...prev, [book.id]: !prev[book.id] }));
-                                  }}
-                                >
-                                  ✏️
-                                </button>
-                              </>
-                            ) : (
-                              book.qty > 0 ? `Only ${book.qty} books left` : 'Out of Stock'
-                            )}
-                          </Chip>
-                        </div>
-                        {book.qty > 0 && (
-                          <button
-                            className={`self-start flex items-center text-sm font-medium ${
-                              cartItems.includes(book.id)
-                                ? 'text-red-500 hover:text-red-600'
-                                : 'text-primary hover:text-primary-600'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCartAction(book.id);
-                            }}
-                          >
-                            <CartIcon size={16} className="mr-2" />
-                            {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
-                          </button>
-                        )}
-                        {isAdmin && editMode[book.id] && (
-                          <div className="mt-4">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              Adjust Stock
-                            </label>
+                          {isAdmin && editMode[book.id] ? (
                             <div className="flex items-center space-x-2">
                               <Input
                                 type="number"
@@ -387,6 +321,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               />
                               <Button
                                 size="sm"
+                                color="primary"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleStockUpdate(book.id);
@@ -394,8 +329,75 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               >
                                 Update
                               </Button>
+                              <Button
+                                size="sm"
+                                color="danger"
+                                variant="light"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditMode(prev => ({ ...prev, [book.id]: false }));
+                                }}
+                              >
+                                Cancel
+                              </Button>
                             </div>
-                          </div>
+                          ) : (
+                            <Chip
+                              className="text-gray-700 dark:text-gray-200"
+                              style={{
+                                padding: '5px',
+                                paddingRight: '2px',
+                                height: '2rem',
+                                marginBottom: '1rem',
+                                backgroundColor: 'transparent',
+                              }}
+                              startContent={
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="size-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                                  />
+                                </svg>
+                              }
+                              variant="faded"
+                              color="success"
+                            >
+                              Stock: {book.qty}
+                              <button
+                                className="ml-2 text-gray-500 hover:text-gray-700"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditMode(prev => ({ ...prev, [book.id]: !prev[book.id] }));
+                                }}
+                              >
+                                ✏️
+                              </button>
+                            </Chip>
+                          )}
+                        </div>
+                        {book.qty > 0 && (
+                          <button
+                            className={`self-start flex items-center text-sm font-medium ${
+                              cartItems.includes(book.id)
+                                ? 'text-red-500 hover:text-red-600'
+                                : 'text-primary hover:text-primary-600'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCartAction(book.id);
+                            }}
+                          >
+                            <CartIcon size={16} className="mr-2" />
+                            {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
+                          </button>
                         )}
                       </div>
                     </div>
