@@ -124,6 +124,11 @@ const RecommendedBooks: React.FC = () => {
     }
   };
 
+  const handleAddNoteClick = (book: typeof books[0]) => {
+    setSelectedBookForModal(book);
+    setIsNotesModalOpen(true);
+  };
+
   useEffect(() => {
     if (suggestionsRef.current && selectedSuggestionIndex !== -1) {
       const selectedElement = suggestionsRef.current.children[selectedSuggestionIndex] as HTMLElement;
@@ -290,8 +295,13 @@ const RecommendedBooks: React.FC = () => {
                       isInCart={cartItems.includes(book.id)}
                       onAddToCart={handleCartAction}
                     />
+                    <button
+                      className="text-primary hover:text-primary-600 mt-4"
+                      onClick={() => handleAddNoteClick(book)}
+                    >
+                      + Add Note
+                    </button>
                   </div>
-
                 </div>
               </Card>
             ))}
@@ -335,7 +345,7 @@ const RecommendedBooks: React.FC = () => {
           book={selectedBookForModal}
           isInCart={cartItems.includes(selectedBookForModal.id)}
           onAddToCart={handleCartAction}
-          initialContributor={selectedBookForModal.notes[0]?.contributor || ''}
+          initialContributor="" // Ensure no contributor is selected
         />
       )}
     </div>

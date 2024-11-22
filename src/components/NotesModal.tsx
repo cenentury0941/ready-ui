@@ -51,7 +51,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const [noteText, setNoteText] = useState('');
   const [notesList, setNotesList] = useState<Note[]>(notes);
   const { instance, accounts } = useMsal();
-  const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
+  const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
 
   // Update selected contributor when modal opens or initialContributor changes
   useEffect(() => {
