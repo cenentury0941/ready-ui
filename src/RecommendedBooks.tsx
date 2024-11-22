@@ -18,7 +18,6 @@ import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
 import { getUserIdToken, getUserFullName } from './utils/authUtils';
-import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import NotesModal from './components/NotesModal';
 
 const RecommendedBooks: React.FC = () => {
@@ -39,6 +38,8 @@ const RecommendedBooks: React.FC = () => {
   const [isNotesModalOpen, setIsNotesModalOpen] = useState<boolean>(false);
   const [selectedBookForModal, setSelectedBookForModal] = useState<typeof books[0] | null>(null);
   const userFullName = getUserFullName(instance);
+  const [isAdmin, setIsAdmin] = useState<boolean>(true); // Manually set to true for admin
+  const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -69,6 +70,14 @@ const RecommendedBooks: React.FC = () => {
 
     fetchBooks();
   }, [instance]);
+
+  useEffect(() => {
+    const initialQtyUpdates: Record<string, number> = {};
+    books.forEach((book) => {
+      initialQtyUpdates[book.id] = book.qty;
+    });
+    setQtyUpdates(initialQtyUpdates);
+  }, [books]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
@@ -128,6 +137,37 @@ const RecommendedBooks: React.FC = () => {
   const handleAddNoteClick = (book: typeof books[0]) => {
     setSelectedBookForModal(book);
     setIsNotesModalOpen(true);
+  };
+
+  const handleStockUpdate = async (bookId: string) => {
+    const newQty = qtyUpdates[bookId];
+    try {
+      const idToken = await getUserIdToken(instance);
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (!apiUrl) {
+        console.error('API URL is not configured');
+        return;
+      }
+      const response = await fetch(`${apiUrl}/books/${bookId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ qty: newQty }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update book quantity');
+      }
+      // Update the local state
+      setBooks(prevBooks =>
+        prevBooks.map(book =>
+          book.id === bookId ? { ...book, qty: newQty } : book
+        )
+      );
+    } catch (error) {
+      console.error('Error updating book quantity:', error);
+    }
   };
 
   useEffect(() => {
@@ -266,7 +306,7 @@ const RecommendedBooks: React.FC = () => {
                               variant="faded"
                               color="success"
                             >
-                              Only {book.qty} books left
+                              {isAdmin ? `Stock: ${book.qty}` : `Only ${book.qty} books left`}
                             </Chip>
                           ) : (
                             <p className="text-sm text-red-500 mb-4">Out of Stock</p>
@@ -287,6 +327,38 @@ const RecommendedBooks: React.FC = () => {
                             <CartIcon size={16} className="mr-2" />
                             {cartItems.includes(book.id) ? 'Remove from Cart' : 'Add to Cart'}
                           </button>
+                        )}
+                        {isAdmin && (
+                          <div className="mt-4">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                              Adjust Stock
+                            </label>
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type="number"
+                                min="0"
+                                value={qtyUpdates[book.id]?.toString() || ''}
+                                onValueChange={(value) => {
+                                  setQtyUpdates(prev => ({
+                                    ...prev,
+                                    [book.id]: Number(value),
+                                  }));
+                                }}
+                                size="sm"
+                                className="w-24"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <Button
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStockUpdate(book.id);
+                                }}
+                              >
+                                Update
+                              </Button>
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>

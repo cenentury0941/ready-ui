@@ -112,8 +112,8 @@ function AppContent() {
     navigate(isAdmin ? '/admin/orders' : '/orders');
   };
 
-  const navigateToInventory = () => {
-    navigate('/admin/inventory');
+  const navigateToDashboard = () => {
+    navigate('/dashboard');
   };
 
   const navigateToHome = () => {
@@ -186,9 +186,9 @@ function AppContent() {
               <NavbarItem>
                 <Button
                   variant="light"
-                  onClick={navigateToInventory}
+                  onClick={navigateToDashboard}
                 >
-                  Inventory
+                  Dashboard
                 </Button>
               </NavbarItem>
             )}
