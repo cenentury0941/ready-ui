@@ -47,21 +47,18 @@ const NotesModal: React.FC<NotesModalProps> = ({
   onAddToCart,
   initialContributor
 }) => {
-  const [selectedContributor, setSelectedContributor] = useState(initialContributor);
+  const [selectedNoteIndex, setSelectedNoteIndex] = useState<number | null>(null);
   const [noteText, setNoteText] = useState('');
   const [notesList, setNotesList] = useState<Note[]>(notes);
   const { instance, accounts } = useMsal();
   const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
 
-  // Update selected contributor when modal opens or initialContributor changes
   useEffect(() => {
-    if (isOpen && initialContributor) {
-      setSelectedContributor(initialContributor);
-      setIsAddingNote(false);
+    if (isOpen) {
+      setIsAddingNote(true);
+      setSelectedNoteIndex(null);
     }
-  }, [isOpen, initialContributor]);
-
-  const selectedNote = notesList.find(note => note.contributor === selectedContributor);
+  }, [isOpen]);
 
   const handleNoteSubmit = async () => {
     try {
@@ -87,9 +84,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
       if (!response.ok) {
         throw new Error('Failed to add note');
       }
-      // Update notes list with the new note
       setNotesList(prevNotes => [...prevNotes, newNote]);
-      setSelectedContributor(newNote.contributor);
       setNoteText('');
       setIsAddingNote(false);
     } catch (error) {
@@ -139,18 +134,17 @@ const NotesModal: React.FC<NotesModalProps> = ({
             </ModalHeader>
             <ModalBody>
               <div className="flex h-[400px]">
-                {/* Left sidebar - Contributors */}
                 <Card className="w-1/3 rounded-none border-r border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 shadow-none">
-                  {notesList.map(note => (
+                  {notesList.map((note, index) => (
                     <Button
-                      key={note.contributor}
+                      key={`${note.contributor}-${index}`}
                       className={`flex justify-start items-center h-16 px-4 rounded-none ${
-                        selectedContributor === note.contributor && !isAddingNote
+                        selectedNoteIndex === index && !isAddingNote
                           ? 'bg-default-100 dark:bg-default-50'
                           : 'bg-transparent hover:bg-default-50 dark:hover:bg-default-100'
                       }`}
                       onClick={() => {
-                        setSelectedContributor(note.contributor);
+                        setSelectedNoteIndex(index);
                         setIsAddingNote(false);
                       }}
                       variant="light"
@@ -162,14 +156,13 @@ const NotesModal: React.FC<NotesModalProps> = ({
                         size="sm"
                       />
                       <span className={`text-sm font-medium ${
-                        selectedContributor === note.contributor && !isAddingNote
+                        selectedNoteIndex === index && !isAddingNote
                           ? 'text-primary'
                           : 'text-default-700 dark:text-default-500'
                       }`}>
                         {note.contributor}
                       </span>
                     </Button>
-                    
                   ))}
                   <Button
                     className={`flex justify-start items-center h-16 px-4 rounded-none ${
@@ -179,7 +172,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
                     }`}
                     onClick={() => {
                       setIsAddingNote(true);
-                      setSelectedContributor('');
+                      setSelectedNoteIndex(null);
                     }}
                     variant="light"
                   >
@@ -189,7 +182,6 @@ const NotesModal: React.FC<NotesModalProps> = ({
                   </Button>
                 </Card>
 
-                {/* Right content - Notes or Add Note Form */}
                 <div className="flex-1 overflow-y-auto">
                   {isAddingNote ? (
                     <div className="p-6">
@@ -205,21 +197,21 @@ const NotesModal: React.FC<NotesModalProps> = ({
                         Submit Note
                       </Button>
                     </div>
-                  ) : selectedNote ? (
+                  ) : selectedNoteIndex !== null ? (
                     <div className="p-6">
                       <div className="flex items-center mb-4">
                         <Avatar
-                          src={selectedNote.imageUrl}
-                          alt={selectedNote.contributor}
+                          src={notesList[selectedNoteIndex].imageUrl}
+                          alt={notesList[selectedNoteIndex].contributor}
                           className="mr-3"
                           size="lg"
                         />
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                          {selectedNote.contributor}
+                          {notesList[selectedNoteIndex].contributor}
                         </h3>
                       </div>
                       <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-8">
-                        {selectedNote.text}
+                        {notesList[selectedNoteIndex].text}
                       </p>
                     </div>
                   ) : (
