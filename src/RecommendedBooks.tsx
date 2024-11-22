@@ -204,7 +204,6 @@ const RecommendedBooks: React.FC = () => {
                 key={book.id}
                 className="overflow-hidden dark:bg-gray-800 shadow-none"
                 radius="sm"
-                isPressable
                 onPress={() => {
                   setSelectedBookForModal(book);
                   setIsNotesModalOpen(true);
@@ -281,8 +280,9 @@ const RecommendedBooks: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    className="border-t border-gray-200 dark:border-gray-700 p-6"
+                    className="border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto"
                     style={{ height: book.notes?.length === 0 ? '113px' : 'inherit' }}
+                    onClick={(e) => e.stopPropagation()} // Add this line
                   >
                     <InspirationNotes
                       notes={book.notes}
@@ -291,6 +291,7 @@ const RecommendedBooks: React.FC = () => {
                       onAddToCart={handleCartAction}
                     />
                   </div>
+
                 </div>
               </Card>
             ))}
