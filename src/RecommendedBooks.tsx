@@ -210,7 +210,7 @@ const RecommendedBooks: React.FC = () => {
                   setIsNotesModalOpen(true);
                 }}
               >
-                <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full text-left">
                   <div className="flex flex-col md:flex-row p-6 flex-grow">
                     <div className="md:w-[100px] flex-shrink-0 mb-4 md:mb-0">
                       <img
