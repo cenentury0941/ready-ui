@@ -20,7 +20,11 @@ import { useMsal } from '@azure/msal-react';
 import { getUserIdToken, getUserFullName } from './utils/authUtils';
 import NotesModal from './components/NotesModal';
 
-const RecommendedBooks: React.FC = () => {
+interface RecommendedBooksProps {
+  isAdmin: boolean;
+}
+
+const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const { instance } = useMsal();
   const { cartItems, addToCart, removeFromCart } = useCart();
   const [books, setBooks] = useState<Array<{
@@ -38,7 +42,6 @@ const RecommendedBooks: React.FC = () => {
   const [isNotesModalOpen, setIsNotesModalOpen] = useState<boolean>(false);
   const [selectedBookForModal, setSelectedBookForModal] = useState<typeof books[0] | null>(null);
   const userFullName = getUserFullName(instance);
-  const [isAdmin, setIsAdmin] = useState<boolean>(true); // Manually set to true for admin
   const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
 
   useEffect(() => {

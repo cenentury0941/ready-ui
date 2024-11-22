@@ -247,7 +247,7 @@ function AppContent() {
 
         {/* Shared Route */}
         <Route path="/dashboard" element={
-          isAuthenticated ? <RecommendedBooks /> : <Navigate to="/login" replace />
+          isAuthenticated ? <RecommendedBooks isAdmin={isAdmin} /> : <Navigate to="/login" replace />
         } />
 
         {/* User Routes */}
