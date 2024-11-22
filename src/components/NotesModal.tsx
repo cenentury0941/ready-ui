@@ -120,11 +120,10 @@ const NotesModal: React.FC<NotesModalProps> = ({
                 <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{book.title}</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{book.author}</p>
                 <button
-                  className={`self-start flex items-center text-sm font-medium ${
-                    isInCart
+                  className={`self-start flex items-center text-sm font-medium ${isInCart
                       ? 'text-red-500 hover:text-red-600'
                       : 'text-blue-500 hover:text-blue-600'
-                  }`}
+                    }`}
                   onClick={() => onAddToCart(book.id)}
                 >
                   <CartIcon size={16} className='mr-2' />
@@ -138,11 +137,10 @@ const NotesModal: React.FC<NotesModalProps> = ({
                   {notesList.map((note, index) => (
                     <Button
                       key={`${note.contributor}-${index}`}
-                      className={`flex justify-start items-center h-16 px-4 rounded-none ${
-                        selectedNoteIndex === index && !isAddingNote
+                      className={`flex justify-start items-center h-16 px-4 rounded-none ${selectedNoteIndex === index && !isAddingNote
                           ? 'bg-default-100 dark:bg-default-50'
                           : 'bg-transparent hover:bg-default-50 dark:hover:bg-default-100'
-                      }`}
+                        }`}
                       onClick={() => {
                         setSelectedNoteIndex(index);
                         setIsAddingNote(false);
@@ -155,21 +153,19 @@ const NotesModal: React.FC<NotesModalProps> = ({
                         className="mr-3"
                         size="sm"
                       />
-                      <span className={`text-sm font-medium ${
-                        selectedNoteIndex === index && !isAddingNote
+                      <span className={`text-sm font-medium ${selectedNoteIndex === index && !isAddingNote
                           ? 'text-primary'
                           : 'text-default-700 dark:text-default-500'
-                      }`}>
+                        }`}>
                         {note.contributor}
                       </span>
                     </Button>
                   ))}
                   <Button
-                    className={`flex justify-start items-center h-16 px-4 rounded-none ${
-                      isAddingNote
+                    className={`flex justify-start items-center h-16 px-4 rounded-none ${isAddingNote
                         ? 'bg-default-100 dark:bg-default-50'
                         : 'bg-transparent hover:bg-default-50 dark:hover:bg-default-100'
-                    }`}
+                      }`}
                     onClick={() => {
                       setIsAddingNote(true);
                       setSelectedNoteIndex(null);
@@ -186,16 +182,23 @@ const NotesModal: React.FC<NotesModalProps> = ({
                   {isAddingNote ? (
                     <div className="p-6">
                       <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">Add Your Note</h3>
-                      <Input
+                      <textarea
                         placeholder="Write your note here..."
                         value={noteText}
                         onChange={(e) => setNoteText(e.target.value)}
-                        fullWidth
-                        className="mb-4"
-                      />
-                      <Button onClick={handleNoteSubmit} disabled={!noteText}>
+                        className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                      ></textarea>
+                      <Button
+                        onClick={handleNoteSubmit}
+                        disabled={!noteText}
+                        className={`px-4 py-2 rounded text-white font-semibold bg-blue-500 ${!noteText && 'opacity-50'
+                          }`}
+                      >
                         Submit Note
                       </Button>
+
+
+
                     </div>
                   ) : selectedNoteIndex !== null ? (
                     <div className="p-6">
@@ -222,7 +225,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
                 </div>
               </div>
             </ModalBody>
-            <ModalFooter>
+            {/* <ModalFooter>
               <Button
                 color="default"
                 variant="light"
@@ -230,7 +233,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
               >
                 Close
               </Button>
-            </ModalFooter>
+            </ModalFooter> */}
           </>
         )}
       </ModalContent>
