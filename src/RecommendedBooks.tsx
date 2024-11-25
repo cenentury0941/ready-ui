@@ -402,7 +402,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                       </div>
                     </div>
                     <div
-                      className="border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto h-full flex flex-col gap-4 justify-center"
+                      className="border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto h-40 flex flex-col gap-4 justify-center"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <InspirationNotes
