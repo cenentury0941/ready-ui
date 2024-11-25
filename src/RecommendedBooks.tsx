@@ -52,6 +52,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const userFullName = getUserFullName(instance);
   const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
   const [editMode, setEditMode] = useState<Record<string, boolean>>({});
+  const [isUpdatingStock, setIsUpdatingStock] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -157,6 +158,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const handleStockUpdate = async (bookId: string) => {
     const newQty = qtyUpdates[bookId];
     try {
+      setIsUpdatingStock(true);
       const idToken = await getUserIdToken(instance);
       const apiUrl = process.env.REACT_APP_API_URL;
       if (!apiUrl) {
@@ -183,6 +185,8 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
       setEditMode(prev => ({ ...prev, [bookId]: false }));
     } catch (error) {
       console.error('Error updating book quantity:', error);
+    } finally {
+      setIsUpdatingStock(false);
     }
   };
 
@@ -327,7 +331,11 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                   handleStockUpdate(book.id);
                                 }}
                               >
-                                Update
+                                {isUpdatingStock ? (
+                                  <Spinner size="sm" color="white" />
+                                ) : (
+                                  'Update'
+                                )}
                               </Button>
                               <Button
                                 size="sm"
