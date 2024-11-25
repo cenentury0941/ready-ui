@@ -402,7 +402,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                       </div>
                     </div>
                     <div
-                      className="border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto h-full"
+                      className="border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto h-full flex flex-col gap-4 justify-center"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <InspirationNotes
@@ -414,8 +414,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                       />
                       {!userHasNote && (
                         <button
-                          className="text-primary hover:text-primary-600"
-                          style={{ marginTop: book.notes.length > 0 ? '1rem' : '2.5rem' }}
+                          className="text-primary hover:text-primary-600 self-start"
                           onClick={() => handleAddNoteClick(book)}
                         >
                           + Add Note
