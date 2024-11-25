@@ -11,6 +11,7 @@ import {
 import { CartIcon } from '../icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
 import { getUserIdToken, getUserFullName } from '../utils/authUtils';
+import { FullPageLoader } from '../pages/Cart';
 
 interface Note {
   text: string;
@@ -53,6 +54,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const { instance, accounts } = useMsal();
   const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
   const userFullName = getUserFullName(instance);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -67,6 +69,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
 
   const handleNoteSubmit = async () => {
     try {
+      setIsLoading(true)
       const idToken = await getUserIdToken(instance);
       const apiUrl = process.env.REACT_APP_API_URL;
       if (!apiUrl) {
@@ -99,6 +102,8 @@ const NotesModal: React.FC<NotesModalProps> = ({
       onClose(); // Close the modal after successful submission
     } catch (error) {
       console.error('Error submitting note:', error);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -120,6 +125,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
       <ModalContent>
         {(onClose) => (
           <>
+          { isLoading && <FullPageLoader /> }
             <ModalHeader className="flex gap-4 items-start">
               <img
                 src={book.thumbnail}
