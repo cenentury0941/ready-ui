@@ -62,6 +62,10 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    setNotesList(notes);
+  }, [notes]);
+
+  useEffect(() => {
     if (isOpen) {
       setIsAddingNote(true);
       setSelectedNoteIndex(null);
