@@ -83,7 +83,7 @@ But what sets this book apart is that its focus isn’t on the “work”, it’
     id: "5i1f3d5i-2g7f-8e6d-1f5i-5i1f3d5i3f7g",
     title: "The Culture Map",
     author: "Erin Meyer",
-    thumbnail: "the_culture_map.jpg",
+    thumbnail: cultureMap,
     about: "Whether you work in a home office or abroad, business success in our ever more globalized and virtual world requires the skills to navigate through cultural differences and decode cultures foreign to your own. Renowned expert Erin Meyer is your guide through this subtle, sometimes treacherous terrain where people from starkly different backgrounds are expected to work harmoniously together.",
     notes: [
       {
