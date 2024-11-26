@@ -39,7 +39,7 @@ function AppContent() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const setUserPhotoAtom = useSetAtom(userPhotoAtom);
-  const [activeItem, setActiveItem] = useState("");
+  const [activeItem, setActiveItem] = useState("dashboard");
 
   useEffect(() => {
     if (isAuthenticated && accounts.length > 0) {
