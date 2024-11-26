@@ -16,6 +16,8 @@ import { CartIcon } from '../icons/CartIcon';
 import { TrashIcon } from '../icons/TrashIcon';
 import { FullPageLoader } from '../pages/Cart';
 import ConfirmationDialog from './ConfirmationDialog';
+import { useAtomValue } from 'jotai';
+import { userPhotoAtom } from '../atoms/userAtom';
 
 interface Note {
   text: string;
@@ -67,6 +69,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const [isUpdatingNote, setIsUpdatingNote] = useState<boolean>(false);
   const userFullName = getUserFullName(instance);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const userPhoto = useAtomValue(userPhotoAtom);
 
   useEffect(() => {
     setNotesList(notes);
@@ -102,7 +105,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
       const newNote: Note = {
         text: noteText,
         contributor: accounts[0]?.name || 'Anonymous',
-        imageUrl: '' // Adjust as needed to fetch the user's image URL
+        imageUrl: userPhoto
       };
       const response = await fetch(`${apiUrl}/books/${book.id}/notes`, {
         method: 'POST',
