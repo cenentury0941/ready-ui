@@ -39,6 +39,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const userFullName = getUserFullName(instance);
   const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
   const [editMode, setEditMode] = useState<Record<string, boolean>>({});
+  const [isUpdatingStock, setIsUpdatingStock] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -146,6 +147,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const handleStockUpdate = async (bookId: string) => {
     const newQty = qtyUpdates[bookId];
     try {
+      setIsUpdatingStock(true);
       const idToken = await getUserIdToken(instance);
       const apiUrl = process.env.REACT_APP_API_URL;
       if (!apiUrl) {
@@ -172,6 +174,8 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
       setEditMode((prev) => ({ ...prev, [bookId]: false }));
     } catch (error) {
       console.error('Error updating book quantity:', error);
+    } finally {
+      setIsUpdatingStock(false);
     }
   };
 
@@ -332,7 +336,11 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                   handleStockUpdate(book.id);
                                 }}
                               >
-                                Update
+                                {isUpdatingStock ? (
+                                  <Spinner size='sm' color='white' />
+                                ) : (
+                                  'Update'
+                                )}
                               </Button>
                               <Button
                                 size='sm'
@@ -417,10 +425,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                       </div>
                     </div>
                     <div
-                      className='border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto'
-                      style={{
-                        height: book.notes?.length === 0 ? '113px' : 'inherit'
-                      }}
+                      className='border-t border-gray-200 dark:border-gray-700 p-6 overflow-x-auto h-40 flex flex-col gap-4 justify-center'
                       onClick={(e) => e.stopPropagation()}
                     >
                       <InspirationNotes
@@ -435,7 +440,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                       />
                       {!userHasNote && (
                         <button
-                          className='text-primary hover:text-primary-600 mt-4'
+                          className='text-primary hover:text-primary-600 self-start'
                           onClick={() => handleAddNoteClick(book)}
                         >
                           + Add Note

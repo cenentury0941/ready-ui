@@ -116,10 +116,6 @@ function AppContent() {
     navigate('/dashboard');
   };
 
-  const navigateToHome = () => {
-    navigate(isAdmin ? '/admin/orders' : '/dashboard');
-  };
-
   if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
@@ -154,7 +150,7 @@ function AppContent() {
           <NavbarBrand>
             <p
               className="font-bold text-2xl text-primary-600 dark:text-primary-400 cursor-pointer"
-              onClick={navigateToHome}
+              onClick={navigateToDashboard}
             >
               ReadY
             </p>

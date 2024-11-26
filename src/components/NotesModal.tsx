@@ -13,6 +13,7 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import { getUserIdToken, getUserFullName } from '../utils/authUtils';
 import { CartIcon } from '../icons/CartIcon';
 import { TrashIcon } from '../icons/TrashIcon';
+import { FullPageLoader } from '../pages/Cart';
 
 interface Note {
   text: string;
@@ -58,6 +59,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
   const [isUpdatingNote, setIsUpdatingNote] = useState<boolean>(false);
   const userFullName = getUserFullName(instance);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -76,6 +78,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
 
   const handleNoteSubmit = async () => {
     try {
+      setIsLoading(true);
       const idToken = await getUserIdToken(instance);
       const apiUrl = process.env.REACT_APP_API_URL;
       if (!apiUrl) {
@@ -108,6 +111,8 @@ const NotesModal: React.FC<NotesModalProps> = ({
       onClose(); // Close the modal after successful submission
     } catch (error) {
       console.error('Error submitting note:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -117,6 +122,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
     }
 
     try {
+      setIsLoading(true);
       const idToken = await getUserIdToken(instance);
       const apiUrl = process.env.REACT_APP_API_URL;
       if (!apiUrl) {
@@ -139,7 +145,9 @@ const NotesModal: React.FC<NotesModalProps> = ({
       }
 
       setNotesList((prevNotes) => {
-        const updatedNotes = [...prevNotes].splice(selectedNoteIndex, 1);
+        const updatedNotes = prevNotes.filter(
+          (_, index) => index !== selectedNoteIndex
+        );
 
         setNoteText('');
         setIsAddingNote(false);
@@ -149,11 +157,14 @@ const NotesModal: React.FC<NotesModalProps> = ({
       onClose(); // Close the modal after successful submission
     } catch (error) {
       console.error('Error submitting note:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleUpdateNote = async () => {
     try {
+      setIsLoading(true);
       const idToken = await getUserIdToken(instance);
       const apiUrl = process.env.REACT_APP_API_URL;
       if (!apiUrl) {
@@ -191,6 +202,8 @@ const NotesModal: React.FC<NotesModalProps> = ({
       onClose(); // Close the modal after successful submission
     } catch (error) {
       console.error('Error submitting note:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -212,6 +225,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
       <ModalContent>
         {(onClose) => (
           <>
+            {isLoading && <FullPageLoader />}
             <ModalHeader className='flex gap-4 items-start'>
               <img
                 src={book.thumbnail}
