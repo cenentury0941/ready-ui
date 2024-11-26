@@ -78,3 +78,10 @@ input, button, textarea, select {
 .chip-dark {
   color: "black"
 }
+
+.active {
+  border : 1px solid #006FEE ;
+  border-radius: 1.5rem ;
+  width: 50% ;
+  margin: 0 auto ;
+}

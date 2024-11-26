@@ -36,6 +36,7 @@ function AppContent() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  const [activeItem, setActiveItem] = useState("");
 
   useEffect(() => {
     if (isAuthenticated && accounts.length > 0) {
@@ -109,10 +110,14 @@ function AppContent() {
   };
 
   const navigateToOrders = () => {
+    setActiveItem("");
+    setActiveItem("orders");
     navigate(isAdmin ? '/admin/orders' : '/orders');
   };
 
   const navigateToDashboard = () => {
+    setActiveItem("");
+    setActiveItem("dashboard");
     navigate('/dashboard');
   };
 
@@ -170,14 +175,6 @@ function AppContent() {
                 />
               </div>
             </NavbarItem>
-            <NavbarItem>
-              <Button
-                variant="light"
-                onClick={navigateToOrders}
-              >
-                Orders
-              </Button>
-            </NavbarItem>
             {isAdmin && (
               <NavbarItem>
                 <Button
@@ -186,8 +183,19 @@ function AppContent() {
                 >
                   Dashboard
                 </Button>
+                { activeItem === "dashboard" ? <hr className="active" /> : <></> }
               </NavbarItem>
             )}
+            <NavbarItem>
+              <Button
+                variant="light"
+                onClick={navigateToOrders}
+              >
+                Orders
+              </Button>
+              { activeItem === "orders" ? <hr className="active" /> : <></> }
+            </NavbarItem>
+          
             {!isAdmin && (
               <NavbarItem>
                 <div className="relative">
