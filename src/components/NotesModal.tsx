@@ -141,17 +141,18 @@ const NotesModal: React.FC<NotesModalProps> = ({
         }
       );
       if (!response.ok) {
-        throw new Error('Failed to update note');
+        throw new Error('Failed to delete note');
       }
 
       setNotesList((prevNotes) => {
-        const updatedNotes = prevNotes.filter(
+        const updatedNotes = [...prevNotes].filter(
           (_, index) => index !== selectedNoteIndex
         );
 
         setNoteText('');
         setIsAddingNote(false);
         onNotesUpdate(updatedNotes);
+        setSelectedNoteIndex(null);
         return updatedNotes;
       });
       onClose(); // Close the modal after successful submission
@@ -197,6 +198,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
         setNoteText('');
         setIsAddingNote(false);
         onNotesUpdate(updatedNotes);
+        setSelectedNoteIndex(null);
         return updatedNotes;
       });
       onClose(); // Close the modal after successful submission
