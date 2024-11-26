@@ -65,6 +65,10 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const userPhoto = useAtomValue(userPhotoAtom);
 
   useEffect(() => {
+    setNotesList(notes);
+  }, [notes]);
+
+  useEffect(() => {
     if (isOpen) {
       setIsAddingNote(true);
       setSelectedNoteIndex(null);
