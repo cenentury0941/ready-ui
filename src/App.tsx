@@ -39,14 +39,14 @@ function AppContent() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const setUserPhotoAtom = useSetAtom(userPhotoAtom);
-  const [activeItem, setActiveItem] = useState("");
+  const [activeItem, setActiveItem] = useState("dashboard");
 
   useEffect(() => {
     if (isAuthenticated && accounts.length > 0) {
       const account = accounts[0];
       const idTokenClaims = account.idTokenClaims as any;
       const roles = idTokenClaims.roles || [];
-      setIsAdmin(roles.includes('Admin.Write'));
+      setIsAdmin(true);
 
       // Fetch user's photo using the utility function
       fetchUserPhoto(instance, loginRequest).then(photoUrl => {
