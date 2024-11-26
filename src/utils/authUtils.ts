@@ -75,6 +75,7 @@ export const getUserIdToken = async (instance: IPublicClientApplication) => {
 
 export const fetchUserPhoto = async (instance: IPublicClientApplication, loginRequest: any): Promise<string | null> => {
   try {
+    const apiUrl = process.env.REACT_APP_API_URL;
     // Check local storage for stored photo URL
     const storedUrl = localStorage.getItem('userPhotoUrl');
     if (storedUrl) {
@@ -105,7 +106,7 @@ export const fetchUserPhoto = async (instance: IPublicClientApplication, loginRe
     const idToken = await getUserIdToken(instance);
 
     // Send the photo to the backend
-    const backendResponse = await fetch(`http://localhost:8080/users/upload-photo/${accounts[0].username}`, {
+    const backendResponse = await fetch(`${apiUrl}/users/upload-photo/${accounts[0].username}`, {
       headers: {
         'Authorization': `Bearer ${idToken}`
       },
