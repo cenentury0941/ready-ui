@@ -22,9 +22,13 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContributor, setSelectedContributor] = useState<string>('');
+  const [selectedNotePosition, setSelectedNotePosition] = useState<
+    number | null
+  >();
 
-  const handleNoteClick = (contributor: string) => {
+  const handleNoteClick = (contributor: string, noteIndex: number) => {
     onNoteClick(book);
+    setSelectedNotePosition(noteIndex);
     setSelectedContributor(contributor);
     setIsModalOpen(true);
   };
@@ -44,7 +48,7 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({
             >
               <Card
                 isPressable
-                onPress={() => handleNoteClick(note.contributor)}
+                onPress={() => handleNoteClick(note.contributor, index)}
                 classNames={{
                   base: 'bg-default-50 dark:bg-default-50 shadow-none w-full'
                 }}
@@ -82,6 +86,7 @@ const InspirationNotes: React.FC<InspirationNotesProps> = ({
         onAddToCart={onAddToCart}
         initialContributor={selectedContributor}
         onNotesUpdate={onNotesUpdate}
+        selectedNotePosition={selectedNotePosition}
       />
     </>
   );
