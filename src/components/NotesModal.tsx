@@ -76,13 +76,15 @@ const NotesModal: React.FC<NotesModalProps> = ({
     setSelectedNoteIndex(selectedNotePosition);
   }, [selectedNotePosition]);
 
-  useEffect(() => {
-    setIsAddingNote(isAddingNoteFlag);
-  }, [isAddingNoteFlag]);
-
   const userHasNote = notesList.some(
     (note) => note.contributor === userFullName
   );
+
+  useEffect(() => {
+    if (!userHasNote) {
+      setIsAddingNote(isAddingNoteFlag);
+    }
+  }, [userHasNote, isAddingNoteFlag]);
 
   const hasUserSelectedOwnNote =
     selectedNoteIndex !== null &&
