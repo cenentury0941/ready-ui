@@ -12,6 +12,8 @@ import { CartIcon } from '../icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
 import { getUserIdToken, getUserFullName } from '../utils/authUtils';
 import { FullPageLoader } from '../pages/Cart';
+import { useAtomValue } from 'jotai';
+import { userPhotoAtom } from '../atoms/userAtom';
 
 interface Note {
   text: string;
@@ -55,6 +57,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
   const userFullName = getUserFullName(instance);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const userPhoto = useAtomValue(userPhotoAtom);
 
   useEffect(() => {
     if (isOpen) {
@@ -79,7 +82,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
       const newNote: Note = {
         text: noteText,
         contributor: accounts[0]?.name || 'Anonymous',
-        imageUrl: '', // Adjust as needed to fetch the user's image URL
+        imageUrl: userPhoto, 
       };
       const response = await fetch(`${apiUrl}/books/${book.id}/notes`, {
         method: 'POST',

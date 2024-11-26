@@ -75,6 +75,12 @@ export const getUserIdToken = async (instance: IPublicClientApplication) => {
 
 export const fetchUserPhoto = async (instance: IPublicClientApplication, loginRequest: any): Promise<string | null> => {
   try {
+    // Check local storage for stored photo URL
+    const storedUrl = localStorage.getItem('userPhotoUrl');
+    if (storedUrl) {
+      return storedUrl;
+    }
+
     const accounts = instance.getAllAccounts();
     if (accounts.length === 0) return null;
 
@@ -92,9 +98,37 @@ export const fetchUserPhoto = async (instance: IPublicClientApplication, loginRe
     if (!photoResponse.ok) return null;
 
     const blob = await photoResponse.blob();
-    return URL.createObjectURL(blob);
+
+    const formData = new FormData();
+    formData.append('file', blob, 'user-photo.jpg');
+
+    const idToken = await getUserIdToken(instance);
+
+    // Send the photo to the backend
+    const backendResponse = await fetch(`http://localhost:8080/users/upload-photo/${accounts[0].username}`, {
+      headers: {
+        'Authorization': `Bearer ${idToken}`
+      },
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!backendResponse.ok) {
+      console.error('Error uploading photo to backend:', backendResponse.statusText);
+      return null;
+    }
+
+    const backendJson = await backendResponse.json();
+
+    if (backendJson.success && backendJson.responseObject?.url) {
+      const url = backendJson.responseObject.url;
+      localStorage.setItem('userPhotoUrl', url);
+      return url; 
+    }
+    return null;
   } catch (error) {
     console.error('Error fetching user photo:', error);
     return null;
   }
 };
+

@@ -27,6 +27,8 @@ import AdminOrders from './pages/AdminOrders';
 import AdminInventory from './pages/AdminInventory'; // Added import for AdminInventory
 import { fetchUserPhoto } from './utils/authUtils';
 import BookDetails from './BookDetails';
+import { useSetAtom } from 'jotai';
+import { userPhotoAtom } from './atoms/userAtom';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -36,6 +38,7 @@ function AppContent() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
+  const setUserPhotoAtom = useSetAtom(userPhotoAtom);
 
   useEffect(() => {
     if (isAuthenticated && accounts.length > 0) {
@@ -48,6 +51,7 @@ function AppContent() {
       fetchUserPhoto(instance, loginRequest).then(photoUrl => {
         if (photoUrl) {
           setUserPhoto(photoUrl);
+          setUserPhotoAtom(photoUrl);
         }
       });
     }
