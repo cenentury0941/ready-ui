@@ -14,3 +14,19 @@ export interface Order {
   fullName: string;
   location: string;
 }
+
+export interface Note {
+  text: string;
+  contributor: string;
+  imageUrl: string;
+}
+
+export interface Book {
+  id: string;
+  title: string;
+  author: string;
+  thumbnail: string;
+  about: string;
+  notes: Note[];
+  qty: number;
+}
