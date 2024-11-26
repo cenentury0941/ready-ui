@@ -38,6 +38,8 @@ interface NotesModalProps {
   onAddToCart: (bookId: string) => void;
   initialContributor: string;
   onNotesUpdate: (updatedNotes: Note[]) => void;
+  isAddingNoteFlag?: boolean;
+  selectedNotePosition?: number | null;
 }
 
 const NotesModal: React.FC<NotesModalProps> = ({
@@ -48,15 +50,17 @@ const NotesModal: React.FC<NotesModalProps> = ({
   isInCart,
   onAddToCart,
   initialContributor,
-  onNotesUpdate
+  onNotesUpdate,
+  isAddingNoteFlag = false,
+  selectedNotePosition = null
 }) => {
   const [selectedNoteIndex, setSelectedNoteIndex] = useState<number | null>(
-    null
+    selectedNotePosition
   );
   const [noteText, setNoteText] = useState('');
   const [notesList, setNotesList] = useState<Note[]>(notes);
   const { instance, accounts } = useMsal();
-  const [isAddingNote, setIsAddingNote] = useState<boolean>(true);
+  const [isAddingNote, setIsAddingNote] = useState<boolean>(false);
   const [isUpdatingNote, setIsUpdatingNote] = useState<boolean>(false);
   const userFullName = getUserFullName(instance);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -66,11 +70,12 @@ const NotesModal: React.FC<NotesModalProps> = ({
   }, [notes]);
 
   useEffect(() => {
-    if (isOpen) {
-      setIsAddingNote(true);
-      setSelectedNoteIndex(null);
-    }
-  }, [isOpen]);
+    setSelectedNoteIndex(selectedNotePosition);
+  }, [selectedNotePosition]);
+
+  useEffect(() => {
+    setIsAddingNote(isAddingNoteFlag);
+  }, [isAddingNoteFlag]);
 
   const userHasNote = notesList.some(
     (note) => note.contributor === userFullName

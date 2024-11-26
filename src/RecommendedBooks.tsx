@@ -494,6 +494,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           onAddToCart={handleCartAction}
           initialContributor=''
           onNotesUpdate={handleNotesUpdate}
+          isAddingNoteFlag
         />
       )}
     </div>
