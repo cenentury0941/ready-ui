@@ -20,6 +20,7 @@ import { useMsal } from '@azure/msal-react';
 import { getUserIdToken, getUserFullName } from './utils/authUtils';
 import NotesModal from './components/NotesModal';
 import { Book, Note } from './types';
+import AddBookModal from './components/AddBookModal';
 
 interface RecommendedBooksProps {
   isAdmin: boolean;
@@ -33,6 +34,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [currentSelectedBook, setCurrentSelectedBook] = useState<string>('');
   const [isNotesModalOpen, setIsNotesModalOpen] = useState<boolean>(false);
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState<boolean>(false);
   const [selectedBookForModal, setSelectedBookForModal] = useState<Book | null>(
     null
   );
@@ -144,6 +146,16 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     setIsNotesModalOpen(true);
   };
 
+  const handleAddBookClick = () => {
+    setIsAddBookModalOpen(true);
+  };
+
+  const handleBookAdded = (book: Book) => {
+    console.log(book)
+    setBooks((prevBooks) => [...prevBooks, book]);
+    setIsAddBookModalOpen(false);
+  }
+
   const handleStockUpdate = async (bookId: string) => {
     const newQty = qtyUpdates[bookId];
     try {
@@ -210,62 +222,90 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           <p className='text-xl mb-6 text-gray-600 dark:text-gray-300'>
             Discover your next favorite book
           </p>
-          <div className='relative max-w-md mx-auto'>
-            <Input
-              classNames={{
-                base: 'max-w-full h-10',
-                mainWrapper: 'h-full',
-                input: [
-                  'bg-transparent',
-                  'text-black/90 dark:text-white/90',
-                  'placeholder:text-default-700/50 dark:placeholder:text-white/60'
-                ],
-                inputWrapper: [
-                  'h-full',
-                  'bg-default-200/50',
-                  'dark:bg-default/60',
-                  'backdrop-blur-xl',
-                  'backdrop-saturate-200',
-                  'hover:bg-default-200/70',
-                  'dark:hover:bg-default/70',
-                  'group-data-[focused=true]:bg-default-200/50',
-                  'dark:group-data-[focused=true]:bg-default/60',
-                  '!cursor-text'
-                ]
-              }}
-              placeholder='Search books by title or author'
-              size='sm'
-              startContent={<SearchIcon size={18} />}
-              value={searchTerm}
-              onValueChange={handleSearchChange}
-              onKeyDown={handleKeyDown}
-              isClearable
-              onClear={() => {
-                setSearchTerm('');
-                setSelectedBook(null);
-              }}
-            />
-            {searchTerm && !selectedBook && (
-              <ul
-                ref={suggestionsRef}
-                className='absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 max-h-60 overflow-y-auto'
-              >
-                {filteredBooks.map((book, index) => (
-                  <li
-                    key={book.id}
-                    className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
-                      index === selectedSuggestionIndex
-                        ? 'bg-gray-100 dark:bg-gray-700'
-                        : ''
-                    }`}
-                    onClick={() => handleSuggestionClick(book)}
+
+          <div
+            className={`relative flex flex-col ${isAdmin ? 'md:flex-row' : 'items-center justify-center'
+              } max-w-full`}
+          >
+            {/* Search Bar Wrapper */}
+            <div
+              className={`flex w-full ${isAdmin ? 'md:flex-1 justify-center md:justify-start' : 'justify-center'
+                }`}
+            >
+              <div className={`relative w-full ${isAdmin ? 'md:max-w-xl md:ml-auto' : 'max-w-lg'}`}>
+                <Input
+                  classNames={{
+                    base: 'w-full h-10',
+                    mainWrapper: 'h-full',
+                    input: [
+                      'bg-transparent',
+                      'text-black/90 dark:text-white/90',
+                      'placeholder:text-default-700/50 dark:placeholder:text-white/60'
+                    ],
+                    inputWrapper: [
+                      'h-full',
+                      'bg-default-200/50',
+                      'dark:bg-default/60',
+                      'backdrop-blur-xl',
+                      'backdrop-saturate-200',
+                      'hover:bg-default-200/70',
+                      'dark:hover:bg-default/70',
+                      'group-data-[focused=true]:bg-default-200/50',
+                      'dark:group-data-[focused=true]:bg-default/60',
+                      '!cursor-text'
+                    ]
+                  }}
+                  placeholder='Search books by title or author'
+                  size='sm'
+                  startContent={<SearchIcon size={18} />}
+                  value={searchTerm}
+                  onValueChange={handleSearchChange}
+                  onKeyDown={handleKeyDown}
+                  isClearable
+                  onClear={() => {
+                    setSearchTerm('');
+                    setSelectedBook(null);
+                  }}
+                />
+
+                {/* Suggestions Dropdown */}
+                {searchTerm && !selectedBook && (
+                  <ul
+                    ref={suggestionsRef}
+                    className='absolute w-full z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md mt-1 max-h-60 overflow-y-auto'
                   >
-                    {book.title} - {book.author}
-                  </li>
-                ))}
-              </ul>
+                    {filteredBooks.map((book, index) => (
+                      <li
+                        key={book.id}
+                        className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${index === selectedSuggestionIndex
+                            ? 'bg-gray-100 dark:bg-gray-700'
+                            : ''
+                          }`}
+                        onClick={() => handleSuggestionClick(book)}
+                      >
+                        {book.title} - {book.author}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+            {isAdmin && <div className='lg:w-52'></div>}
+            {/* Add Book Button */}
+            {isAdmin && (
+              <div className='w-full md:w-auto flex justify-center md:justify-end mt-4 md:mt-0 md:ml-4'>
+                <button
+                  className='px-3 md:px-4 py-2 bg-primary text-white rounded hover:bg-primary-600 transition-all text-sm'
+                  onClick={handleAddBookClick}
+                >
+                 Add Book
+                </button>
+              </div>
             )}
           </div>
+
+
+
         </div>
 
         {isLoading ? (
@@ -404,11 +444,10 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                         </div>
                         {!isAdmin && book.qty > 0 && (
                           <button
-                            className={`self-start flex items-center text-sm font-medium ${
-                              cartItems.includes(book.id)
-                                ? 'text-red-500 hover:text-red-600'
-                                : 'text-primary hover:text-primary-600'
-                            }`}
+                            className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id)
+                              ? 'text-red-500 hover:text-red-600'
+                              : 'text-primary hover:text-primary-600'
+                              }`}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCartAction(book.id);
@@ -497,6 +536,15 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           isAddingNoteFlag
         />
       )}
+
+      {isAddBookModalOpen && (
+        <AddBookModal
+          isOpen={isAddBookModalOpen}
+          onClose={() => setIsAddBookModalOpen(false)}
+          onAddBook={handleBookAdded}
+        />
+      )}
+
     </div>
   );
 };
