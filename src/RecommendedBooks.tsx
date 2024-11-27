@@ -298,7 +298,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                   className='px-3 md:px-4 py-2 bg-primary text-white rounded hover:bg-primary-600 transition-all text-sm'
                   onClick={handleAddBookClick}
                 >
-                  + Add Book
+                 Add Book
                 </button>
               </div>
             )}
