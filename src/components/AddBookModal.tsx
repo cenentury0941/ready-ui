@@ -107,6 +107,32 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
             </ModalHeader>
             <ModalBody>
               <div className="p-6 space-y-4">
+                <input
+                  placeholder="Enter book title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                />
+                <textarea
+                  placeholder="Enter book description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                />
+                <input
+                  placeholder="Enter stock count"
+                  value={stocksLeft}
+                  type='number'
+                  onChange={(e) => setStocksLeft(e.target.value)}
+                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                />
+                <input
+                  placeholder="Enter author name"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                />
                 <div
                   onClick={() => document.getElementById('fileInput')?.click()}
                   onDragOver={(e) => {
@@ -156,32 +182,6 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                     className="hidden"
                   />
                 </div>
-                <input
-                  placeholder="Enter book title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-                />
-                <textarea
-                  placeholder="Enter book description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={4}
-                  className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-                />
-                <input
-                  placeholder="Enter stock count"
-                  value={stocksLeft}
-                  type='number'
-                  onChange={(e) => setStocksLeft(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-                />
-                <input
-                  placeholder="Enter author name"
-                  value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-                />
                 <div className="flex justify-end gap-4">
                   <Button
                     variant="bordered"
