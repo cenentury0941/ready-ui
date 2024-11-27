@@ -46,13 +46,13 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
 
       // Create FormData to send file and other book details
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
       formData.append('title', title);
-      formData.append('description', description);
-      formData.append('stocksLeft', stocksLeft);
+      formData.append('about', description);
+      formData.append('qty', stocksLeft);
       formData.append('author', author);
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/add-book`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/books/add-book`, {
         method: 'POST',
         body: formData,
       });
