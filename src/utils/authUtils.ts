@@ -106,7 +106,7 @@ export const fetchUserPhoto = async (instance: IPublicClientApplication, loginRe
     const idToken = await getUserIdToken(instance);
 
     // Send the photo to the backend
-    const backendResponse = await fetch(`${apiUrl}/users/upload-photo/${accounts[0].username}`, {
+    const backendResponse = await fetch(`${apiUrl}/users/upload-photo`, {
       headers: {
         'Authorization': `Bearer ${idToken}`
       },
