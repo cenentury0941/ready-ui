@@ -20,6 +20,7 @@ import { useMsal } from '@azure/msal-react';
 import { getUserIdToken, getUserFullName } from './utils/authUtils';
 import NotesModal from './components/NotesModal';
 import { Book, Note } from './types';
+import AddBookModal from './components/AddBookModal';
 
 interface RecommendedBooksProps {
   isAdmin: boolean;
@@ -33,6 +34,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [currentSelectedBook, setCurrentSelectedBook] = useState<string>('');
   const [isNotesModalOpen, setIsNotesModalOpen] = useState<boolean>(false);
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState<boolean>(false);
   const [selectedBookForModal, setSelectedBookForModal] = useState<Book | null>(
     null
   );
@@ -144,6 +146,16 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     setIsNotesModalOpen(true);
   };
 
+  const handleAddBookClick = () => {
+    setIsAddBookModalOpen(true);
+  };
+
+  const handleBookAdded = (book : Book) => {
+    console.log(book)
+    setBooks((prevBooks) => [...prevBooks, book]);
+    setIsAddBookModalOpen(false);
+  }
+
   const handleStockUpdate = async (bookId: string) => {
     const newQty = qtyUpdates[bookId];
     try {
@@ -245,6 +257,12 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                 setSelectedBook(null);
               }}
             />
+            {isAdmin && <button
+              className='text-primary hover:text-primary-600 self-start mt-6'
+              onClick={handleAddBookClick}
+            >
+              + Add Book
+            </button>}
             {searchTerm && !selectedBook && (
               <ul
                 ref={suggestionsRef}
@@ -497,6 +515,15 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           isAddingNoteFlag
         />
       )}
+
+      {isAddBookModalOpen && (
+        <AddBookModal
+          isOpen={isAddBookModalOpen}
+          onClose={() => setIsAddBookModalOpen(false)}
+          onAddBook={handleBookAdded}
+        />
+      )}
+
     </div>
   );
 };
