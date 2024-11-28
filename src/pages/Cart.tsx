@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { books } from '../data/books';
-import { Button, Card, Chip, Snippet, Spinner } from "@nextui-org/react";
+import { Button, Card, Spinner } from "@nextui-org/react";
 import OrderSummary from '../OrderSummary';
 import { useNavigate } from 'react-router-dom';
 import { TrashIcon } from '../icons/TrashIcon';
 import { getUserFullName, getUserId, getUserIdToken, getUserLocation } from '../utils/authUtils';
 import { useMsal } from '@azure/msal-react';
+import { Book } from '../types';
 
 const Cart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart } = useCart();
@@ -14,10 +14,45 @@ const Cart: React.FC = () => {
   const {instance} = useMsal();
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const apiUrl = process.env.REACT_APP_API_URL;
+  const [books, setBooks] = useState<Book[]>([]);
+  const [isBookLoading, setIsBookLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setIsBookLoading(true)
+      if (!apiUrl) {
+        console.error('API URL is not configured');
+        return;
+      }
+      try {
+        const idToken = await getUserIdToken(instance);
+        const response = await fetch(`${apiUrl}/books/${cartItems[0]}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${idToken}`,
+          },
+        });
+  
+        if (response.ok) {
+          const data: Book = await response.json(); 
+          setBooks((prevBooks) => [...prevBooks, data]); 
+        } else {
+          console.error(`Failed to fetch book: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Error fetching book:', error);
+      } finally {
+        setIsBookLoading(false)
+      }
+    };
+    if(cartItems.length > 0){
+      fetchBooks(); 
+    }
+  }, [instance, apiUrl, cartItems]);
 
   const handlePlaceOrder = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL;
       setErrorMessage(null)
       setIsLoading(true)
       if (!apiUrl) {
@@ -67,6 +102,16 @@ const Cart: React.FC = () => {
         <div className="flex justify-between items-center mb-2">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Your Cart</h1>
         </div>
+      </div>
+      {isBookLoading ?
+      <div className="flex justify-center mt-24">
+        <Spinner 
+          size="lg" 
+          color="primary"
+          labelColor="primary"
+        />
+      </div>: 
+      (<div className="max-w-4xl mx-auto p-4">
         <p className="text-gray-600 dark:text-gray-400 mb-6">
           {cartItems.length} {cartItems.length === 1 ? 'Book' : 'Books'}
         </p>
@@ -133,7 +178,7 @@ const Cart: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      </div>) }
     </div>
   );
 };
