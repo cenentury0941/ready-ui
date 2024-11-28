@@ -151,10 +151,10 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   };
 
   const handleBookAdded = (book: Book) => {
-    console.log(book)
+    console.log(book);
     setBooks((prevBooks) => [...prevBooks, book]);
     setIsAddBookModalOpen(false);
-  }
+  };
 
   const handleStockUpdate = async (bookId: string) => {
     const newQty = qtyUpdates[bookId];
@@ -223,9 +223,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
             Discover your next favorite book
           </p>
 
-          <div
-            className={`relative flex flex-col md:flex-row max-w-full`}
-          >
+          <div className={`relative flex flex-col md:flex-row max-w-full`}>
             {/* Search Bar Wrapper */}
             <div
               className={`flex w-full md:flex-1 justify-center md:justify-start`}
@@ -275,10 +273,11 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                     {filteredBooks.map((book, index) => (
                       <li
                         key={book.id}
-                        className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${index === selectedSuggestionIndex
+                        className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
+                          index === selectedSuggestionIndex
                             ? 'bg-gray-100 dark:bg-gray-700'
                             : ''
-                          }`}
+                        }`}
                         onClick={() => handleSuggestionClick(book)}
                       >
                         {book.title} - {book.author}
@@ -290,18 +289,15 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
             </div>
             <div className='lg:w-52'></div>
             {/* Add Book Button */}
-              <div className='w-full md:w-auto flex justify-center md:justify-end mt-4 md:mt-0 md:ml-4'>
-                <button
-                  className='px-3 md:px-4 py-2 bg-primary text-white rounded hover:bg-primary-600 transition-all text-sm'
-                  onClick={handleAddBookClick}
-                >
-                 Add Book
-                </button>
-              </div>
+            <div className='w-full md:w-auto flex justify-center md:justify-end mt-4 md:mt-0 md:ml-4'>
+              <button
+                className='px-3 md:px-4 py-2 bg-primary text-white rounded hover:bg-primary-600 transition-all text-sm'
+                onClick={handleAddBookClick}
+              >
+                Add Book
+              </button>
+            </div>
           </div>
-
-
-
         </div>
 
         {isLoading ? (
@@ -391,7 +387,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                 Cancel
                               </Button>
                             </div>
-                          ) : (
+                          ) : book.qty > 0 ? (
                             <Chip
                               className='text-gray-700 dark:text-gray-200'
                               style={{
@@ -436,14 +432,19 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                 </button>
                               )}
                             </Chip>
+                          ) : (
+                            <p className='text-sm text-red-500 mb-4'>
+                              Out of Stock
+                            </p>
                           )}
                         </div>
                         {!isAdmin && book.qty > 0 && (
                           <button
-                            className={`self-start flex items-center text-sm font-medium ${cartItems.includes(book.id)
-                              ? 'text-red-500 hover:text-red-600'
-                              : 'text-primary hover:text-primary-600'
-                              }`}
+                            className={`self-start flex items-center text-sm font-medium ${
+                              cartItems.includes(book.id)
+                                ? 'text-red-500 hover:text-red-600'
+                                : 'text-primary hover:text-primary-600'
+                            }`}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCartAction(book.id);
@@ -540,7 +541,6 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           onAddBook={handleBookAdded}
         />
       )}
-
     </div>
   );
 };
