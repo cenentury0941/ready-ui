@@ -391,7 +391,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                 Cancel
                               </Button>
                             </div>
-                          ) : book.qty > 0 ? (
+                          ) : isAdmin || book.qty > 0 ? (
                             <Chip
                               className='text-gray-700 dark:text-gray-200'
                               style={{
@@ -420,7 +420,9 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               variant='faded'
                               color='success'
                             >
-                              Stock: {book.qty}
+                              {isAdmin
+                                ? `Stock: ${book.qty}`
+                                : `Only ${book.qty} books left`}
                               {isAdmin && (
                                 <button
                                   className='ml-2 text-gray-500 hover:text-gray-700'
