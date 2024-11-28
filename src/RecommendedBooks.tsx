@@ -346,6 +346,8 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                           <p className='text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3'>
                             {book.about}
                           </p>
+                        </div>
+                        <div>
                           {isAdmin && editMode[book.id] ? (
                             <div className='flex items-center space-x-2'>
                               <Input
@@ -443,25 +445,25 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               Out of Stock
                             </p>
                           )}
+                          {!isAdmin && book.qty > 0 && (
+                            <button
+                              className={`self-start flex items-center text-sm font-medium ${
+                                cartItems.includes(book.id)
+                                  ? 'text-red-500 hover:text-red-600'
+                                  : 'text-primary hover:text-primary-600'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCartAction(book.id);
+                              }}
+                            >
+                              <CartIcon size={16} className='mr-2' />
+                              {cartItems.includes(book.id)
+                                ? 'Remove from Cart'
+                                : 'Add to Cart'}
+                            </button>
+                          )}
                         </div>
-                        {!isAdmin && book.qty > 0 && (
-                          <button
-                            className={`self-start flex items-center text-sm font-medium ${
-                              cartItems.includes(book.id)
-                                ? 'text-red-500 hover:text-red-600'
-                                : 'text-primary hover:text-primary-600'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCartAction(book.id);
-                            }}
-                          >
-                            <CartIcon size={16} className='mr-2' />
-                            {cartItems.includes(book.id)
-                              ? 'Remove from Cart'
-                              : 'Add to Cart'}
-                          </button>
-                        )}
                       </div>
                     </div>
                     <div
