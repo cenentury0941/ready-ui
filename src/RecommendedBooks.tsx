@@ -224,15 +224,13 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           </p>
 
           <div
-            className={`relative flex flex-col ${isAdmin ? 'md:flex-row' : 'items-center justify-center'
-              } max-w-full`}
+            className={`relative flex flex-col md:flex-row max-w-full`}
           >
             {/* Search Bar Wrapper */}
             <div
-              className={`flex w-full ${isAdmin ? 'md:flex-1 justify-center md:justify-start' : 'justify-center'
-                }`}
+              className={`flex w-full md:flex-1 justify-center md:justify-start`}
             >
-              <div className={`relative w-full ${isAdmin ? 'md:max-w-xl md:ml-auto' : 'max-w-lg'}`}>
+              <div className={`relative w-full md:max-w-xl md:ml-auto`}>
                 <Input
                   classNames={{
                     base: 'w-full h-10',
@@ -290,9 +288,8 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                 )}
               </div>
             </div>
-            {isAdmin && <div className='lg:w-52'></div>}
+            <div className='lg:w-52'></div>
             {/* Add Book Button */}
-            {isAdmin && (
               <div className='w-full md:w-auto flex justify-center md:justify-end mt-4 md:mt-0 md:ml-4'>
                 <button
                   className='px-3 md:px-4 py-2 bg-primary text-white rounded hover:bg-primary-600 transition-all text-sm'
@@ -301,7 +298,6 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                  Add Book
                 </button>
               </div>
-            )}
           </div>
 
 
