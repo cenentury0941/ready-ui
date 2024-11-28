@@ -7,17 +7,20 @@ import {
   Button,
 } from '@nextui-org/react';
 import { Book } from '../types';
+import { useAtomValue } from 'jotai';
 
 interface AddBookModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddBook: (book: Book) => void;
+  isAdmin: boolean;
 }
 
 const AddBookModal: React.FC<AddBookModalProps> = ({
   isOpen,
   onClose,
   onAddBook,
+  isAdmin
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
@@ -36,7 +39,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   };
 
   const handleAddBook = async () => {
-    if (!file || !title || !description || !stocksLeft || !author) {
+    if (!file || !title || !description || !author) {
       alert('Please fill in all fields.');
       return;
     }
@@ -49,7 +52,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
       formData.append('file', file);
       formData.append('title', title);
       formData.append('about', description);
-      formData.append('qty', stocksLeft);
+      formData.append('qty', stocksLeft || '0');
       formData.append('author', author);
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/books/add-book`, {
@@ -120,13 +123,13 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                   rows={4}
                   className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
                 />
-                <input
+                {isAdmin && <input
                   placeholder="Enter stock count"
                   value={stocksLeft}
                   type='number'
                   onChange={(e) => setStocksLeft(e.target.value)}
                   className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-                />
+                />}
                 <input
                   placeholder="Enter author name"
                   value={author}
@@ -196,9 +199,9 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                   <Button
                     onClick={handleAddBook}
                     disabled={
-                      !file || !title || !description || !stocksLeft || !author || isSubmitting
+                      !file || !title || !description || !author || isSubmitting
                     }
-                    className={`rounded text-white font-semibold bg-blue-500 ${(!file || !title || !description || !stocksLeft || !author) &&
+                    className={`rounded text-white font-semibold bg-blue-500 ${(!file || !title || !description || !author) &&
                       'opacity-50'
                       }`}
                   >

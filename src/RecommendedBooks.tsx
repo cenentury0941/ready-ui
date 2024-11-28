@@ -21,6 +21,8 @@ import { getUserIdToken, getUserFullName } from './utils/authUtils';
 import NotesModal from './components/NotesModal';
 import { Book, Note } from './types';
 import AddBookModal from './components/AddBookModal';
+import { useSetAtom } from 'jotai';
+import { booksAtom } from './atoms/booksAtom';
 
 interface RecommendedBooksProps {
   isAdmin: boolean;
@@ -42,6 +44,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
   const [editMode, setEditMode] = useState<Record<string, boolean>>({});
   const [isUpdatingStock, setIsUpdatingStock] = useState<boolean>(false);
+  const setBooksAtom = useSetAtom(booksAtom);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -63,6 +66,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
         }
         const data = await response.json();
         setBooks(data);
+        setBooksAtom(data);
       } catch (error) {
         console.error('Error fetching books:', error);
       } finally {
@@ -538,6 +542,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           isOpen={isAddBookModalOpen}
           onClose={() => setIsAddBookModalOpen(false)}
           onAddBook={handleBookAdded}
+          isAdmin={isAdmin}
         />
       )}
 

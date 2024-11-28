@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { getUserId, getUserIdToken } from '../utils/authUtils';
-import { books } from '../data/books';
 import OrderList from '../OrderList';
 import { useMsal } from '@azure/msal-react';
 
 import { Order } from '../types';
+import { Spinner } from '@nextui-org/react';
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const [loading, setLoading] = useState(true); // Added loading state
   const { instance } = useMsal();
 
   // Get unique statuses from orders
@@ -20,16 +21,19 @@ const Orders: React.FC = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      setLoading(true); // Set loading to true before fetching
       try {
         const idToken = await getUserIdToken(instance);
         const apiUrl = process.env.REACT_APP_API_URL;
         if (!apiUrl) {
           console.error('API URL is not configured');
+          setLoading(false);
           return;
         }
         const userId = getUserId(instance);
         if (!userId) {
           console.error('User ID is not available');
+          setLoading(false);
           return;
         }
         const response = await fetch(`${apiUrl}/orders/user/${userId}`, {
@@ -43,15 +47,12 @@ const Orders: React.FC = () => {
           const formattedOrders = orderData.map(order => ({
             id: order.id,
             confirmationNumber: order.confirmationNumber,
-            items: order.items.map(item => {
-              const book = books.find(b => b.id === item.productId);
-              return {
-                productId: item.productId,
-                thumbnail: book?.thumbnail || 'default-thumbnail.jpg',
-                title: book?.title || 'Unknown Title',
-                author: book?.author || 'Unknown Author',
-              };
-            }),
+            items: order.items.map(item => ({
+              productId: item.productId,
+              thumbnail: item?.thumbnail || 'default-thumbnail.jpg',
+              title: item?.title || 'Unknown Title',
+              author: item?.author || 'Unknown Author',
+            })),
             status: order.status,
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
@@ -65,6 +66,8 @@ const Orders: React.FC = () => {
         }
       } catch (error) {
         console.error('Error fetching orders:', error);
+      } finally {
+        setLoading(false); // Set loading to false after fetching
       }
     };
 
@@ -88,16 +91,35 @@ const Orders: React.FC = () => {
     return result;
   }, [orders, statusFilter, sortBy]);
 
+  if (loading) {
+    // Show spinner while loading
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner 
+          size="lg" 
+          color="primary"
+          labelColor="primary"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-8">
-      <OrderList 
-        orders={filteredAndSortedOrders}
-        statusFilter={statusFilter}
-        sortBy={sortBy}
-        onStatusFilterChange={setStatusFilter}
-        onSortChange={setSortBy}
-        availableStatuses={availableStatuses}
-      />
+      {filteredAndSortedOrders.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-600 dark:text-gray-400">No orders found</p>
+        </div>
+      ) : (
+        <OrderList 
+          orders={filteredAndSortedOrders}
+          statusFilter={statusFilter}
+          sortBy={sortBy}
+          onStatusFilterChange={setStatusFilter}
+          onSortChange={setSortBy}
+          availableStatuses={availableStatuses}
+        />
+      )}
     </div>
   );
 };
