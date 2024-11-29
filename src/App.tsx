@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import {
   NextUIProvider,
@@ -14,6 +14,7 @@ import {
   DropdownItem,
   DropdownTrigger
 } from '@nextui-org/react';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CartProvider, useCart } from './context/CartContext';
 import RecommendedBooks from './RecommendedBooks';
 import Login from './components/Login';
@@ -40,6 +41,13 @@ function AppContent() {
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const setUserPhotoAtom = useSetAtom(userPhotoAtom);
   const [activeItem, setActiveItem] = useState('dashboard');
+
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   useEffect(() => {
     if (isAuthenticated && accounts.length > 0) {
@@ -154,95 +162,201 @@ function AppContent() {
     }
   ];
 
+  const ProfileComponent = () => {
+    return (
+      <Dropdown>
+        <DropdownTrigger>
+          <Avatar
+            isBordered
+            as='button'
+            radius='sm'
+            size='sm'
+            src={userPhoto || undefined}
+            name={accounts[0]?.name?.charAt(0)}
+          />
+        </DropdownTrigger>
+        <DropdownMenu aria-label='User menu actions'>
+          {menuItems.map((item) => (
+            <DropdownItem
+              key={item.key}
+              className={item.className}
+              color={item.color}
+              onClick={item.onClick}
+            >
+              {item.children || item.label}
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </Dropdown>
+    );
+  };
+
+  const CartComponent = () => {
+    return (
+      <div className='relative'>
+        <Button
+          isIconOnly
+          variant='light'
+          onClick={navigateToCart}
+          aria-label='Cart'
+          className='text-gray-700 dark:text-gray-300'
+        >
+          <CartIcon />
+        </Button>
+        <CartBadge />
+      </div>
+    );
+  };
+
   return (
     <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
       {isAuthenticated && (
-        <Navbar
-          isBordered
-          className='flex bg-white/70 dark:bg-gray-900/70 backdrop-blur-md'
-        >
-          <NavbarBrand>
-            <p
-              className='font-bold text-2xl text-primary-600 dark:text-primary-400 cursor-pointer'
-              onClick={navigateToDashboard}
-            >
-              ReadY
-            </p>
-          </NavbarBrand>
-          <NavbarContent justify='end'>
-            <NavbarItem>
-              <div className='flex items-center gap-2'>
-                <span className='text-sm text-center'>
-                  {isDark ? '🌙' : '☀️'}
-                </span>
-                <Switch
-                  isSelected={isDark}
-                  onValueChange={toggleDarkMode}
-                  size='sm'
-                  color='primary'
-                  aria-label='Toggle dark mode'
-                />
-              </div>
-            </NavbarItem>
-            {isAdmin && (
-              <NavbarItem>
-                <Button variant='light' onClick={navigateToDashboard}>
-                  Dashboard
-                </Button>
-                {activeItem === 'dashboard' ? <hr className='active' /> : <></>}
-              </NavbarItem>
-            )}
-            <NavbarItem>
-              <Button variant='light' onClick={navigateToOrders}>
-                Orders
+        <div className='relative'>
+          <Navbar
+            isBordered
+            className='flex bg-white/70 dark:bg-gray-900/70 backdrop-blur-md'
+          >
+            {/* Mobile Menu Toggle */}
+            <div className={`sm:hidden -ml-3 ${!isAdmin && 'basis-1/4'}`}>
+              <Button
+                isIconOnly
+                variant='light'
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMobileMenu();
+                }}
+                aria-label='Toggle mobile menu'
+              >
+                {isMobileMenuOpen ? (
+                  <XMarkIcon className='h-6 w-6' />
+                ) : (
+                  <Bars3Icon className='h-6 w-6' />
+                )}
               </Button>
-              {activeItem === 'orders' ? <hr className='active' /> : <></>}
-            </NavbarItem>
+            </div>
 
-            {!isAdmin && (
-              <NavbarItem>
-                <div className='relative'>
-                  <Button
-                    isIconOnly
-                    variant='light'
-                    onClick={navigateToCart}
-                    aria-label='Cart'
-                    className='text-gray-700 dark:text-gray-300'
-                  >
-                    <CartIcon />
-                  </Button>
-                  <CartBadge />
+            <div className='flex'>
+              <p
+                className='font-bold text-2xl text-primary-600 dark:text-primary-400 cursor-pointer'
+                onClick={navigateToDashboard}
+              >
+                ReadY
+              </p>
+            </div>
+
+            <div className='flex sm:hidden items-center gap-2'>
+              {!isAdmin && <CartComponent />}
+              <ProfileComponent />
+            </div>
+
+            {/* Desktop Navigation */}
+            <NavbarContent
+              justify='end'
+              className='items-center hidden sm:flex'
+            >
+              <NavbarItem className='hidden sm:flex'>
+                <div className='flex items-center gap-2'>
+                  <span className='text-sm text-center'>
+                    {isDark ? '🌙' : '☀️'}
+                  </span>
+                  <Switch
+                    isSelected={isDark}
+                    onValueChange={toggleDarkMode}
+                    size='sm'
+                    color='primary'
+                    aria-label='Toggle dark mode'
+                  />
                 </div>
               </NavbarItem>
-            )}
-            <NavbarItem>
-              <Dropdown>
-                <DropdownTrigger>
-                  <Avatar
-                    isBordered
-                    as='button'
-                    radius='sm'
-                    size='sm'
-                    src={userPhoto || undefined}
-                    name={accounts[0]?.name?.charAt(0)}
-                  />
-                </DropdownTrigger>
-                <DropdownMenu aria-label='User menu actions'>
-                  {menuItems.map((item) => (
-                    <DropdownItem
-                      key={item.key}
-                      className={item.className}
-                      color={item.color}
-                      onClick={item.onClick}
-                    >
-                      {item.children || item.label}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
-            </NavbarItem>
-          </NavbarContent>
-        </Navbar>
+              {isAdmin && (
+                <NavbarItem className='hidden sm:flex flex-col'>
+                  <Button variant='light' onClick={navigateToDashboard}>
+                    Dashboard
+                  </Button>
+                  {activeItem === 'dashboard' ? (
+                    <hr className='active' />
+                  ) : (
+                    <></>
+                  )}
+                </NavbarItem>
+              )}
+              <NavbarItem className='hidden sm:flex flex-col'>
+                <Button variant='light' onClick={navigateToOrders}>
+                  Orders
+                </Button>
+                {activeItem === 'orders' ? <hr className='active' /> : <></>}
+              </NavbarItem>
+
+              {!isAdmin && (
+                <NavbarItem className='flex'>
+                  <CartComponent />
+                </NavbarItem>
+              )}
+              <NavbarItem>
+                <ProfileComponent />
+              </NavbarItem>
+            </NavbarContent>
+          </Navbar>
+
+          {/* Mobile Menu Overlay */}
+          {isMobileMenuOpen && (
+            <div
+              ref={mobileMenuRef}
+              className='mobile-menu-overlay fixed inset-0 z-50 sm:hidden bg-white/90 dark:bg-gray-900/90 backdrop-blur-md'
+            >
+              <div className='flex w-full absolute justify-between items-center p-5'>
+                <Button
+                  isIconOnly
+                  variant='light'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMobileMenu();
+                  }}
+                  aria-label='Toggle mobile menu'
+                >
+                  {isMobileMenuOpen ? (
+                    <XMarkIcon className='h-6 w-6' />
+                  ) : (
+                    <Bars3Icon className='h-6 w-6' />
+                  )}
+                </Button>
+              </div>
+              <div className='flex flex-col items-center justify-center h-full space-y-6'>
+                {isAdmin && (
+                  <Button
+                    color={activeItem === 'dashboard' ? 'primary' : 'default'}
+                    variant='light'
+                    onClick={() => {
+                      navigateToDashboard();
+                      toggleMobileMenu();
+                    }}
+                    className={`text-xl ${
+                      activeItem === 'dashboard' &&
+                      'underline underline-offset-8'
+                    }`}
+                  >
+                    Dashboard
+                  </Button>
+                )}
+
+                <Button
+                  color={activeItem === 'orders' ? 'primary' : 'default'}
+                  variant='light'
+                  onClick={() => {
+                    navigateToOrders();
+                    toggleMobileMenu();
+                  }}
+                  className={`text-xl ${
+                    activeItem === 'orders' && 'underline underline-offset-8'
+                  }`}
+                >
+                  Orders
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       <Routes>
