@@ -384,6 +384,14 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                 variant='light'
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  if (book) {
+                                    setQtyUpdates((prev) => ({
+                                      ...prev,
+                                      [book.id]:
+                                        books.find(({ id }) => id === book.id)
+                                          ?.qty || 0
+                                    }));
+                                  }
                                   setEditMode((prev) => ({
                                     ...prev,
                                     [book.id]: false
