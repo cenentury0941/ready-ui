@@ -7,7 +7,7 @@ import {
   Button,
 } from '@nextui-org/react';
 import { Book } from '../types';
-import { getUserFullName, getUserIdToken } from '../utils/authUtils';
+import { getUserIdToken } from '../utils/authUtils';
 import { useMsal } from '@azure/msal-react';
 
 interface AddBookModalProps {
@@ -40,7 +40,6 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   };
 
   const handleAddBook = async () => {
-    const userName = getUserFullName(instance);
     if (!file || !title || !description || !author) {
       alert('Please fill in all fields.');
       return;
@@ -56,7 +55,6 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
       formData.append('about', description);
       formData.append('qty', stocksLeft || '0');
       formData.append('author', author);
-      formData.append('addedBy', userName || '');
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/books/add-book`, {
         method: 'POST',

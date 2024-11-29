@@ -29,6 +29,7 @@ import { fetchUserPhoto } from './utils/authUtils';
 import BookDetails from './BookDetails';
 import { useSetAtom } from 'jotai';
 import { userPhotoAtom } from './atoms/userAtom';
+import AdminApprovals from './pages/AdminApprovals';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -125,6 +126,12 @@ function AppContent() {
     navigate('/dashboard');
   };
 
+  const navigateToApprovals = () => {
+    setActiveItem("");
+    setActiveItem("approvals");
+    navigate('/admin/approvals');
+  };
+
   if (!isInitialized) {
     return (
       <div className='min-h-screen flex items-center justify-center bg-gray-900'>
@@ -185,12 +192,23 @@ function AppContent() {
               </div>
             </NavbarItem>
             {isAdmin && (
+              <>
               <NavbarItem>
                 <Button variant='light' onClick={navigateToDashboard}>
                   Dashboard
                 </Button>
                 {activeItem === 'dashboard' ? <hr className='active' /> : <></>}
               </NavbarItem>
+              <NavbarItem>
+                <Button
+                  variant="light"
+                  onClick={navigateToApprovals}
+                >
+                  Approvals
+                </Button>
+                { activeItem === "approvals" ? <hr className="active" /> : <></> }
+              </NavbarItem>
+              </>
             )}
             <NavbarItem>
               <Button variant='light' onClick={navigateToOrders}>
@@ -330,6 +348,9 @@ function AppContent() {
                 )
               }
             />
+            <Route path="/admin/approvals" element={
+              isAuthenticated ? <AdminApprovals /> : <Navigate to="/login" replace />
+            } />
           </>
         )}
 
