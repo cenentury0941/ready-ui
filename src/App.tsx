@@ -325,24 +325,31 @@ function AppContent() {
               <div className='flex flex-col items-center justify-center h-full space-y-6'>
                 {isAdmin && (
                   <Button
+                    color={activeItem === 'dashboard' ? 'primary' : 'default'}
                     variant='light'
                     onClick={() => {
                       navigateToDashboard();
                       toggleMobileMenu();
                     }}
-                    className='text-xl'
+                    className={`text-xl ${
+                      activeItem === 'dashboard' &&
+                      'underline underline-offset-8'
+                    }`}
                   >
                     Dashboard
                   </Button>
                 )}
 
                 <Button
+                  color={activeItem === 'orders' ? 'primary' : 'default'}
                   variant='light'
                   onClick={() => {
                     navigateToOrders();
                     toggleMobileMenu();
                   }}
-                  className='text-xl'
+                  className={`text-xl ${
+                    activeItem === 'orders' && 'underline underline-offset-8'
+                  }`}
                 >
                   Orders
                 </Button>
