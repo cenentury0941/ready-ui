@@ -29,4 +29,6 @@ export interface Book {
   about: string;
   notes: Note[];
   qty: number;
+  isApproved ?: boolean;
+  addedBy ?: string;
 }
