@@ -50,31 +50,6 @@ function AppContent() {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      // Check if the click is on the overlay background, not on menu content
-      if (
-        isMobileMenuOpen &&
-        mobileMenuRef.current &&
-        event.target instanceof Node &&
-        !mobileMenuRef.current.contains(event.target as Node)
-      ) {
-        console.log('Clicking outside detected'); // Debugging log
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    // Add event listener when mobile menu is open
-    document.addEventListener('mousedown', handleClickOutside, true);
-    document.addEventListener('touchstart', handleClickOutside, true);
-
-    // Cleanup event listeners
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside, true);
-      document.removeEventListener('touchstart', handleClickOutside, true);
-    };
-  }, [isMobileMenuOpen]);
-
-  useEffect(() => {
     if (isAuthenticated && accounts.length > 0) {
       const account = accounts[0];
       const idTokenClaims = account.idTokenClaims as any;
