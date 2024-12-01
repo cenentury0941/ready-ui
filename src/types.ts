@@ -31,4 +31,5 @@ export interface Book {
   qty: number;
   isApproved ?: boolean;
   addedBy ?: string;
+  userImageUrl ?: string;
 }

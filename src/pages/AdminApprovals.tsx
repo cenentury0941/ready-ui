@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Spinner, Modal, ModalContent, ModalHeader, ModalBody, Button } from "@nextui-org/react";
+import { Card, Spinner, Modal, ModalContent, ModalHeader, ModalBody, Button, Avatar } from "@nextui-org/react";
 import { TrashIcon } from '../icons/TrashIcon';
 import { getUserIdToken } from '../utils/authUtils';
 import { useMsal } from '@azure/msal-react';
@@ -170,32 +170,45 @@ const AdminApprovals: React.FC = () => {
                       <p className="text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3">
                         {book.about}
                       </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-400 line-clamp-3">
-                        Suggested by - {book.addedBy || 'Person A'}
-                      </p>
                     </div>
                   </div>
                 </div>
                 <hr className="border-t border-gray-300 dark:border-gray-600 mb-6" />
-                <div className="flex justify-center gap-4 pb-6">
-                  <button
-                    className="px-4 py-2 flex items-center gap-2 border border-green-500 text-green-500 font-semibold rounded hover:bg-green-500 hover:text-white transition duration-200"
-                    onClick={() => openModal('approve', book)}
-                  >
-                    <CheckIcon size={20} />
-                    <span>Approve</span>
-                  </button>
-
-                  <button
-                    className="px-4 py-2 flex items-center gap-2 border border-red-500 text-red-500 font-semibold rounded hover:bg-red-500 hover:text-white transition duration-200"
-                    onClick={() => openModal('deny', book)}
-                  >
-                    <TrashIcon size={20} />
-                    <span>Deny</span>
-                  </button>
+                <div className="flex flex-col md:flex-row items-center gap-4 px-6 pb-6">
+                  <div className="flex items-center flex-col md:flex-row gap-5 md:gap-0">
+                    <Avatar
+                      src={book.userImageUrl || undefined}
+                      className="flex-shrink-0 w-16 h-16 md:w-12 md:h-12"
+                    />
+                    <p className="ml-3 text-sm flex flex-col text-center md:text-left gap-1">
+                      <span className='text-gray-700 dark:text-gray-400'>
+                        Recommended By
+                      </span>
+                      <span className='text-gray-700 dark:text-gray-200'>
+                        {book.addedBy}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex gap-4 md:ml-auto md:mt-0 mt-4 w-full md:w-auto justify-center md:justify-end">
+                    <Button
+                      className="px-4 py-2 rounded text-white font-semibold bg-blue-500"
+                      onClick={() => openModal('approve', book)}
+                    >
+                      <span>Approve</span>
+                    </Button>
+                    <Button
+                      variant='bordered'
+                      onClick={() => openModal('deny', book)}
+                      className='rounded'
+                    >
+                      <span>Deny</span>
+                    </Button>
+                  </div>
                 </div>
+
               </div>
             </Card>
+
           ))}
         </div>
       ) : (
@@ -214,13 +227,9 @@ const AdminApprovals: React.FC = () => {
               Are you sure you want to {modalAction} the book <strong>{selectedBook?.title}</strong> by <strong>{selectedBook?.author}</strong>?
             </p>
             <div className="flex justify-end gap-4 mt-6 mb-4">
-              <Button variant="ghost" onClick={closeModal}>
-                Cancel
-              </Button>
               <Button
-                color={modalAction === 'approve' ? 'success' : 'danger'}
                 onClick={confirmAction}
-                className="w-24"
+                className="w-24 bg-blue-500 rounded"
               >
                 {isSubmitting ? (
                   <Spinner size="sm" color="white" />
@@ -228,6 +237,10 @@ const AdminApprovals: React.FC = () => {
                   'Confirm'
                 )}
               </Button>
+              <Button variant="bordered" onClick={closeModal} className='rounded'>
+                Cancel
+              </Button>
+            
             </div>
           </ModalBody>
         </ModalContent>
@@ -237,4 +250,3 @@ const AdminApprovals: React.FC = () => {
 };
 
 export default AdminApprovals;
-  
