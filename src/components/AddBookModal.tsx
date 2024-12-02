@@ -4,7 +4,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  Button,
+  Button
 } from '@nextui-org/react';
 import { Book } from '../types';
 import { getUserIdToken } from '../utils/authUtils';
@@ -20,7 +20,8 @@ interface AddBookModalProps {
 const AddBookModal: React.FC<AddBookModalProps> = ({
   isOpen,
   onClose,
-  isAdmin
+  isAdmin,
+  onAddBook
 }) => {
   const { instance } = useMsal();
   const [file, setFile] = useState<File | null>(null);
@@ -34,7 +35,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   const previewFile = (file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewUrl(reader.result as string); 
+      setPreviewUrl(reader.result as string);
     };
     reader.readAsDataURL(file);
   };
@@ -56,19 +57,26 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
       formData.append('qty', stocksLeft || '0');
       formData.append('author', author);
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/books/add-book`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/books/add-book`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          },
+          body: formData
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to add book');
       }
 
       const book: Book = await response.json();
+
+      if (isAdmin) {
+        onAddBook(book); // Update books array with the new book
+      }
 
       clearForm();
       onClose();
@@ -92,52 +100,54 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="lg"
-      backdrop="blur"
+      size='lg'
+      backdrop='blur'
       classNames={{
         base: 'bg-white dark:bg-gray-900',
         header: 'border-b border-gray-200 dark:border-gray-800',
-        body: 'p-0',
+        body: 'p-0'
       }}
     >
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col items-start">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
+            <ModalHeader className='flex flex-col items-start'>
+              <h2 className='text-xl font-bold text-gray-800 dark:text-gray-100 mb-1'>
                 Add New Book
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
                 Fill in the details of the new book.
               </p>
             </ModalHeader>
             <ModalBody>
-              <div className="p-6 space-y-4">
+              <div className='p-6 space-y-4'>
                 <input
-                  placeholder="Enter book title"
+                  placeholder='Enter book title'
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                  className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
                 />
                 <textarea
-                  placeholder="Enter book description"
+                  placeholder='Enter book description'
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={4}
-                  className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                  className='w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
                 />
-                {isAdmin && <input
-                  placeholder="Enter stock count"
-                  value={stocksLeft}
-                  type='number'
-                  onChange={(e) => setStocksLeft(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-                />}
+                {isAdmin && (
+                  <input
+                    placeholder='Enter stock count'
+                    value={stocksLeft}
+                    type='number'
+                    onChange={(e) => setStocksLeft(e.target.value)}
+                    className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
+                  />
+                )}
                 <input
-                  placeholder="Enter author name"
+                  placeholder='Enter author name'
                   value={author}
                   onChange={(e) => setAuthor(e.target.value)}
-                  className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+                  className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
                 />
                 <div
                   onClick={() => document.getElementById('fileInput')?.click()}
@@ -155,47 +165,50 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                     e.preventDefault();
                     e.stopPropagation();
                     e.currentTarget.classList.remove('border-blue-500');
-                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    if (
+                      e.dataTransfer.files &&
+                      e.dataTransfer.files.length > 0
+                    ) {
                       const droppedFile = e.dataTransfer.files[0];
                       setFile(droppedFile);
-                      previewFile(droppedFile); 
+                      previewFile(droppedFile);
                     }
                   }}
-                  className="w-full p-6 mb-4 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  className='w-full p-6 mb-4 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
                 >
                   {previewUrl ? (
                     <img
                       src={previewUrl}
-                      alt="Preview"
-                      className="w-full h-auto max-h-64 object-contain rounded-md"
+                      alt='Preview'
+                      className='w-full h-auto max-h-64 object-contain rounded-md'
                     />
                   ) : (
-                    <p className="text-gray-700 dark:text-gray-300">
+                    <p className='text-gray-700 dark:text-gray-300'>
                       Drag and drop an image here, or click to select a file
                     </p>
                   )}
                   <input
-                    id="fileInput" 
-                    type="file"
-                    accept="image/*"
+                    id='fileInput'
+                    type='file'
+                    accept='image/*'
                     onChange={(e) => {
                       const selectedFile = e.target.files?.[0] || null;
                       setFile(selectedFile);
                       if (selectedFile) {
-                        previewFile(selectedFile); 
+                        previewFile(selectedFile);
                       }
                     }}
-                    className="hidden"
+                    className='hidden'
                   />
                 </div>
-                <div className="flex justify-end gap-4">
+                <div className='flex justify-end gap-4'>
                   <Button
-                    variant="bordered"
+                    variant='bordered'
                     onPress={() => {
                       clearForm();
                       onClose();
                     }}
-                    className="rounded"
+                    className='rounded'
                   >
                     Cancel
                   </Button>
@@ -204,9 +217,10 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                     disabled={
                       !file || !title || !description || !author || isSubmitting
                     }
-                    className={`rounded text-white font-semibold bg-blue-500 ${(!file || !title || !description || !author) &&
+                    className={`rounded text-white font-semibold bg-blue-500 ${
+                      (!file || !title || !description || !author) &&
                       'opacity-50'
-                      }`}
+                    }`}
                   >
                     {isSubmitting ? 'Submitting...' : 'Add Book'}
                   </Button>
