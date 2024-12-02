@@ -7,7 +7,9 @@ import {
   ModalHeader,
   ModalBody,
   Button,
-  Avatar
+  Avatar,
+  Input,
+  Tooltip
 } from '@nextui-org/react';
 import { TrashIcon } from '../icons/TrashIcon';
 import { getUserIdToken } from '../utils/authUtils';
@@ -26,6 +28,7 @@ const AdminApprovals: React.FC = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [stockValue, setStockValue] = useState<number>(0);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -73,7 +76,7 @@ const AdminApprovals: React.FC = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`
         },
-        body: JSON.stringify({ isApproved: true })
+        body: JSON.stringify({ isApproved: true, qty: stockValue })
       });
 
       if (response.ok) {
@@ -240,6 +243,41 @@ const AdminApprovals: React.FC = () => {
               Are you sure you want to {modalAction} the book{' '}
               <strong>{selectedBook?.title}</strong>?
             </p>
+            {modalAction === 'approve' && (
+              <div className='flex items-center gap-5'>
+                <p>Stocks: </p>
+                <Input
+                  type='number'
+                  min='0'
+                  value={stockValue.toString() || '0'}
+                  onValueChange={(value) => {
+                    setStockValue(Number(value));
+                  }}
+                  size='sm'
+                  className='w-24'
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Tooltip
+                  placement='bottom'
+                  content="If value is 0 then it'll show up on dashboard as out of stock."
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    strokeWidth={1.5}
+                    stroke='currentColor'
+                    className='size-6'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      d='M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z'
+                    />
+                  </svg>
+                </Tooltip>
+              </div>
+            )}
             <div className='flex justify-end gap-4 mt-6 mb-4'>
               <Button
                 onClick={confirmAction}
