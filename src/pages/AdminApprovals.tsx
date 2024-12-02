@@ -238,8 +238,7 @@ const AdminApprovals: React.FC = () => {
           <ModalBody>
             <p className='text-gray-600 dark:text-gray-400'>
               Are you sure you want to {modalAction} the book{' '}
-              <strong>{selectedBook?.title}</strong> by{' '}
-              <strong>{selectedBook?.author}</strong>?
+              <strong>{selectedBook?.title}</strong>?
             </p>
             <div className='flex justify-end gap-4 mt-6 mb-4'>
               <Button
