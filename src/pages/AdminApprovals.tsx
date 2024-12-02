@@ -146,92 +146,92 @@ const AdminApprovals: React.FC = () => {
 
   return (
     <div className='min-h-screen py-8'>
-      <div className='max-w-4xl mx-auto p-4'>
-        <div className='flex justify-center items-center mb-2'>
-          <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
+      <div className='container mx-auto p-4'>
+        <div className='flex justify-center items-center mb-12'>
+          <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
             Pending Approvals
           </h1>
         </div>
-      </div>
-      {isBookLoading ? (
-        <div className='flex justify-center mt-24'>
-          <Spinner size='lg' color='primary' labelColor='primary' />
-        </div>
-      ) : books.length > 0 ? (
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 px-4'>
-          {books.map((book) => (
-            <Card
-              key={book.id}
-              className='overflow-hidden dark:bg-gray-800 shadow-none'
-              radius='sm'
-            >
-              <div className='flex flex-col h-full text-left'>
-                <div className='flex flex-col md:flex-row p-6 flex-grow'>
-                  <div className='md:w-[100px] flex-shrink-0 mb-4 md:mb-0'>
-                    <img
-                      src={book.thumbnail}
-                      alt={`${book.title} cover`}
-                      className='w-full h-auto object-contain rounded'
-                      style={{ aspectRatio: '2/3' }}
-                    />
+        {isBookLoading ? (
+          <div className='flex justify-center mt-24'>
+            <Spinner size='lg' color='primary' labelColor='primary' />
+          </div>
+        ) : books.length > 0 ? (
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 px-4'>
+            {books.map((book) => (
+              <Card
+                key={book.id}
+                className='overflow-hidden dark:bg-gray-800 shadow-none'
+                radius='sm'
+              >
+                <div className='flex flex-col h-full text-left'>
+                  <div className='flex flex-col md:flex-row p-6 flex-grow'>
+                    <div className='md:w-[100px] flex-shrink-0 mb-4 md:mb-0'>
+                      <img
+                        src={book.thumbnail}
+                        alt={`${book.title} cover`}
+                        className='w-full h-auto object-contain rounded'
+                        style={{ aspectRatio: '2/3' }}
+                      />
+                    </div>
+                    <div className='md:ml-6 flex-grow flex flex-col justify-between min-w-0'>
+                      <div>
+                        <h3 className='text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate'>
+                          {book.title}
+                        </h3>
+                        <p className='text-sm text-gray-600 dark:text-gray-300 mb-4 truncate'>
+                          {book.author}
+                        </p>
+                        <p className='text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3'>
+                          {book.about}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className='md:ml-6 flex-grow flex flex-col justify-between min-w-0'>
-                    <div>
-                      <h3 className='text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate'>
-                        {book.title}
-                      </h3>
-                      <p className='text-sm text-gray-600 dark:text-gray-300 mb-4 truncate'>
-                        {book.author}
+                  <hr className='border-t border-gray-300 dark:border-gray-600 mb-6' />
+                  <div className='flex flex-col md:flex-row items-center gap-4 px-6 pb-6'>
+                    <div className='flex items-center flex-col md:flex-row gap-5 md:gap-0'>
+                      <Avatar
+                        src={book.userImageUrl || undefined}
+                        className='flex-shrink-0 w-16 h-16 md:w-12 md:h-12'
+                      />
+                      <p className='ml-3 text-sm flex flex-col text-center md:text-left gap-1'>
+                        <span className='text-gray-700 dark:text-gray-400'>
+                          Recommended By
+                        </span>
+                        <span className='text-gray-700 dark:text-gray-200'>
+                          {book.addedBy}
+                        </span>
                       </p>
-                      <p className='text-sm text-gray-700 dark:text-gray-400 mb-4 line-clamp-3'>
-                        {book.about}
-                      </p>
+                    </div>
+                    <div className='flex gap-4 md:ml-auto md:mt-0 mt-4 w-full md:w-auto justify-center md:justify-end'>
+                      <Button
+                        className='px-4 py-2 rounded text-white font-semibold bg-blue-500'
+                        onClick={() => openModal('approve', book)}
+                      >
+                        <span>Approve</span>
+                      </Button>
+                      <Button
+                        variant='bordered'
+                        onClick={() => openModal('deny', book)}
+                        className='rounded'
+                      >
+                        <span>Deny</span>
+                      </Button>
                     </div>
                   </div>
                 </div>
-                <hr className='border-t border-gray-300 dark:border-gray-600 mb-6' />
-                <div className='flex flex-col md:flex-row items-center gap-4 px-6 pb-6'>
-                  <div className='flex items-center flex-col md:flex-row gap-5 md:gap-0'>
-                    <Avatar
-                      src={book.userImageUrl || undefined}
-                      className='flex-shrink-0 w-16 h-16 md:w-12 md:h-12'
-                    />
-                    <p className='ml-3 text-sm flex flex-col text-center md:text-left gap-1'>
-                      <span className='text-gray-700 dark:text-gray-400'>
-                        Recommended By
-                      </span>
-                      <span className='text-gray-700 dark:text-gray-200'>
-                        {book.addedBy}
-                      </span>
-                    </p>
-                  </div>
-                  <div className='flex gap-4 md:ml-auto md:mt-0 mt-4 w-full md:w-auto justify-center md:justify-end'>
-                    <Button
-                      className='px-4 py-2 rounded text-white font-semibold bg-blue-500'
-                      onClick={() => openModal('approve', book)}
-                    >
-                      <span>Approve</span>
-                    </Button>
-                    <Button
-                      variant='bordered'
-                      onClick={() => openModal('deny', book)}
-                      className='rounded'
-                    >
-                      <span>Deny</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className='flex justify-center items-center mt-24'>
-          <p className='text-lg font-medium text-gray-600 dark:text-gray-400'>
-            No pending approvals.
-          </p>
-        </div>
-      )}
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className='flex justify-center items-center mt-24'>
+            <p className='text-lg font-medium text-gray-600 dark:text-gray-400'>
+              No pending approvals.
+            </p>
+          </div>
+        )}
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <ModalContent>
