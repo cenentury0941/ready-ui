@@ -30,6 +30,7 @@ import { fetchUserPhoto } from './utils/authUtils';
 import BookDetails from './BookDetails';
 import { useSetAtom } from 'jotai';
 import { userPhotoAtom } from './atoms/userAtom';
+import AdminApprovals from './pages/AdminApprovals';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
@@ -131,6 +132,12 @@ function AppContent() {
     setActiveItem('');
     setActiveItem('dashboard');
     navigate('/dashboard');
+  };
+
+  const navigateToApprovals = () => {
+    setActiveItem("");
+    setActiveItem("approvals");
+    navigate('/admin/approvals');
   };
 
   if (!isInitialized) {
@@ -269,16 +276,27 @@ function AppContent() {
                 </div>
               </NavbarItem>
               {isAdmin && (
-                <NavbarItem className='hidden sm:flex flex-col'>
-                  <Button variant='light' onClick={navigateToDashboard}>
-                    Dashboard
-                  </Button>
-                  {activeItem === 'dashboard' ? (
-                    <hr className='active' />
-                  ) : (
-                    <></>
-                  )}
-                </NavbarItem>
+                <>
+                  <NavbarItem className='hidden sm:flex flex-col'>
+                    <Button variant='light' onClick={navigateToDashboard}>
+                      Dashboard
+                    </Button>
+                    {activeItem === 'dashboard' ? (
+                      <hr className='active' />
+                    ) : (
+                      <></>
+                    )}
+                  </NavbarItem>
+                  <NavbarItem>
+                    <Button
+                      variant="light"
+                      onClick={navigateToApprovals}
+                    >
+                      Approvals
+                    </Button>
+                    { activeItem === "approvals" ? <hr className="active" /> : <></> }
+                  </NavbarItem>
+                </>
               )}
               <NavbarItem className='hidden sm:flex flex-col'>
                 <Button variant='light' onClick={navigateToOrders}>
@@ -324,20 +342,38 @@ function AppContent() {
               </div>
               <div className='flex flex-col items-center justify-center h-full space-y-6'>
                 {isAdmin && (
-                  <Button
-                    color={activeItem === 'dashboard' ? 'primary' : 'default'}
-                    variant='light'
-                    onClick={() => {
-                      navigateToDashboard();
-                      toggleMobileMenu();
-                    }}
-                    className={`text-xl ${
-                      activeItem === 'dashboard' &&
-                      'underline underline-offset-8'
-                    }`}
-                  >
-                    Dashboard
-                  </Button>
+                  <>
+                    <Button
+                      color={activeItem === 'dashboard' ? 'primary' : 'default'}
+                      variant='light'
+                      onClick={() => {
+                        navigateToDashboard();
+                        toggleMobileMenu();
+                      }}
+                      className={`text-xl ${
+                        activeItem === 'dashboard' &&
+                        'underline underline-offset-8'
+                      }`}
+                    >
+                      Dashboard
+                    </Button>
+
+                    <Button
+                      color={activeItem === 'approvals' ? 'primary' : 'default'}
+                      variant='light'
+                      onClick={() => {
+                        navigateToApprovals();
+                        toggleMobileMenu();
+                      }}
+                      className={`text-xl ${
+                        activeItem === 'approvals' &&
+                        'underline underline-offset-8'
+                      }`}
+                    >
+                      Approvals
+                    </Button>
+
+                  </>
                 )}
 
                 <Button
@@ -444,6 +480,13 @@ function AppContent() {
                 )
               }
             />
+            <Route 
+              path="/admin/approvals" 
+              element={
+                isAuthenticated ? 
+                  <AdminApprovals /> : 
+                  <Navigate to="/login" replace />
+            } />
           </>
         )}
 

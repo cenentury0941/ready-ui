@@ -7,7 +7,8 @@ import {
   Button,
 } from '@nextui-org/react';
 import { Book } from '../types';
-import { useAtomValue } from 'jotai';
+import { getUserIdToken } from '../utils/authUtils';
+import { useMsal } from '@azure/msal-react';
 
 interface AddBookModalProps {
   isOpen: boolean;
@@ -19,9 +20,9 @@ interface AddBookModalProps {
 const AddBookModal: React.FC<AddBookModalProps> = ({
   isOpen,
   onClose,
-  onAddBook,
   isAdmin
 }) => {
+  const { instance } = useMsal();
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -46,7 +47,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
 
     try {
       setIsSubmitting(true);
-
+      const idToken = await getUserIdToken(instance);
       // Create FormData to send file and other book details
       const formData = new FormData();
       formData.append('file', file);
@@ -57,6 +58,9 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/books/add-book`, {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
         body: formData,
       });
 
@@ -66,7 +70,6 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
 
       const book: Book = await response.json();
 
-      onAddBook(book); // Update books array with the new book
       clearForm();
       onClose();
     } catch (error) {
