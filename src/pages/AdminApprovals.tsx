@@ -239,13 +239,12 @@ const AdminApprovals: React.FC = () => {
             {modalAction === 'approve' ? 'Approve Book' : 'Deny Book'}
           </ModalHeader>
           <ModalBody>
-            <p className='text-gray-600 dark:text-gray-400'>
-              Are you sure you want to {modalAction} the book{' '}
-              <strong>{selectedBook?.title}</strong>?
+            <p className='text-gray-600 dark:text-gray-400 pb-3'>
+              Once approved this book will show up on dashboard for other users.
             </p>
             {modalAction === 'approve' && (
-              <div className='flex items-center gap-5'>
-                <p>Stocks: </p>
+              <div className='flex items-center gap-3'>
+                <p>Add Stock: </p>
                 <Input
                   type='number'
                   min='0'
