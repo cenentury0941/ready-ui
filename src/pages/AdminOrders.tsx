@@ -47,15 +47,12 @@ const AdminOrders: React.FC = () => {
         const formattedOrders = orderData.map((order) => ({
           id: order.id,
           confirmationNumber: order.confirmationNumber,
-          items: order.items.map((item) => {
-            const book = books.find((b) => b.id === item.productId);
-            return {
-              productId: item.productId,
-              thumbnail: book?.thumbnail || 'default-thumbnail.jpg',
-              title: book?.title || 'Unknown Title',
-              author: book?.author || 'Unknown Author'
-            };
-          }),
+          items: order.items.map((item) => ({
+            productId: item.productId,
+            thumbnail: item?.thumbnail || 'default-thumbnail.jpg',
+            title: item?.title || 'Unknown Title',
+            author: item?.author || 'Unknown Author'
+          })),
           status: order.status,
           createdAt: order.createdAt,
           updatedAt: order.updatedAt,
