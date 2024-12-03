@@ -23,9 +23,10 @@ import { Book, Note } from './types';
 import AddBookModal from './components/AddBookModal';
 import { useSetAtom } from 'jotai';
 import { booksAtom } from './atoms/booksAtom';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilIcon } from '@heroicons/react/24/outline';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import axios from 'axios';
+import { TrashIcon } from './icons/TrashIcon';
 
 interface RecommendedBooksProps {
   isAdmin: boolean;
@@ -386,21 +387,35 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
 
                       <div className='md:ml-6 flex-grow flex flex-col justify-between min-w-0'>
                         <div>
-                          <div className='flex flex-row justify-between'>
-                            <h3 className='text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate'>
+                          <div className='flex flex-row justify-between items-center mb-2'>
+                            <h3 className='text-base font-semibold text-gray-800 dark:text-gray-100 truncate'>
                               {book.title}
                             </h3>
-                            <div>
-                              <button className='bg-light-500 text-blue-500 rounded transition-all text-m'>
-                                <PencilSquareIcon className='h-4 w-6 '></PencilSquareIcon>
-                              </button>
+                            <div className='flex items-center'>
+                              {/* <Button
+                                isIconOnly
+                                variant='light'
+                                aria-label='Edit Note'
+                                className='text-gray-600 hover:text-red-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors'
+                                // onClick={() => {
+                                //   setIsUpdatingNote(true);
+                                //   setNoteText(
+                                //     notesList[selectedNoteIndex].text
+                                //   );
+                                // }}
+                              >
+                                <PencilIcon className='h-5 w-5' />
+                              </Button> */}
                               {isAdmin && (
-                                <button
-                                  className='bg-light text-red-500 rounded transition-all text-m'
+                                <Button
+                                  isIconOnly
+                                  variant='light'
+                                  aria-label='Delete Note'
+                                  className='text-gray-600 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors'
                                   onClick={() => handleDeleteBookClick(book.id)}
                                 >
-                                  <TrashIcon className='h-4 w-6'></TrashIcon>
-                                </button>
+                                  <TrashIcon className='h-5 w-5' />
+                                </Button>
                               )}
                             </div>
                           </div>
