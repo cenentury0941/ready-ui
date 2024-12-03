@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Spinner } from '@nextui-org/react';
 import { useMsal } from '@azure/msal-react';
 import { books } from '../data/books';
 import OrderList from '../OrderList';
@@ -6,6 +7,7 @@ import { Order } from '../types';
 import { getUserIdToken } from '../utils/authUtils';
 
 const AdminOrders: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
@@ -23,6 +25,7 @@ const AdminOrders: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
+      setIsLoading(true);
       const apiUrl = process.env.REACT_APP_API_URL;
       if (!apiUrl) {
         console.error('API URL is not configured');
@@ -73,6 +76,8 @@ const AdminOrders: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -127,18 +132,33 @@ const AdminOrders: React.FC = () => {
     return result;
   }, [orders, statusFilter, sortBy]);
 
+  if (isLoading) {
+    // Show spinner while loading
+    return (
+      <div className='flex justify-center items-center min-h-screen'>
+        <Spinner size='lg' color='primary' labelColor='primary' />
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen py-8'>
-      <OrderList
-        orders={filteredAndSortedOrders}
-        statusFilter={statusFilter}
-        sortBy={sortBy}
-        onStatusFilterChange={setStatusFilter}
-        onSortChange={setSortBy}
-        availableStatuses={availableStatuses}
-        isAdmin={true}
-        onStatusUpdate={handleUpdateStatus}
-      />
+      {filteredAndSortedOrders.length === 0 ? (
+        <div className='text-center py-8'>
+          <p className='text-gray-600 dark:text-gray-400'>No orders found</p>
+        </div>
+      ) : (
+        <OrderList
+          orders={filteredAndSortedOrders}
+          statusFilter={statusFilter}
+          sortBy={sortBy}
+          onStatusFilterChange={setStatusFilter}
+          onSortChange={setSortBy}
+          availableStatuses={availableStatuses}
+          isAdmin={true}
+          onStatusUpdate={handleUpdateStatus}
+        />
+      )}
     </div>
   );
 };
