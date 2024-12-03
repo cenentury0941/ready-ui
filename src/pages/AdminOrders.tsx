@@ -13,7 +13,7 @@ const AdminOrders: React.FC = () => {
 
   // Get unique statuses from orders
   const availableStatuses = React.useMemo(() => {
-    const statuses = new Set(orders.map(order => order.status));
+    const statuses = new Set(orders.map((order) => order.status));
     return Array.from(statuses);
   }, [orders]);
 
@@ -31,29 +31,29 @@ const AdminOrders: React.FC = () => {
       const idToken = await getUserIdToken(instance);
       const response = await fetch(`${apiUrl}/orders`, {
         headers: {
-          'Authorization': `Bearer ${idToken}`,
-        },
+          Authorization: `Bearer ${idToken}`
+        }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        
+
         if (!data || !Array.isArray(data)) {
           console.error('Invalid response format:', data);
           return;
         }
 
         const orderData: Order[] = data;
-        const formattedOrders = orderData.map(order => ({
+        const formattedOrders = orderData.map((order) => ({
           id: order.id,
           confirmationNumber: order.confirmationNumber,
-          items: order.items.map(item => {
-            const book = books.find(b => b.id === item.productId);
+          items: order.items.map((item) => {
+            const book = books.find((b) => b.id === item.productId);
             return {
               productId: item.productId,
               thumbnail: book?.thumbnail || 'default-thumbnail.jpg',
               title: book?.title || 'Unknown Title',
-              author: book?.author || 'Unknown Author',
+              author: book?.author || 'Unknown Author'
             };
           }),
           status: order.status,
@@ -61,13 +61,18 @@ const AdminOrders: React.FC = () => {
           updatedAt: order.updatedAt,
           userId: order.userId || '',
           fullName: order.fullName || '',
-          location: order.location || '',
+          location: order.location || ''
         }));
 
         setOrders(formattedOrders);
       } else {
         const errorText = await response.text();
-        console.error('Failed to fetch orders. Status:', response.status, 'Error:', errorText);
+        console.error(
+          'Failed to fetch orders. Status:',
+          response.status,
+          'Error:',
+          errorText
+        );
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -87,16 +92,21 @@ const AdminOrders: React.FC = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
+          Authorization: `Bearer ${idToken}`
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus })
       });
 
       if (response.ok) {
         await fetchOrders(); // Refresh the orders list
       } else {
         const errorText = await response.text();
-        console.error('Failed to update order status. Status:', response.status, 'Error:', errorText);
+        console.error(
+          'Failed to update order status. Status:',
+          response.status,
+          'Error:',
+          errorText
+        );
       }
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -108,7 +118,7 @@ const AdminOrders: React.FC = () => {
     let result = [...orders];
 
     if (statusFilter) {
-      result = result.filter(order => order.status === statusFilter);
+      result = result.filter((order) => order.status === statusFilter);
     }
 
     result.sort((a, b) => {
@@ -121,8 +131,8 @@ const AdminOrders: React.FC = () => {
   }, [orders, statusFilter, sortBy]);
 
   return (
-    <div className="min-h-screen py-8">
-      <OrderList 
+    <div className='min-h-screen py-8'>
+      <OrderList
         orders={filteredAndSortedOrders}
         statusFilter={statusFilter}
         sortBy={sortBy}
