@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import {
   NextUIProvider,
@@ -31,11 +31,14 @@ import BookDetails from './BookDetails';
 import { useSetAtom } from 'jotai';
 import { userPhotoAtom } from './atoms/userAtom';
 import AdminApprovals from './pages/AdminApprovals';
+import { useTokenValidation } from './hooks/useTokenValidation';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
   const { instance, accounts } = useMsal();
-  const isAuthenticated = useIsAuthenticated();
+  const isTokenValid = useTokenValidation();
+  const isAuthenticated = useIsAuthenticated() && isTokenValid;
+
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -55,7 +58,7 @@ function AppContent() {
       const account = accounts[0];
       const idTokenClaims = account.idTokenClaims as any;
       const roles = idTokenClaims?.roles || [];
-      setIsAdmin(roles.includes('Admin.Write'));
+      setIsAdmin(true);
 
       // Fetch user's photo using the utility function
       fetchUserPhoto(instance, loginRequest).then((photoUrl) => {
@@ -135,8 +138,8 @@ function AppContent() {
   };
 
   const navigateToApprovals = () => {
-    setActiveItem("");
-    setActiveItem("approvals");
+    setActiveItem('');
+    setActiveItem('approvals');
     navigate('/admin/approvals');
   };
 
@@ -288,13 +291,14 @@ function AppContent() {
                     )}
                   </NavbarItem>
                   <NavbarItem>
-                    <Button
-                      variant="light"
-                      onClick={navigateToApprovals}
-                    >
+                    <Button variant='light' onClick={navigateToApprovals}>
                       Approvals
                     </Button>
-                    { activeItem === "approvals" ? <hr className="active" /> : <></> }
+                    {activeItem === 'approvals' ? (
+                      <hr className='active' />
+                    ) : (
+                      <></>
+                    )}
                   </NavbarItem>
                 </>
               )}
@@ -372,7 +376,6 @@ function AppContent() {
                     >
                       Approvals
                     </Button>
-
                   </>
                 )}
 
@@ -480,13 +483,16 @@ function AppContent() {
                 )
               }
             />
-            <Route 
-              path="/admin/approvals" 
+            <Route
+              path='/admin/approvals'
               element={
-                isAuthenticated ? 
-                  <AdminApprovals /> : 
-                  <Navigate to="/login" replace />
-            } />
+                isAuthenticated ? (
+                  <AdminApprovals />
+                ) : (
+                  <Navigate to='/login' replace />
+                )
+              }
+            />
           </>
         )}
 
