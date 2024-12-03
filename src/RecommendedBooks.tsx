@@ -23,6 +23,9 @@ import { Book, Note } from './types';
 import AddBookModal from './components/AddBookModal';
 import { useSetAtom } from 'jotai';
 import { booksAtom } from './atoms/booksAtom';
+import { PencilSquareIcon,TrashIcon } from '@heroicons/react/24/outline';
+import ConfirmationDialog from './components/ConfirmationDialog';
+import axios from 'axios';
 
 interface RecommendedBooksProps {
   isAdmin: boolean;
@@ -40,12 +43,13 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const [selectedBookForModal, setSelectedBookForModal] = useState<Book | null>(
     null
   );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const userFullName = getUserFullName(instance);
   const [qtyUpdates, setQtyUpdates] = useState<Record<string, number>>({});
   const [editMode, setEditMode] = useState<Record<string, boolean>>({});
   const [isUpdatingStock, setIsUpdatingStock] = useState<boolean>(false);
   const setBooksAtom = useSetAtom(booksAtom);
-
+  const [deleteItemId, setDeleteItemId] = useState<string>('');
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -154,11 +158,57 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     setIsAddBookModalOpen(true);
   };
 
+  const handleDeleteBookClick = (id: string) => {
+    setDeleteItemId(id)
+    setIsDeleteModalOpen(true);
+  };
+
   const handleBookAdded = (book: Book) => {
     console.log(book);
     setBooks((prevBooks) => [...prevBooks, book]);
     setIsAddBookModalOpen(false);
   };
+
+  const handleDeleteConfirm = async () => {
+    try {
+        setIsLoading(true)
+        const idToken = await getUserIdToken(instance);
+        const apiUrl = process.env.REACT_APP_API_URL;
+        if (!apiUrl) {
+          console.error('API URL is not configured');
+          return;
+        }
+        const deleteResponse = await axios.delete(`${apiUrl}/books/${deleteItemId}`, {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          },
+        });
+        if (!deleteResponse) {
+          throw new Error('Failed to fetch books');
+        }
+        const response = await fetch(`${apiUrl}/books`, {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch books');
+        }
+        const data = await response.json();
+        setBooks(data);
+        setBooksAtom(data);
+    
+    }
+    catch(error) {
+
+    }
+    finally{
+    setIsLoading(false)
+    setDeleteItemId('')
+    setIsDeleteModalOpen(false)
+    }
+    
+  }
 
   const handleStockUpdate = async (bookId: string) => {
     const newQty = qtyUpdates[bookId];
@@ -335,11 +385,18 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                           style={{ aspectRatio: '2/3' }}
                         />
                       </div>
+                     
                       <div className='md:ml-6 flex-grow flex flex-col justify-between min-w-0'>
                         <div>
-                          <h3 className='text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate'>
-                            {book.title}
-                          </h3>
+                          <div className='flex flex-row justify-between'>
+                            <h3 className='text-base font-semibold mb-2 text-gray-800 dark:text-gray-100 truncate'>
+                              {book.title}
+                            </h3>
+                            <div>
+                            <button className='bg-light-500 text-blue-500 rounded transition-all text-m' ><PencilSquareIcon className='h-4 w-6 '></PencilSquareIcon></button> 
+                           {isAdmin && (<button className='bg-light text-red-500 rounded transition-all text-m' onClick={() =>handleDeleteBookClick(book.id)} ><TrashIcon className='h-4 w-6'></TrashIcon></button>)} 
+                            </div>
+                          </div>
                           <p className='text-sm text-gray-600 dark:text-gray-300 mb-4 truncate'>
                             {book.author}
                           </p>
@@ -504,6 +561,18 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           </div>
         )}
       </div>
+      
+
+      {isAdmin && (
+      <ConfirmationDialog
+        isOpen={isDeleteModalOpen}
+        onOpenChange={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Book"
+        message="Are you sure you want to delete the book?"
+      />
+        )}
+
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
