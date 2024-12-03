@@ -135,8 +135,8 @@ function AppContent() {
   };
 
   const navigateToApprovals = () => {
-    setActiveItem("");
-    setActiveItem("approvals");
+    setActiveItem('');
+    setActiveItem('approvals');
     navigate('/admin/approvals');
   };
 
@@ -288,13 +288,14 @@ function AppContent() {
                     )}
                   </NavbarItem>
                   <NavbarItem>
-                    <Button
-                      variant="light"
-                      onClick={navigateToApprovals}
-                    >
+                    <Button variant='light' onClick={navigateToApprovals}>
                       Approvals
                     </Button>
-                    { activeItem === "approvals" ? <hr className="active" /> : <></> }
+                    {activeItem === 'approvals' ? (
+                      <hr className='active' />
+                    ) : (
+                      <></>
+                    )}
                   </NavbarItem>
                 </>
               )}
@@ -372,7 +373,6 @@ function AppContent() {
                     >
                       Approvals
                     </Button>
-
                   </>
                 )}
 
@@ -480,13 +480,16 @@ function AppContent() {
                 )
               }
             />
-            <Route 
-              path="/admin/approvals" 
+            <Route
+              path='/admin/approvals'
               element={
-                isAuthenticated ? 
-                  <AdminApprovals /> : 
-                  <Navigate to="/login" replace />
-            } />
+                isAuthenticated ? (
+                  <AdminApprovals />
+                ) : (
+                  <Navigate to='/login' replace />
+                )
+              }
+            />
           </>
         )}
 
