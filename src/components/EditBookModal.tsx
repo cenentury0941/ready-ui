@@ -15,13 +15,15 @@ interface AddBookModalProps {
   onClose: () => void;
   bookToEdit?: Book | null; // Optional book for editing
   onEditBook?: (book: Book) => void; // Function to handle edit
+  isAdmin: boolean;
 }
 
 const EditBookModal: React.FC<AddBookModalProps> = ({
   isOpen,
   onClose,
   bookToEdit,
-  onEditBook
+  onEditBook,
+  isAdmin
 }) => {
   const { instance } = useMsal();
   const [file, setFile] = useState<File | null>(null);
@@ -165,13 +167,15 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
               className='w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
             />
 
-            <input
-              placeholder='Enter stock count'
-              value={stocksLeft}
-              type='number'
-              onChange={(e) => setStocksLeft(e.target.value)}
-              className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
-            />
+            {isAdmin && (
+              <input
+                placeholder='Enter stock count'
+                value={stocksLeft}
+                type='number'
+                onChange={(e) => setStocksLeft(e.target.value)}
+                className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
+              />
+            )}
 
             <input
               placeholder='Enter author name'
