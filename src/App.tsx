@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Route,
   Routes,
@@ -37,16 +37,13 @@ import BookDetails from './BookDetails';
 import { useSetAtom } from 'jotai';
 import { userPhotoAtom } from './atoms/userAtom';
 import AdminApprovals from './pages/AdminApprovals';
-import { useTokenValidation } from './hooks/useTokenValidation';
 
 const adminRoutes = ['/admin/orders', '/admin/inventory', '/admin/approvals'];
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
   const { instance, accounts } = useMsal();
-  const isTokenValid = useTokenValidation();
-  const isAuthenticated = useIsAuthenticated() && isTokenValid;
-
+  const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,7 +55,11 @@ function AppContent() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isAdmin = true;
+  const isAdmin = Boolean(
+    isAuthenticated &&
+      accounts.length > 0 &&
+      accounts?.[0]?.idTokenClaims?.roles?.includes('Admin.Write')
+  );
 
   useEffect(() => {
     if (isAdmin && adminRoutes.some((route) => route === location.pathname)) {
