@@ -166,10 +166,9 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     setIsAddBookModalOpen(false);
   };
 
-  const handleBookEdit = async (book: Book) => {
+  const handleBookEdit = async () => {
     fetchBooks();
     setEditBooks([]);
-    setIsLoading(false);
     setIsEditBookModalOpen(false);
   };
 
