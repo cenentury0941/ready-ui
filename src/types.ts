@@ -32,4 +32,5 @@ export interface Book {
   isApproved ?: boolean;
   addedBy ?: string;
   userImageUrl ?: string;
+  emailId? : string;
 }

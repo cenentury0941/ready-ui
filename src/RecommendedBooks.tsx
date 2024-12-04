@@ -27,13 +27,14 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import axios from 'axios';
 import { TrashIcon } from './icons/TrashIcon';
+import EditBookModal from './components/EditBookModal';
 
 interface RecommendedBooksProps {
   isAdmin: boolean;
 }
 
 const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
-  const { instance } = useMsal();
+  const { instance, accounts } = useMsal();
   const { cartItems, addToCart, removeFromCart } = useCart();
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -50,12 +51,19 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const [editMode, setEditMode] = useState<Record<string, boolean>>({});
   const [isUpdatingStock, setIsUpdatingStock] = useState<boolean>(false);
   const setBooksAtom = useSetAtom(booksAtom);
+  const [editBookId, setEditBookId] = useState<string>('');
+  const [editBooks, setEditBooks] = useState<Book[]>();
+  const [isEditBookModalOpen, setIsEditBookModalOpen] =
+    useState<boolean>(false);
   const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
         setIsLoading(true);
         const idToken = await getUserIdToken(instance);
+        setEmail(accounts[0].username);
         const apiUrl = process.env.REACT_APP_API_URL;
         if (!apiUrl) {
           console.error('API URL is not configured');
@@ -168,6 +176,42 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     console.log(book);
     setBooks((prevBooks) => [...prevBooks, book]);
     setIsAddBookModalOpen(false);
+  };
+
+  const handleBookEdit = async (book: Book) => {
+    try {
+      setIsLoading(true);
+      const idToken = await getUserIdToken(instance);
+      const apiUrl = process.env.REACT_APP_API_URL;
+      if (!apiUrl) {
+        console.error('API URL is not configured');
+        return;
+      }
+      const response = await fetch(`${apiUrl}/books`, {
+        headers: {
+          Authorization: `Bearer ${idToken}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch books');
+      }
+      const data = await response.json();
+      setBooks(data);
+      setBooksAtom(data);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    } finally {
+      setEditBooks([]);
+      setIsLoading(false);
+      setIsEditBookModalOpen(false);
+    }
+  };
+
+  const handleEditBookClick = async (bookId: string) => {
+    setEditBookId(bookId);
+    setIsEditBookModalOpen(true);
+    const filtered = books.filter(({ id }) => id === bookId);
+    setEditBooks(filtered);
   };
 
   const handleDeleteConfirm = async () => {
@@ -392,20 +436,19 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               {book.title}
                             </h3>
                             <div className='flex items-center'>
-                              {/* <Button
-                                isIconOnly
-                                variant='light'
-                                aria-label='Edit Note'
-                                className='text-gray-600 hover:text-red-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors'
-                                // onClick={() => {
-                                //   setIsUpdatingNote(true);
-                                //   setNoteText(
-                                //     notesList[selectedNoteIndex].text
-                                //   );
-                                // }}
-                              >
-                                <PencilIcon className='h-5 w-5' />
-                              </Button> */}
+                              {email === book.emailId && (
+                                <Button
+                                  isIconOnly
+                                  variant='light'
+                                  aria-label='Edit Note'
+                                  className='text-gray-600 hover:text-red-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors'
+                                  onClick={() => {
+                                    handleEditBookClick(book.id);
+                                  }}
+                                >
+                                  <PencilIcon className='h-5 w-5' />
+                                </Button>
+                              )}
                               {isAdmin && (
                                 <Button
                                   isIconOnly
@@ -624,6 +667,16 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
           )}
         </ModalContent>
       </Modal>
+
+      {editBooks && editBooks?.length > 0 && (
+        <EditBookModal
+          isOpen={isEditBookModalOpen}
+          onClose={() => setIsEditBookModalOpen(false)}
+          onEditBook={handleBookEdit}
+          bookToEdit={editBooks[0]}
+          isAdmin={isAdmin}
+        />
+      )}
 
       {isNotesModalOpen && selectedBookForModal && (
         <NotesModal
