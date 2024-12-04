@@ -16,6 +16,7 @@ import { getUserIdToken } from '../utils/authUtils';
 import { useMsal } from '@azure/msal-react';
 import { Book } from '../types';
 import CheckIcon from '../icons/CheckIcon';
+import axiosInstance from '../utils/api';
 
 const confirmationMessages = {
   approve: 'Once approved this book will show up on dashboard for other users.',
@@ -37,22 +38,13 @@ const AdminApprovals: React.FC = () => {
 
   useEffect(() => {
     const fetchBooks = async () => {
-      setIsBookLoading(true);
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
       try {
-        const idToken = await getUserIdToken(instance);
-        const response = await fetch(`${apiUrl}/books/pending-approvals`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${idToken}`
-          }
-        });
+        setIsBookLoading(true);
 
-        if (response.ok) {
-          const data: Book[] = await response.json();
+        const response = await axiosInstance.get('books/pending-approvals');
+        const data = response.data;
+
+        if (data) {
           setBooks(data);
         } else {
           console.error(`Failed to fetch books: ${response.statusText}`);
@@ -67,28 +59,15 @@ const AdminApprovals: React.FC = () => {
   }, [instance, apiUrl]);
 
   const handleApprove = async (bookId: string) => {
-    if (!apiUrl) {
-      console.error('API URL is not configured');
-      return;
-    }
-
     try {
       setIsSubmitting(true);
-      const idToken = await getUserIdToken(instance);
-      const response = await fetch(`${apiUrl}/books/${bookId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`
-        },
-        body: JSON.stringify({ isApproved: true, qty: stockValue })
+
+      await axiosInstance.put(`books/${bookId}`, {
+        isApproved: true,
+        qty: stockValue
       });
 
-      if (response.ok) {
-        setBooks(books.filter((book) => book.id !== bookId));
-      } else {
-        console.error(`Failed to approve book: ${response.statusText}`);
-      }
+      setBooks(books.filter((book) => book.id !== bookId));
     } catch (error) {
       console.error('Error approving book:', error);
     } finally {
@@ -97,27 +76,12 @@ const AdminApprovals: React.FC = () => {
   };
 
   const handleDeny = async (bookId: string) => {
-    if (!apiUrl) {
-      console.error('API URL is not configured');
-      return;
-    }
-
     try {
       setIsSubmitting(true);
-      const idToken = await getUserIdToken(instance);
-      const response = await fetch(`${apiUrl}/books/${bookId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`
-        }
-      });
 
-      if (response.ok) {
-        setBooks(books.filter((book) => book.id !== bookId));
-      } else {
-        console.error(`Failed to deny book: ${response.statusText}`);
-      }
+      await axiosInstance.delete(`books/${bookId}`);
+
+      setBooks(books.filter((book) => book.id !== bookId));
     } catch (error) {
       console.error('Error denying book:', error);
     } finally {
