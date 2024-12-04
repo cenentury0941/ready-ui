@@ -34,7 +34,7 @@ interface RecommendedBooksProps {
 }
 
 const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
-  const { instance } = useMsal();
+  const { instance ,accounts} = useMsal();
   const { cartItems, addToCart, removeFromCart } = useCart();
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -55,11 +55,13 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const [editBooks, setEditBooks] = useState<Book[]>();
   const [isEditBookModalOpen, setIsEditBookModalOpen]= useState<boolean>(false);
   const [deleteItemId, setDeleteItemId] = useState<string>('');
+  const [email ,setEmail] = useState<string>('')
   useEffect(() => {
     const fetchBooks = async () => {
       try {
         setIsLoading(true);
         const idToken = await getUserIdToken(instance);
+        setEmail(accounts[0].username)
         const apiUrl = process.env.REACT_APP_API_URL;
         if (!apiUrl) {
           console.error('API URL is not configured');
@@ -433,7 +435,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               {book.title}
                             </h3>
                             <div className='flex items-center'>
-                              <Button
+                             {(email === book.emailId && <Button
                                 isIconOnly
                                 variant='light'
                                 aria-label='Edit Note'
@@ -447,7 +449,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                 }}
                               >
                                 <PencilIcon className='h-5 w-5' />
-                              </Button>
+                              </Button>)}
                               {isAdmin && (
                                 <Button
                                   isIconOnly
