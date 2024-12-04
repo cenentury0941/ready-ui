@@ -436,7 +436,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                               {book.title}
                             </h3>
                             <div className='flex items-center'>
-                              {email === book.emailId && (
+                              {(email === book.emailId || isAdmin) && (
                                 <Button
                                   isIconOnly
                                   variant='light'
