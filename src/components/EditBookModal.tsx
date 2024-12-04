@@ -4,7 +4,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  Button,
+  Button
 } from '@nextui-org/react';
 import { Book } from '../types';
 import { getUserIdToken } from '../utils/authUtils';
@@ -21,7 +21,7 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
   isOpen,
   onClose,
   bookToEdit,
-  onEditBook,
+  onEditBook
 }) => {
   const { instance } = useMsal();
   const [file, setFile] = useState<File | null>(null);
@@ -31,7 +31,7 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
   const [author, setAuthor] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isChanged, setIsChanged] = useState(false); 
+  const [isChanged, setIsChanged] = useState(false);
 
   // Prepopulate data if editing a book
   useEffect(() => {
@@ -40,8 +40,7 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
       setDescription(bookToEdit.about);
       setStocksLeft(bookToEdit.qty.toString());
       setAuthor(bookToEdit.author);
-     setPreviewUrl(bookToEdit.thumbnail); 
-     
+      setPreviewUrl(bookToEdit.thumbnail);
     }
   }, [bookToEdit]);
 
@@ -53,10 +52,10 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
 
     setIsChanged(
       title !== initialTitle ||
-      description !== initialDescription ||
-      stocksLeft !== initialStocksLeft ||
-      author !== initialAuthor ||
-      file !== null
+        description !== initialDescription ||
+        stocksLeft !== initialStocksLeft ||
+        author !== initialAuthor ||
+        file !== null
     );
   }, [title, description, stocksLeft, author, file, bookToEdit]);
 
@@ -69,13 +68,13 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
   };
 
   const handleAddBook = async () => {
-     try {
+    try {
       setIsSubmitting(true);
       const formData = new FormData();
       if (file) {
-        formData.append('file', file); 
+        formData.append('file', file);
       }
-      formData.append('title', title );
+      formData.append('title', title);
       formData.append('about', description);
       formData.append('qty', stocksLeft || '0');
       formData.append('author', author);
@@ -92,10 +91,10 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
       }
       const response = await fetch(url, {
         headers: {
-            Authorization: `Bearer ${idToken}`
+          Authorization: `Bearer ${idToken}`
         },
         method,
-        body: formData,
+        body: formData
       });
 
       if (!response.ok) {
@@ -106,7 +105,7 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
 
       if (bookToEdit && onEditBook) {
         onEditBook(book);
-      } 
+      }
 
       clearForm();
       onClose();
@@ -131,52 +130,54 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="lg"
-      backdrop="blur"
+      size='lg'
+      backdrop='blur'
       classNames={{
         base: 'bg-white dark:bg-gray-900',
         header: 'border-b border-gray-200 dark:border-gray-800',
-        body: 'p-0',
+        body: 'p-0'
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col items-start">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
+        <ModalHeader className='flex flex-col items-start'>
+          <h2 className='text-xl font-bold text-gray-800 dark:text-gray-100 mb-1'>
             {bookToEdit ? 'Edit Book' : 'Add New Book'}
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {bookToEdit ? 'Edit the details of the book.' : 'Fill in the details of the new book.'}
+          <p className='text-sm text-gray-600 dark:text-gray-400'>
+            {bookToEdit
+              ? 'Edit the details of the book.'
+              : 'Fill in the details of the new book.'}
           </p>
         </ModalHeader>
         <ModalBody>
-          <div className="p-6 space-y-4">
+          <div className='p-6 space-y-4'>
             <input
-              placeholder="Enter book title"
+              placeholder='Enter book title'
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+              className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
             />
             <textarea
-              placeholder="Enter book description"
+              placeholder='Enter book description'
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+              className='w-full h-32 p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
             />
-            
-              <input
-                placeholder="Enter stock count"
-                value={stocksLeft}
-                type="number"
-                onChange={(e) => setStocksLeft(e.target.value)}
-                className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
-              />
-            
+
             <input
-              placeholder="Enter author name"
+              placeholder='Enter stock count'
+              value={stocksLeft}
+              type='number'
+              onChange={(e) => setStocksLeft(e.target.value)}
+              className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
+            />
+
+            <input
+              placeholder='Enter author name'
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
-              className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+              className='w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600'
             />
             <div
               onClick={() => document.getElementById('fileInput')?.click()}
@@ -200,23 +201,23 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
                   previewFile(droppedFile);
                 }
               }}
-              className="w-full p-6 mb-4 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className='w-full p-6 mb-4 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
             >
               {previewUrl ? (
                 <img
                   src={previewUrl}
-                  alt="Preview"
-                  className="w-full h-auto max-h-64 object-contain rounded-md"
+                  alt='Preview'
+                  className='w-full h-auto max-h-64 object-contain rounded-md'
                 />
               ) : (
-                <p className="text-gray-700 dark:text-gray-300">
+                <p className='text-gray-700 dark:text-gray-300'>
                   Drag and drop an image here, or click to select a file
                 </p>
               )}
               <input
-                id="fileInput"
-                type="file"
-                accept="image/*"
+                id='fileInput'
+                type='file'
+                accept='image/*'
                 onChange={(e) => {
                   const selectedFile = e.target.files?.[0] || null;
                   setFile(selectedFile);
@@ -224,35 +225,39 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
                     previewFile(selectedFile);
                   }
                 }}
-                className="hidden"
+                className='hidden'
               />
             </div>
-            <div className="flex justify-end gap-4">
+            <div className='flex justify-end gap-4'>
               <Button
-                variant="bordered"
+                variant='bordered'
                 onPress={() => {
                   clearForm();
                   onClose();
                 }}
-                className="rounded"
+                className='rounded'
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleAddBook}
-                isDisabled = {!isChanged}
+                isDisabled={!isChanged}
                 className="rounded text-white font-semibold bg-blue-500 ${
                   !file || !title || !description || !author ? 'opacity-50' : ''
                 }"
               >
-                {isSubmitting ? 'Submitting...' : bookToEdit ? 'Save Changes' : 'Add Book'}
+                {isSubmitting
+                  ? 'Submitting...'
+                  : bookToEdit
+                  ? 'Save Changes'
+                  : 'Add Book'}
               </Button>
             </div>
           </div>
         </ModalBody>
-    </ModalContent>
+      </ModalContent>
     </Modal>
-    )
-}
+  );
+};
 
 export default EditBookModal;
