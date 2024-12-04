@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useRef, ReactNode } from 'react';
-import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import {
+  Route,
+  Routes,
+  Navigate,
+  useNavigate,
+  useLocation
+} from 'react-router-dom';
 import {
   NextUIProvider,
   Navbar,
@@ -33,6 +39,8 @@ import { userPhotoAtom } from './atoms/userAtom';
 import AdminApprovals from './pages/AdminApprovals';
 import { useTokenValidation } from './hooks/useTokenValidation';
 
+const adminRoutes = ['/admin/orders', '/admin/inventory', '/admin/approvals'];
+
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
   const { instance, accounts } = useMsal();
@@ -40,8 +48,9 @@ function AppContent() {
   const isAuthenticated = useIsAuthenticated() && isTokenValid;
 
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
   const setUserPhotoAtom = useSetAtom(userPhotoAtom);
   const [activeItem, setActiveItem] = useState('dashboard');
@@ -49,17 +58,23 @@ function AppContent() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const isAdmin = true;
+
+  useEffect(() => {
+    if (isAdmin && adminRoutes.some((route) => route === location.pathname)) {
+      const item = location.pathname.split('/').at(-1);
+      if (item) {
+        setActiveItem(item);
+      }
+    }
+  }, [location.pathname]);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   useEffect(() => {
     if (isAuthenticated && accounts.length > 0) {
-      const account = accounts[0];
-      const idTokenClaims = account.idTokenClaims as any;
-      const roles = idTokenClaims?.roles || [];
-      setIsAdmin(true);
-
       // Fetch user's photo using the utility function
       fetchUserPhoto(instance, loginRequest).then((photoUrl) => {
         if (photoUrl) {
