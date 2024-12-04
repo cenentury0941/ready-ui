@@ -17,7 +17,7 @@ import {
 import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
-import { getUserIdToken, getUserFullName } from './utils/authUtils';
+import { getUserFullName } from './utils/authUtils';
 import NotesModal from './components/NotesModal';
 import { Book, Note } from './types';
 import AddBookModal from './components/AddBookModal';
@@ -25,9 +25,9 @@ import { useSetAtom } from 'jotai';
 import { booksAtom } from './atoms/booksAtom';
 import { PencilIcon } from '@heroicons/react/24/outline';
 import ConfirmationDialog from './components/ConfirmationDialog';
-import axios from 'axios';
 import { TrashIcon } from './icons/TrashIcon';
 import EditBookModal from './components/EditBookModal';
+import axiosInstance from './utils/api';
 
 interface RecommendedBooksProps {
   isAdmin: boolean;
@@ -58,35 +58,23 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const [deleteItemId, setDeleteItemId] = useState<string>('');
   const [email, setEmail] = useState<string>('');
 
-  useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        setIsLoading(true);
-        const idToken = await getUserIdToken(instance);
-        setEmail(accounts[0].username);
-        const apiUrl = process.env.REACT_APP_API_URL;
-        if (!apiUrl) {
-          console.error('API URL is not configured');
-          return;
-        }
-        const response = await fetch(`${apiUrl}/books`, {
-          headers: {
-            Authorization: `Bearer ${idToken}`
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch books');
-        }
-        const data = await response.json();
-        setBooks(data);
-        setBooksAtom(data);
-      } catch (error) {
-        console.error('Error fetching books:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchBooks = async () => {
+    try {
+      setIsLoading(true);
+      setEmail(accounts[0].username);
 
+      const response = await axiosInstance.get('books');
+
+      setBooks(response.data);
+      setBooksAtom(response.data);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchBooks();
   }, [instance]);
 
@@ -179,32 +167,10 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   };
 
   const handleBookEdit = async (book: Book) => {
-    try {
-      setIsLoading(true);
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
-      const response = await fetch(`${apiUrl}/books`, {
-        headers: {
-          Authorization: `Bearer ${idToken}`
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch books');
-      }
-      const data = await response.json();
-      setBooks(data);
-      setBooksAtom(data);
-    } catch (error) {
-      console.error('Error fetching books:', error);
-    } finally {
-      setEditBooks([]);
-      setIsLoading(false);
-      setIsEditBookModalOpen(false);
-    }
+    fetchBooks();
+    setEditBooks([]);
+    setIsLoading(false);
+    setIsEditBookModalOpen(false);
   };
 
   const handleEditBookClick = async (bookId: string) => {
@@ -217,34 +183,8 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
   const handleDeleteConfirm = async () => {
     try {
       setIsLoading(true);
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
-      const deleteResponse = await axios.delete(
-        `${apiUrl}/books/${deleteItemId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${idToken}`
-          }
-        }
-      );
-      if (!deleteResponse) {
-        throw new Error('Failed to fetch books');
-      }
-      const response = await fetch(`${apiUrl}/books`, {
-        headers: {
-          Authorization: `Bearer ${idToken}`
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch books');
-      }
-      const data = await response.json();
-      setBooks(data);
-      setBooksAtom(data);
+      await axiosInstance.delete(`books/${deleteItemId}`);
+      fetchBooks();
     } catch (error) {
     } finally {
       setIsLoading(false);
@@ -257,23 +197,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
     const newQty = qtyUpdates[bookId];
     try {
       setIsUpdatingStock(true);
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
-      const response = await fetch(`${apiUrl}/books/${bookId}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ qty: newQty })
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update book quantity');
-      }
+      await axiosInstance.put(`books/${bookId}`, { qty: newQty });
       // Update the local state
       setBooks((prevBooks) =>
         prevBooks.map((book) =>
