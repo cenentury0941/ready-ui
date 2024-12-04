@@ -17,6 +17,11 @@ import { useMsal } from '@azure/msal-react';
 import { Book } from '../types';
 import CheckIcon from '../icons/CheckIcon';
 
+const confirmationMessages = {
+  approve: 'Once approved this book will show up on dashboard for other users.',
+  deny: 'Once denied this book will not show up on dashboard for other users.'
+};
+
 const AdminApprovals: React.FC = () => {
   const { instance } = useMsal();
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -240,7 +245,7 @@ const AdminApprovals: React.FC = () => {
           </ModalHeader>
           <ModalBody>
             <p className='text-gray-600 dark:text-gray-400 pb-3'>
-              Once approved this book will show up on dashboard for other users.
+              {modalAction && confirmationMessages[modalAction]}
             </p>
             {modalAction === 'approve' && (
               <div className='flex items-center gap-3'>
