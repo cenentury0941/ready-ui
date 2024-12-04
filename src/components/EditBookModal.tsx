@@ -7,14 +7,14 @@ import {
   Button
 } from '@nextui-org/react';
 import { Book } from '../types';
-import { getUserIdToken } from '../utils/authUtils';
 import { useMsal } from '@azure/msal-react';
+import axiosInstance from '../utils/api';
 
 interface AddBookModalProps {
   isOpen: boolean;
   onClose: () => void;
   bookToEdit?: Book | null; // Optional book for editing
-  onEditBook?: (book: Book) => void; // Function to handle edit
+  onEditBook?: () => void; // Function to handle edit
   isAdmin: boolean;
 }
 
@@ -80,33 +80,18 @@ const EditBookModal: React.FC<AddBookModalProps> = ({
       formData.append('about', description);
       formData.append('qty', stocksLeft || '0');
       formData.append('author', author);
-      const url = bookToEdit
-        ? `${process.env.REACT_APP_API_URL}/books/${bookToEdit.id}`
-        : `${process.env.REACT_APP_API_URL}/books/add-book`;
 
       const method = bookToEdit ? 'PUT' : 'POST';
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${idToken}`
-        },
+      const url = bookToEdit ? `/books/${bookToEdit.id}` : `/books/add-book`;
+
+      await axiosInstance({
         method,
-        body: formData
+        url,
+        data: formData
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save book');
-      }
-
-      const book: Book = await response.json();
-
       if (bookToEdit && onEditBook) {
-        onEditBook(book);
+        onEditBook();
       }
 
       clearForm();

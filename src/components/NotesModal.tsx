@@ -11,13 +11,14 @@ import {
 } from '@nextui-org/react';
 import { useMsal } from '@azure/msal-react';
 import { PencilIcon } from '@heroicons/react/24/outline';
-import { getUserIdToken, getUserFullName } from '../utils/authUtils';
+import { getUserFullName } from '../utils/authUtils';
 import { CartIcon } from '../icons/CartIcon';
 import { TrashIcon } from '../icons/TrashIcon';
 import { FullPageLoader } from '../pages/Cart';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useAtomValue } from 'jotai';
 import { userPhotoAtom } from '../atoms/userAtom';
+import axiosInstance from '../utils/api';
 
 interface Note {
   text: string;
@@ -96,28 +97,14 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const handleNoteSubmit = async () => {
     try {
       setIsLoading(true);
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
       const newNote: Note = {
         text: noteText,
         contributor: accounts[0]?.name || 'Anonymous',
         imageUrl: userPhoto
       };
-      const response = await fetch(`${apiUrl}/books/${book.id}/notes`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${idToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newNote)
-      });
-      if (!response.ok) {
-        throw new Error('Failed to add note');
-      }
+
+      await axiosInstance.post(`books/${book.id}/notes`, newNote);
+
       setNotesList((prevNotes) => {
         const updatedNotes = [...prevNotes, newNote];
         setNoteText('');
@@ -140,26 +127,8 @@ const NotesModal: React.FC<NotesModalProps> = ({
 
     try {
       setIsLoading(true);
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
 
-      const response = await fetch(
-        `${apiUrl}/books/${book.id}/notes/${selectedNoteIndex}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${idToken}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Failed to delete note');
-      }
+      await axiosInstance.delete(`books/${book.id}/notes/${selectedNoteIndex}`);
 
       setNotesList((prevNotes) => {
         const updatedNotes = [...prevNotes].filter(
@@ -183,31 +152,18 @@ const NotesModal: React.FC<NotesModalProps> = ({
   const handleUpdateNote = async () => {
     try {
       setIsLoading(true);
-      const idToken = await getUserIdToken(instance);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
+
       const newNote: Note = {
         text: noteText,
         contributor: accounts[0]?.name || 'Anonymous',
-        imageUrl: '' // Adjust as needed to fetch the user's image URL
+        imageUrl: userPhoto
       };
-      const response = await fetch(
-        `${apiUrl}/books/${book.id}/notes/${selectedNoteIndex}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${idToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(newNote)
-        }
+
+      await axiosInstance.put(
+        `books/${book.id}/notes/${selectedNoteIndex}`,
+        newNote
       );
-      if (!response.ok) {
-        throw new Error('Failed to update note');
-      }
+
       setNotesList((prevNotes) => {
         const updatedNotes = [...prevNotes].map((note, index) =>
           index === selectedNoteIndex ? newNote : note

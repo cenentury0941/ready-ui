@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Spinner } from '@nextui-org/react';
-import { useMsal } from '@azure/msal-react';
-import { books } from '../data/books';
 import OrderList from '../OrderList';
 import { Order } from '../types';
-import { getUserIdToken } from '../utils/authUtils';
+import axiosInstance from '../utils/api';
 
 const AdminOrders: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [sortBy, setSortBy] = useState('newest');
-  const { instance } = useMsal();
 
   // Get unique statuses from orders
   const availableStatuses = React.useMemo(() => {
@@ -26,21 +23,11 @@ const AdminOrders: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
-      const idToken = await getUserIdToken(instance);
-      const response = await fetch(`${apiUrl}/orders`, {
-        headers: {
-          Authorization: `Bearer ${idToken}`
-        }
-      });
 
-      if (response.ok) {
-        const data = await response.json();
+      const response = await axiosInstance.get('orders');
+      const data = response.data;
 
+      if (data) {
         if (!data || !Array.isArray(data)) {
           console.error('Invalid response format:', data);
           return;
@@ -65,14 +52,6 @@ const AdminOrders: React.FC = () => {
         }));
 
         setOrders(formattedOrders);
-      } else {
-        const errorText = await response.text();
-        console.error(
-          'Failed to fetch orders. Status:',
-          response.status,
-          'Error:',
-          errorText
-        );
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -83,33 +62,11 @@ const AdminOrders: React.FC = () => {
 
   const handleUpdateStatus = async (orderId: string, newStatus: string) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL;
-      if (!apiUrl) {
-        console.error('API URL is not configured');
-        return;
-      }
-
-      const idToken = await getUserIdToken(instance);
-      const response = await fetch(`${apiUrl}/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`
-        },
-        body: JSON.stringify({ status: newStatus })
+      await axiosInstance.put(`orders/${orderId}/status`, {
+        status: newStatus
       });
 
-      if (response.ok) {
-        await fetchOrders(); // Refresh the orders list
-      } else {
-        const errorText = await response.text();
-        console.error(
-          'Failed to update order status. Status:',
-          response.status,
-          'Error:',
-          errorText
-        );
-      }
+      await fetchOrders(); // Refresh the orders list
     } catch (error) {
       console.error('Error updating order status:', error);
     }

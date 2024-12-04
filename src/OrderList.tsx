@@ -211,7 +211,11 @@ const OrderList: React.FC<OrderListProps> = ({
                       {order.items.map((book, index) => (
                         <div key={index} className='flex gap-4'>
                           <img
-                            src={book.thumbnail}
+                            src={
+                              !isAdmin || book.thumbnail.startsWith('http')
+                                ? book.thumbnail
+                                : `/${book.thumbnail}`
+                            }
                             alt={`${book.title} cover`}
                             className='w-20 h-[100px] object-cover rounded'
                           />
