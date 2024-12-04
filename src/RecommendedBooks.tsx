@@ -442,10 +442,6 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
                                 className='text-gray-600 hover:text-red-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors'
                                 onClick={() => {
                                   handleEditBookClick(book.id)
-                                  // setIsUpdatingNote(true);
-                                  // setNoteText(
-                                  //   notesList[selectedNoteIndex].text
-                                  // );
                                 }}
                               >
                                 <PencilIcon className='h-5 w-5' />
