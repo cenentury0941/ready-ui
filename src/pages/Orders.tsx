@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { getUserId, getUserIdToken } from '../utils/authUtils';
+import { getUserId } from '../utils/authUtils';
 import OrderList from '../OrderList';
 import { useMsal } from '@azure/msal-react';
 
 import { Order } from '../types';
 import { Spinner } from '@nextui-org/react';
+import axiosInstance from '../utils/api';
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -15,7 +16,7 @@ const Orders: React.FC = () => {
 
   // Get unique statuses from orders
   const availableStatuses = React.useMemo(() => {
-    const statuses = new Set(orders.map(order => order.status));
+    const statuses = new Set(orders.map((order) => order.status));
     return Array.from(statuses);
   }, [orders]);
 
@@ -23,42 +24,33 @@ const Orders: React.FC = () => {
     const fetchOrders = async () => {
       setLoading(true); // Set loading to true before fetching
       try {
-        const idToken = await getUserIdToken(instance);
-        const apiUrl = process.env.REACT_APP_API_URL;
-        if (!apiUrl) {
-          console.error('API URL is not configured');
-          setLoading(false);
-          return;
-        }
         const userId = getUserId(instance);
         if (!userId) {
           console.error('User ID is not available');
           setLoading(false);
           return;
         }
-        const response = await fetch(`${apiUrl}/orders/user/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${idToken}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
+
+        const response = await axiosInstance.get(`orders/user/${userId}`);
+        const data = response.data;
+
+        if (data) {
           const orderData: Order[] = data.responseObject;
-          const formattedOrders = orderData.map(order => ({
+          const formattedOrders = orderData.map((order) => ({
             id: order.id,
             confirmationNumber: order.confirmationNumber,
-            items: order.items.map(item => ({
+            items: order.items.map((item) => ({
               productId: item.productId,
               thumbnail: item?.thumbnail || 'default-thumbnail.jpg',
               title: item?.title || 'Unknown Title',
-              author: item?.author || 'Unknown Author',
+              author: item?.author || 'Unknown Author'
             })),
             status: order.status,
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
             userId: order.userId || '',
             fullName: order.fullName || '',
-            location: order.location || '',
+            location: order.location || ''
           }));
           setOrders(formattedOrders);
         } else {
@@ -79,7 +71,7 @@ const Orders: React.FC = () => {
     let result = [...orders];
 
     if (statusFilter) {
-      result = result.filter(order => order.status === statusFilter);
+      result = result.filter((order) => order.status === statusFilter);
     }
 
     result.sort((a, b) => {
@@ -94,24 +86,20 @@ const Orders: React.FC = () => {
   if (loading) {
     // Show spinner while loading
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner 
-          size="lg" 
-          color="primary"
-          labelColor="primary"
-        />
+      <div className='flex justify-center items-center min-h-screen'>
+        <Spinner size='lg' color='primary' labelColor='primary' />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <div className='min-h-screen py-8'>
       {filteredAndSortedOrders.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600 dark:text-gray-400">No orders found</p>
+        <div className='text-center py-8'>
+          <p className='text-gray-600 dark:text-gray-400'>No orders found</p>
         </div>
       ) : (
-        <OrderList 
+        <OrderList
           orders={filteredAndSortedOrders}
           statusFilter={statusFilter}
           sortBy={sortBy}
