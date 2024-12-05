@@ -13,12 +13,7 @@ import {
   NavbarContent,
   NavbarItem,
   Button,
-  Switch,
-  Avatar,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownTrigger
+  Switch
 } from '@nextui-org/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CartProvider, useCart } from './context/CartContext';
@@ -37,6 +32,7 @@ import BookDetails from './BookDetails';
 import { useSetAtom } from 'jotai';
 import { userPhotoAtom } from './atoms/userAtom';
 import AdminApprovals from './pages/AdminApprovals';
+import ProfileMenu from './components/ProfileMenu';
 
 const adminRoutes = ['/admin/orders', '/admin/inventory', '/admin/approvals'];
 
@@ -68,7 +64,7 @@ function AppContent() {
         setActiveItem(item);
       }
     }
-  }, [location.pathname]);
+  }, [location.pathname, isAdmin]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -127,16 +123,6 @@ function AppContent() {
     }
   };
 
-  const handleLogout = () => {
-    if (!isInitialized) {
-      console.error('MSAL not initialized');
-      return;
-    }
-    instance.logoutRedirect({
-      postLogoutRedirectUri: window.location.origin
-    });
-  };
-
   const navigateToCart = () => {
     navigate('/cart');
   };
@@ -166,56 +152,6 @@ function AppContent() {
       </div>
     );
   }
-
-  const menuItems = [
-    {
-      key: 'profile',
-      className: 'h-14 gap-2',
-      children: (
-        <>
-          <p className='font-medium text-x text-gray-600 dark:text-gray-400'>
-            Signed in as
-          </p>
-          <p className='font-bold'>{accounts[0]?.name}</p>
-        </>
-      )
-    },
-    {
-      key: 'logout',
-      label: 'Log Out',
-      color: 'danger' as const,
-      onClick: handleLogout
-    }
-  ];
-
-  const ProfileComponent = () => {
-    return (
-      <Dropdown>
-        <DropdownTrigger>
-          <Avatar
-            isBordered
-            as='button'
-            radius='sm'
-            size='sm'
-            src={userPhoto || undefined}
-            name={accounts[0]?.name?.charAt(0)}
-          />
-        </DropdownTrigger>
-        <DropdownMenu aria-label='User menu actions'>
-          {menuItems.map((item) => (
-            <DropdownItem
-              key={item.key}
-              className={item.className}
-              color={item.color}
-              onClick={item.onClick}
-            >
-              {item.children || item.label}
-            </DropdownItem>
-          ))}
-        </DropdownMenu>
-      </Dropdown>
-    );
-  };
 
   const CartComponent = () => {
     return (
@@ -272,7 +208,7 @@ function AppContent() {
 
             <div className='flex sm:hidden items-center gap-2'>
               {!isAdmin && <CartComponent />}
-              <ProfileComponent />
+              <ProfileMenu name={accounts?.[0]?.name} photo={userPhoto} />
             </div>
 
             {/* Desktop Navigation */}
@@ -331,7 +267,7 @@ function AppContent() {
                 </NavbarItem>
               )}
               <NavbarItem>
-                <ProfileComponent />
+                <ProfileMenu name={accounts?.[0]?.name} photo={userPhoto} />
               </NavbarItem>
             </NavbarContent>
           </Navbar>
