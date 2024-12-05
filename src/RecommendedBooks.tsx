@@ -14,6 +14,7 @@ import {
   useDisclosure,
   Button
 } from '@nextui-org/react';
+import { ToastContainer } from 'react-toastify';
 import { SearchIcon } from './icons/SearchIcon';
 import { CartIcon } from './icons/CartIcon';
 import { useMsal } from '@azure/msal-react';
@@ -234,6 +235,7 @@ const RecommendedBooks: React.FC<RecommendedBooksProps> = ({ isAdmin }) => {
 
   return (
     <div className='min-h-screen bg-gray-100 dark:bg-gray-900 py-8'>
+      <ToastContainer />
       <div className='container mx-auto px-4'>
         <div className='mb-12 text-center'>
           <h1 className='text-4xl font-bold mb-4 text-gray-800 dark:text-gray-100'>
