@@ -10,6 +10,7 @@ import { Book } from '../types';
 import axiosInstance from '../utils/api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 interface AddBookModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   const [author, setAuthor] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const previewFile = (file: File) => {
     const reader = new FileReader();
@@ -41,8 +43,10 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   };
 
   const handleAddBook = async () => {
+    setErrorMessage(null); // Reset error message
+
     if (!file || !title || !description || !author) {
-      alert('Please fill in all fields.');
+      setErrorMessage('Please fill in all fields.');
       return;
     }
 
@@ -69,10 +73,13 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
         'Your book is submitted for approval and will appear on the dashboard once approved.'
       );
     } catch (error) {
-      console.error('Error adding book:', error);
-      const message = 'Failed to add the book. Please try again.';
-      alert(message);
-      toast.error(message);
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        setErrorMessage(
+          'The recommended book already exists, please try another book.'
+        );
+      } else {
+        setErrorMessage('Failed to add the book. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -84,6 +91,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
     setDescription('');
     setStocksLeft('');
     setAuthor('');
+    setErrorMessage(null);
   };
 
   return (
@@ -191,6 +199,9 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                     className='hidden'
                   />
                 </div>
+                {errorMessage && (
+                  <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
+                )}
                 <div className='flex justify-end gap-4'>
                   <Button
                     variant='bordered'
