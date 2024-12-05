@@ -103,7 +103,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
           <>
             <ModalHeader className='flex flex-col items-start'>
               <h2 className='text-xl font-bold text-gray-800 dark:text-gray-100 mb-1'>
-                Add New Book
+                {isAdmin ? 'Add New Book' : 'Recommend New Book'}
               </h2>
               <p className='text-sm text-gray-600 dark:text-gray-400'>
                 Fill in the details of the new book.
@@ -212,7 +212,11 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                       'opacity-50'
                     }`}
                   >
-                    {isSubmitting ? 'Submitting...' : 'Add Book'}
+                    {isSubmitting
+                      ? 'Submitting...'
+                      : isAdmin
+                      ? 'Add Book'
+                      : 'Submit'}
                   </Button>
                 </div>
               </div>
