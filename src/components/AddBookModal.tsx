@@ -8,6 +8,8 @@ import {
 } from '@nextui-org/react';
 import { Book } from '../types';
 import axiosInstance from '../utils/api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface AddBookModalProps {
   isOpen: boolean;
@@ -63,9 +65,14 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
 
       clearForm();
       onClose();
+      toast.success(
+        'Your book is submitted for approval and will appear on the dashboard once approved.'
+      );
     } catch (error) {
       console.error('Error adding book:', error);
-      alert('Failed to add the book. Please try again.');
+      const message = 'Failed to add the book. Please try again.';
+      alert(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +103,7 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
           <>
             <ModalHeader className='flex flex-col items-start'>
               <h2 className='text-xl font-bold text-gray-800 dark:text-gray-100 mb-1'>
-                Add New Book
+                {isAdmin ? 'Add New Book' : 'Recommend New Book'}
               </h2>
               <p className='text-sm text-gray-600 dark:text-gray-400'>
                 Fill in the details of the new book.
@@ -205,7 +212,11 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
                       'opacity-50'
                     }`}
                   >
-                    {isSubmitting ? 'Submitting...' : 'Add Book'}
+                    {isSubmitting
+                      ? 'Submitting...'
+                      : isAdmin
+                      ? 'Add Book'
+                      : 'Submit'}
                   </Button>
                 </div>
               </div>
