@@ -8,6 +8,8 @@ import {
 } from '@nextui-org/react';
 import { Book } from '../types';
 import axiosInstance from '../utils/api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface AddBookModalProps {
   isOpen: boolean;
@@ -63,9 +65,14 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
 
       clearForm();
       onClose();
+      toast.success(
+        'Your book is submitted for approval and will appear on the dashboard once approved.'
+      );
     } catch (error) {
       console.error('Error adding book:', error);
-      alert('Failed to add the book. Please try again.');
+      const message = 'Failed to add the book. Please try again.';
+      alert(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
