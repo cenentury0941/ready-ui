@@ -9,7 +9,9 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children
+}) => {
   const [cartItems, setCartItems] = useState<string[]>([]);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const removeFromCart = (id: string) => {
-    setCartItems((prevItems) => prevItems.filter(itemId => itemId !== id));
+    setCartItems((prevItems) => prevItems.filter((itemId) => itemId !== id));
   };
 
   const clearCart = () => {
@@ -44,7 +46,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider
+      value={{ cartItems, addToCart, removeFromCart, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -57,4 +61,3 @@ export const useCart = (): CartContextType => {
   }
   return context;
 };
-
