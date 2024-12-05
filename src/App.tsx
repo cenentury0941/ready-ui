@@ -64,7 +64,7 @@ function AppContent() {
         setActiveItem(item);
       }
     }
-  }, [location.pathname]);
+  }, [location.pathname, isAdmin]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
