@@ -26,20 +26,23 @@ import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import OrderConfirmation from './pages/OrderConfirmation';
 import AdminOrders from './pages/AdminOrders';
-import AdminInventory from './pages/AdminInventory'; // Added import for AdminInventory
+import AdminInventory from './pages/AdminInventory';
 import { fetchUserPhoto } from './utils/authUtils';
 import BookDetails from './BookDetails';
 import { useSetAtom } from 'jotai';
 import { userPhotoAtom } from './atoms/userAtom';
 import AdminApprovals from './pages/AdminApprovals';
 import ProfileMenu from './components/ProfileMenu';
+import { DevAuthProvider } from './components/DevAuthProvider';
 
 const adminRoutes = ['/admin/orders', '/admin/inventory', '/admin/approvals'];
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 function AppContent() {
   const [isDark, setIsDark] = useState(true);
   const { instance, accounts } = useMsal();
-  const isAuthenticated = useIsAuthenticated();
+  const msalIsAuthenticated = useIsAuthenticated();
+  const isAuthenticated = isDevelopment || msalIsAuthenticated;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -51,7 +54,7 @@ function AppContent() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isAdmin = Boolean(
+  const isAdmin = isDevelopment || Boolean(
     isAuthenticated &&
       accounts.length > 0 &&
       accounts?.[0]?.idTokenClaims?.roles?.includes('Admin.Write')
@@ -109,6 +112,12 @@ function AppContent() {
   };
 
   const handleLogin = async () => {
+    if (isDevelopment) {
+      // In development, just set isInitialized to true
+      setIsInitialized(true);
+      return;
+    }
+
     try {
       if (!isInitialized) {
         console.error('MSAL not initialized');
@@ -145,7 +154,7 @@ function AppContent() {
     navigate('/admin/approvals');
   };
 
-  if (!isInitialized) {
+  if (!isInitialized && !isDevelopment) {
     return (
       <div className='min-h-screen flex items-center justify-center bg-gray-900'>
         <p className='text-white text-base'>Authenticating...</p>
@@ -499,6 +508,18 @@ function CartBadge() {
 }
 
 function App() {
+  if (isDevelopment) {
+    return (
+      <NextUIProvider>
+        <CartProvider>
+          <DevAuthProvider>
+            <AppContent />
+          </DevAuthProvider>
+        </CartProvider>
+      </NextUIProvider>
+    );
+  }
+
   return (
     <MsalProvider instance={msalInstance}>
       <NextUIProvider>

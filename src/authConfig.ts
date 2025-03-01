@@ -1,6 +1,28 @@
-import { PublicClientApplication, Configuration, LogLevel } from "@azure/msal-browser";
+import { PublicClientApplication, Configuration, LogLevel, AccountInfo } from "@azure/msal-browser";
 
-const msalConfig: Configuration = {
+// Development mock account
+const devAccount: AccountInfo = {
+  homeAccountId: "dev-account",
+  localAccountId: "dev-local",
+  environment: "dev",
+  tenantId: "dev-tenant",
+  username: "dev@example.com",
+  name: "Development User",
+};
+
+const isDevelopment = process.env.NODE_ENV === "development";
+
+const msalConfig: Configuration = isDevelopment ? {
+  auth: {
+    clientId: 'dev-client-id',
+    authority: 'https://dev.authority.com',
+    redirectUri: 'http://localhost:3002',
+  },
+  cache: {
+    cacheLocation: "localStorage",
+    storeAuthStateInCookie: false,
+  }
+} : {
   auth: {
     clientId: process.env.REACT_APP_AUTH_CLIENT_ID || '', // Replace with your Azure AD app client ID
     authority: process.env.REACT_APP_AUTH_TENANT_ID,
@@ -43,9 +65,14 @@ export const loginRequest = {
 export const msalInstance = new PublicClientApplication(msalConfig);
 
 // Handle initial account setup
-const accounts = msalInstance.getAllAccounts();
-if (accounts.length > 0) {
-  msalInstance.setActiveAccount(accounts[0]);
+if (isDevelopment) {
+  // In development, set the mock account
+  msalInstance.setActiveAccount(devAccount);
+} else {
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) {
+    msalInstance.setActiveAccount(accounts[0]);
+  }
 }
 
 export default msalInstance;

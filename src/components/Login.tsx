@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Card, Image } from "@nextui-org/react";
 import MicrosoftIcon from '../assets/Microsoft-Sign-in-Branding.png';
 
@@ -7,6 +7,13 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  useEffect(() => {
+    // Auto-login in development mode
+    if (process.env.NODE_ENV === 'development') {
+      onLogin();
+    }
+  }, [onLogin]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
       <Card className="p-8 w-full max-w-md">
